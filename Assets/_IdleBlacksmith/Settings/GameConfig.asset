@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 217651d9f23497549b38985356c59e60, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::IdleBlacksmith.Core.GameConfig
+  swordPrice: 10
+  helperCost: 300
+  baseMoveSpeed: 2.3
+  pickupDuration: 0.7
+  depositDuration: 0.35
+  baseCraftDuration: 3.2
+  minCraftDuration: 0.8
+  customerMoveSpeed: 1.8
+  customerLeaveSpeedMultiplier: 1.15
+  minCustomerInterval: 4.5
+  maxCustomerInterval: 9
+  baseRackCapacity: 4
+  expandCosts: fa000000dc050000
+  tierPriceBonus: 0.15
+  tierRackBonus: 2
+  expeditions:
+  - id: goblin_caves
+    displayName: Goblin Caves
+    description: A quick delve for shiny scraps
+    durationSeconds: 120
+    goldReward: 60
+    relicOreReward: 2
+  - id: ember_depths
+    displayName: Ember Depths
+    description: Warm tunnels, richer seams
+    durationSeconds: 480
+    goldReward: 220
+    relicOreReward: 6
+  - id: dragons_hoard
+    displayName: Dragon's Hoard
+    description: A long raid beneath the mountain
+    durationSeconds: 1800
+    goldReward: 900
+    relicOreReward: 15
+  relicOrePriceBonus: 0.05
+  relicOreMaxBonusCount: 40
+  splashArt: {fileID: 21300000, guid: 9e4cad4eb00aaff45bcd3104364fd8b6, type: 3}
+  emblemArt: {fileID: 21300000, guid: b688f4439210e3742bde110863f54a8a, type: 3}
+  dungeonArt: {fileID: 21300000, guid: 6fdfff5213375244fba5b392bb94e80f, type: 3}
+  onboardingArt:
+  - {fileID: 21300000, guid: 55ec4b30b3bf16a45ab353f0e1966a47, type: 3}
+  - {fileID: 21300000, guid: c7af210c92941544392d6ceb0e1ad9d4, type: 3}
+  - {fileID: 21300000, guid: 69239ab0042e55541bfdc0bd399731d5, type: 3}
+  upgrades:
+  - id: craft
+    displayName: Forge Mastery
+    description: Craft swords faster
+    icon: {fileID: 21300000, guid: 58c5a2d5a496ca640a561a037378cd1f, type: 3}
+    maxLevel: 10
+    baseCost: 50
+    costGrowth: 1.8
+  - id: carry
+    displayName: Swift Boots
+    description: Workers move faster
+    icon: {fileID: 21300000, guid: 14a084e6ee1726048857299d5d6d3f08, type: 3}
+    maxLevel: 10
+    baseCost: 45
+    costGrowth: 1.75
+  - id: rack
+    displayName: Weapon Rack
+    description: +2 sword slots per level
+    icon: {fileID: 21300000, guid: dda96750ee5d15d428c8b714eeb326da, type: 3}
+    maxLevel: 6
+    baseCost: 75
+    costGrowth: 2
+  workerPrefab: {fileID: 3444088055970376272, guid: 25182fd6a6fc62348aa8bb3ada4eda28, type: 3}
+  helperPrefab: {fileID: 7304879475038475084, guid: 083b0901ccd174747a41c075f0565afa, type: 3}
+  customerPrefabA: {fileID: 8866417865259600934, guid: 1d08f49f91edf184283cde0f1e58c8bc, type: 3}
+  customerPrefabB: {fileID: 2171777330126920352, guid: 15f74a505191f8340bba110430fe5493, type: 3}
+  swordPrefab: {fileID: 2893191719528542008, guid: 22e3ee917efd8a742a7a90da3fe4207c, type: 3}
+  oreChunkPrefab: {fileID: 1276150202310226839, guid: a1d9016c2feadbd4ebfd9626a66d342b, type: 3}

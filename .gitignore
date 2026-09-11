@@ -1,0 +1,39 @@
+# Unity generated
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# Visual Studio / IDE
+.vs/
+.idea/
+.vscode/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+_Builds/
+.utmp/
+
+# Logs
+*.log
+
+# Secrets (local API keys for the asset-fetch scripts)
+Game Dev Tools.txt
+
+# Local tooling
+_Screenshots/
+Tools/tmp/
