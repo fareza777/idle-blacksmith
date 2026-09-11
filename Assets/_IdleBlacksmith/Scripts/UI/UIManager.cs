@@ -5,8 +5,11 @@ using UnityEngine.UI;
 
 namespace IdleBlacksmith.UI
 {
-    /// <summary>HUD hub: gold counter, upgrade/dungeon panels, mute toggle,
-    /// splash + onboarding flow, floating text pool.</summary>
+    /// <summary>
+    /// HUD hub and screen router. Owns the launch flow (splash -> main menu -> onboarding ->
+    /// game), makes sure only one sheet is open at a time, and routes the Android back button
+    /// to "close the top panel" instead of "quit".
+    /// </summary>
     public class UIManager : MonoBehaviour
     {
         public static UIManager Instance { get; private set; }
@@ -14,23 +17,43 @@ namespace IdleBlacksmith.UI
         [Header("HUD")]
         public GoldCounter goldCounter;
         public TMPro.TMP_Text oreLabel;
-        public BouncyButton upgradesButton;
+        public TMPro.TMP_Text metalOreLabel;
+        public TMPro.TMP_Text metalOreRateLabel;
         public Button muteButton;
         public Image muteIcon;
         public Sprite soundOnSprite;
         public Sprite soundOffSprite;
-        public UpgradePanel upgradePanel;
+
+        [Header("HUD buttons")]
+        public BouncyButton complexButton;
+        public BouncyButton forgeButton;
+        public BouncyButton dungeonButton;
+        public BouncyButton questButton;
+        public BouncyButton menuButton;
+        public GameObject dungeonBadge;
+        public GameObject questBadge;
+        public BouncyButton upgradesButton;
         public PulseLoop upgradesButtonPulse;
 
-        [Header("Dungeon")]
-        public BouncyButton dungeonButton;
+        [Header("Panels")]
+        public ComplexPanel complexPanel;
+        public ForgePanel forgePanel;
         public DungeonPanel dungeonPanel;
-        public GameObject dungeonBadge;
-        public PulseLoop dungeonButtonPulse;
+        public QuestPanel questPanel;
+        public UpgradePanel upgradePanel;
+        public MetaPanel metaPanel;
+        public PrestigePanel prestigePanel;
+        public SettingsPanel settingsPanel;
 
         [Header("Menu flow")]
         public SplashScreen splashScreen;
+        public MainMenuPanel mainMenuPanel;
         public OnboardingPanel onboardingPanel;
+        public WelcomeBackPanel welcomeBackPanel;
+
+        [Header("HUD chrome")]
+        public HudTicker ticker;
+        public CanvasGroup hudGroup;
 
         [Header("Floating text")]
         public RectTransform floatingTextLayer;
@@ -41,6 +64,8 @@ namespace IdleBlacksmith.UI
 
         Camera mainCamera;
         readonly Queue<FloatingText> pool = new Queue<FloatingText>();
+        bool launched;
+        float badgeCheckTimer;
 
         void Awake()
         {
@@ -57,51 +82,209 @@ namespace IdleBlacksmith.UI
                 gm.OnRelicOreChanged += HandleOreChanged;
                 HandleOreChanged(gm.RelicOre);
             }
-            if (upgradePanel != null) upgradePanel.Init();
-            if (dungeonPanel != null) dungeonPanel.Init();
-            if (upgradesButton != null && upgradePanel != null)
-                upgradesButton.onClick.AddListener(() =>
-                {
-                    upgradePanel.Toggle();
-                    if (upgradesButtonPulse != null) upgradesButtonPulse.Stop();
-                });
+            if (gm != null && gm.resources != null)
+            {
+                gm.resources.OnOreChanged += HandleMetalOreChanged;
+                HandleMetalOreChanged(gm.resources.Ore, gm.resources.OreCapacity);
+            }
+
+            WireButtons();
+            InitPanels();
+            RefreshMuteIcon();
+            PrewarmPool();
+            SetDungeonBadge(gm != null && gm.expeditions != null && gm.expeditions.ReadyToClaim);
+
+            if (hudGroup != null) hudGroup.alpha = 0f;
+
+            // Launch flow: splash, then the title screen, then onboarding once.
+            if (splashScreen != null)
+                splashScreen.Play(() => ShowMenu(gm));
+            else
+                ShowMenu(gm);
+        }
+
+        void WireButtons()
+        {
+            if (menuButton != null) menuButton.onClick.AddListener(OpenMenu);
+            if (muteButton != null) muteButton.onClick.AddListener(ToggleMute);
+            if (complexButton != null && complexPanel != null)
+                complexButton.onClick.AddListener(() => OpenExclusive(complexPanel));
+            if (forgeButton != null && forgePanel != null)
+                forgeButton.onClick.AddListener(() => OpenExclusive(forgePanel));
             if (dungeonButton != null && dungeonPanel != null)
                 dungeonButton.onClick.AddListener(() =>
                 {
-                    dungeonPanel.Toggle();
+                    OpenExclusive(dungeonPanel);
                     SetDungeonBadge(false);
                 });
-            if (muteButton != null)
-                muteButton.onClick.AddListener(ToggleMute);
-            RefreshMuteIcon();
-            SetDungeonBadge(gm != null && gm.expeditions != null && gm.expeditions.ReadyToClaim);
-            PrewarmPool();
-
-            // Menu flow: splash first, onboarding (once) right after.
-            if (splashScreen != null)
-                splashScreen.Play(() =>
+            if (questButton != null && questPanel != null)
+                questButton.onClick.AddListener(() => OpenExclusive(questPanel));
+            if (upgradesButton != null && upgradePanel != null)
+                upgradesButton.onClick.AddListener(() =>
                 {
-                    if (gm != null && !gm.HasSeenOnboarding && onboardingPanel != null)
-                        onboardingPanel.Show();
+                    OpenExclusive(upgradePanel);
+                    if (upgradesButtonPulse != null) upgradesButtonPulse.Stop();
                 });
-            else if (gm != null && !gm.HasSeenOnboarding && onboardingPanel != null)
-                onboardingPanel.Show();
         }
 
-        float badgeCheckTimer;
+        void InitPanels()
+        {
+            if (upgradePanel != null) upgradePanel.Init();
+            if (dungeonPanel != null) dungeonPanel.Init();
+            if (complexPanel != null) complexPanel.Init();
+            if (forgePanel != null) forgePanel.Init();
+            if (questPanel != null) questPanel.Init();
+            if (metaPanel != null) metaPanel.Init();
+            if (prestigePanel != null) prestigePanel.Init();
+            if (settingsPanel != null) settingsPanel.Init();
+            if (welcomeBackPanel != null) welcomeBackPanel.Init();
+            if (mainMenuPanel != null)
+            {
+                mainMenuPanel.Init();
+                mainMenuPanel.SettingsRequested += OpenSettings;
+            }
+            if (settingsPanel != null)
+                settingsPanel.MenuRequested += OpenMenu;
+            if (ticker != null) ticker.Init();
+        }
+
+        // ------------------------------------------------------------ launch flow
+
+        void ShowMenu(GameManager gm)
+        {
+            if (mainMenuPanel != null)
+                mainMenuPanel.Show(() => AfterMenu(gm));
+            else
+                AfterMenu(gm);
+        }
+
+        void AfterMenu(GameManager gm)
+        {
+            if (launched) return;
+            launched = true;
+
+            if (hudGroup != null) hudGroup.alpha = 1f;
+
+            if (gm != null && !gm.HasSeenOnboarding && onboardingPanel != null)
+            {
+                onboardingPanel.Show();
+                return;
+            }
+            ShowWelcomeBack(gm);
+        }
+
+        /// <summary>Offline payout sheet, shown once per launch when there is something to collect.</summary>
+        void ShowWelcomeBack(GameManager gm)
+        {
+            if (gm == null || welcomeBackPanel == null) return;
+            welcomeBackPanel.Show(gm.LastOffline);
+        }
+
+        public void OpenMenu()
+        {
+            if (mainMenuPanel == null) return;
+            CloseAllPanels();
+            mainMenuPanel.Show(() => { if (hudGroup != null) hudGroup.alpha = 1f; });
+        }
+
+        void OpenSettings()
+        {
+            if (settingsPanel != null) settingsPanel.Open();
+        }
+
+        // ------------------------------------------------------------ screen routing
+
+        /// <summary>Opens one sheet and closes any other, so panels can never stack.</summary>
+        void OpenExclusive(MonoBehaviour panel)
+        {
+            if (panel == null) return;
+
+            if (panel != complexPanel && complexPanel != null && complexPanel.IsOpen) complexPanel.Close();
+            if (panel != forgePanel && forgePanel != null && forgePanel.IsOpen) forgePanel.Close();
+            if (panel != dungeonPanel && dungeonPanel != null && dungeonPanel.IsOpen) dungeonPanel.Close();
+            if (panel != questPanel && questPanel != null && questPanel.IsOpen) questPanel.Close();
+            if (panel != upgradePanel && upgradePanel != null && upgradePanel.IsOpen) upgradePanel.Close();
+            if (panel != metaPanel && metaPanel != null && metaPanel.IsOpen) metaPanel.Close();
+            if (panel != prestigePanel && prestigePanel != null && prestigePanel.IsOpen) prestigePanel.Close();
+
+            if (panel == complexPanel) complexPanel.Open();
+            else if (panel == forgePanel) forgePanel.Open();
+            else if (panel == dungeonPanel) dungeonPanel.Open();
+            else if (panel == questPanel) questPanel.Open();
+            else if (panel == upgradePanel) upgradePanel.Open();
+        }
+
+        public MetaPanel Meta => metaPanel;
+        public PrestigePanel Prestige => prestigePanel;
+
+        public void OpenMeta(bool stats)
+        {
+            if (metaPanel == null) return;
+            metaPanel.ShowPage(stats);
+            OpenExclusive(metaPanel);
+            metaPanel.Open();
+        }
+
+        public void OpenPrestige()
+        {
+            if (prestigePanel == null) return;
+            OpenExclusive(prestigePanel);
+            prestigePanel.Open();
+        }
+
+        public bool AnyPanelOpen
+        {
+            get
+            {
+                return (complexPanel != null && complexPanel.IsOpen)
+                    || (forgePanel != null && forgePanel.IsOpen)
+                    || (dungeonPanel != null && dungeonPanel.IsOpen)
+                    || (questPanel != null && questPanel.IsOpen)
+                    || (upgradePanel != null && upgradePanel.IsOpen)
+                    || (metaPanel != null && metaPanel.IsOpen)
+                    || (prestigePanel != null && prestigePanel.IsOpen)
+                    || (settingsPanel != null && settingsPanel.IsOpen)
+                    || (welcomeBackPanel != null && welcomeBackPanel.IsOpen)
+                    || (mainMenuPanel != null && mainMenuPanel.IsOpen);
+            }
+        }
+
+        void CloseAllPanels()
+        {
+            if (complexPanel != null && complexPanel.IsOpen) complexPanel.Close();
+            if (forgePanel != null && forgePanel.IsOpen) forgePanel.Close();
+            if (dungeonPanel != null && dungeonPanel.IsOpen) dungeonPanel.Close();
+            if (questPanel != null && questPanel.IsOpen) questPanel.Close();
+            if (upgradePanel != null && upgradePanel.IsOpen) upgradePanel.Close();
+            if (metaPanel != null && metaPanel.IsOpen) metaPanel.Close();
+            if (prestigePanel != null && prestigePanel.IsOpen) prestigePanel.Close();
+            if (settingsPanel != null && settingsPanel.IsOpen) settingsPanel.Close();
+        }
 
         void Update()
         {
-            // The expedition end is wall-clock based, so poll to catch the moment it finishes.
+            // Android back closes the top sheet; only an empty screen quits the app.
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (AnyPanelOpen) CloseAllPanels();
+                else Application.Quit();
+            }
+
             badgeCheckTimer += Time.deltaTime;
             if (badgeCheckTimer >= 0.5f)
             {
                 badgeCheckTimer = 0f;
                 GameManager gm = GameManager.Instance;
                 if (gm != null)
+                {
                     SetDungeonBadge(gm.expeditions != null && gm.expeditions.ReadyToClaim);
+                    if (questBadge != null && gm.quests != null)
+                        questBadge.SetActive(gm.quests.IsComplete);
+                }
             }
         }
+
+        // ------------------------------------------------------------ hud updates
 
         void HandleGoldChanged(int total, int delta)
         {
@@ -115,7 +298,19 @@ namespace IdleBlacksmith.UI
             if (oreLabel != null) oreLabel.text = ore.ToString();
         }
 
-        /// <summary>Red "!" bubble on the dungeon button when an expedition is ready to claim.</summary>
+        void HandleMetalOreChanged(int ore, int capacity)
+        {
+            if (metalOreLabel != null) metalOreLabel.text = ore.ToString();
+            if (metalOreRateLabel != null)
+            {
+                ResourceManager res = GameManager.Instance != null ? GameManager.Instance.resources : null;
+                metalOreRateLabel.text = res != null ? "+" + res.OrePerSecond.ToString("0.#") + "/s" : "";
+                metalOreRateLabel.color = (res != null && res.IsFull)
+                    ? new Color(1f, 0.72f, 0.4f)
+                    : new Color(0.78f, 0.86f, 0.90f);
+            }
+        }
+
         public void SetDungeonBadge(bool on)
         {
             if (dungeonBadge != null && dungeonBadge.activeSelf != on)

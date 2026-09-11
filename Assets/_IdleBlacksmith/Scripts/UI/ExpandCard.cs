@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace IdleBlacksmith.UI
 {
-    /// <summary>One-time-per-tier purchase card: grow the shop into a bigger building.</summary>
+    /// <summary>Purchase card for the next Smithy level. Superseded by the full Complex panel.</summary>
     public class ExpandCard : MonoBehaviour
     {
         public TMP_Text stateLabel;
@@ -17,7 +17,6 @@ namespace IdleBlacksmith.UI
         public CanvasGroup content;
 
         static readonly Color CostBad = new Color(1f, 0.5f, 0.45f);
-        static readonly string[] TierNames = { "Roadside Stall", "Village Smithy", "Grand Forge" };
 
         public void Bind()
         {
@@ -29,6 +28,10 @@ namespace IdleBlacksmith.UI
         {
             GameManager gm = GameManager.Instance;
             if (gm == null) return;
+
+            BuildingDef def = gm.buildings != null ? gm.buildings.Def(BuildingId.Smithy) : null;
+            string name = def != null && !string.IsNullOrEmpty(def.displayName) ? def.displayName : "The Smithy";
+            int level = gm.ShopTier;
             bool maxed = !gm.CanExpand;
 
             if (maxBadge != null) maxBadge.SetActive(maxed);
@@ -36,12 +39,10 @@ namespace IdleBlacksmith.UI
 
             if (stateLabel != null)
                 stateLabel.text = maxed
-                    ? TierNames[GameManager.MaxShopTier - 1] + " — fully grown!"
-                    : $"{TierNames[gm.ShopTier - 1]}  →  {TierNames[gm.ShopTier]}";
+                    ? $"{name} Lv{level} — fully grown!"
+                    : $"{name}  Lv{level}  →  Lv{level + 1}";
             if (perkLabel != null)
-                perkLabel.text = maxed
-                    ? "The finest forge in the realm"
-                    : $"+{gm.config.tierRackBonus} rack slots, +{Mathf.RoundToInt(gm.config.tierPriceBonus * 100f)}% prices";
+                perkLabel.text = maxed ? "The finest forge in the realm" : PerkText(def, level + 1);
 
             if (maxed)
             {
@@ -59,6 +60,15 @@ namespace IdleBlacksmith.UI
             }
             if (expandButton != null) expandButton.interactable = afford;
             if (content != null) content.alpha = afford ? 1f : 0.72f;
+        }
+
+        /// <summary>The perk line for a given level, falling back to the building description.</summary>
+        static string PerkText(BuildingDef def, int level)
+        {
+            if (def != null && def.levelPerks != null && level - 1 >= 0 && level - 1 < def.levelPerks.Length
+                && !string.IsNullOrEmpty(def.levelPerks[level - 1]))
+                return def.levelPerks[level - 1];
+            return def != null ? def.description : "";
         }
 
         void OnExpand()

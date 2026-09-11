@@ -28,7 +28,12 @@ namespace IdleBlacksmith.Gameplay
 
             timer -= Time.deltaTime;
             if (timer > 0f) return;
-            timer = Random.Range(config.minCustomerInterval, config.maxCustomerInterval);
+
+            // The Trading Post and Shop Charm upgrade both shorten the gap between customers.
+            float pace = Production.CustomerIntervalMult;
+            if (GameManager.Instance.upgrades != null)
+                pace *= GameManager.Instance.upgrades.CustomerIntervalMult;
+            timer = Random.Range(config.minCustomerInterval, config.maxCustomerInterval) * Mathf.Max(0.15f, pace);
 
             if (rack.Stock <= 0) return;
             Spawn(rack, config);

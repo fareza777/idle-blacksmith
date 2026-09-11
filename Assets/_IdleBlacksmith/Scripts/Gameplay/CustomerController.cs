@@ -55,14 +55,16 @@ namespace IdleBlacksmith.Gameplay
             if (rack != null) walker.FaceTowards(rack.transform.position);
             yield return new WaitForSeconds(0.35f);
 
-            if (rack != null && rack.TrySellSword(out Vector3 swordPos))
+            if (rack != null && rack.TrySellSword(out SwordItem item, out Vector3 swordPos))
             {
                 if (carriedSwordProp != null) carriedSwordProp.SetActive(true);
                 HappyHop();
 
-                int price = GameManager.Instance.CurrentSwordPrice; // relic ore + shop tier bonuses included
+                int price = GameManager.Instance.PriceOf(item);
                 GameManager.Instance.economy.AddGold(price);
-                UIManager.Instance?.SpawnFloatingText(swordPos + Vector3.up * 0.4f, "+" + price);
+                GameManager.Instance.RegisterSale(item);
+                UIManager.Instance?.SpawnFloatingText(
+                    swordPos + Vector3.up * 0.4f, "+" + price, RarityInfo.TextColor(item.rarity));
                 AudioManager.Play("coin");
                 GameManager.Instance.Save();
                 yield return new WaitForSeconds(0.75f);

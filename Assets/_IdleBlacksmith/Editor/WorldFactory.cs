@@ -15,8 +15,13 @@ namespace IdleBlacksmith.EditorTools
         public const string EnvironmentPrefabT1 = Paths.Prefabs + "/Environment_T1.prefab";
         public const string EnvironmentPrefabT2 = Paths.Prefabs + "/Environment_T2.prefab";
         public const string EnvironmentPrefabT3 = Paths.Prefabs + "/Environment_T3.prefab";
-        /// <summary>Shop growth stages, index 0 = tier 1 (smallest).</summary>
-        public static readonly string[] EnvironmentTierPrefabs = { EnvironmentPrefabT1, EnvironmentPrefabT2, EnvironmentPrefabT3 };
+        public const string EnvironmentPrefabT4 = Paths.Prefabs + "/Environment_T4.prefab";
+        public const string EnvironmentPrefabT5 = Paths.Prefabs + "/Environment_T5.prefab";
+        /// <summary>Smithy growth stages, index 0 = level 1 (smallest).</summary>
+        public static readonly string[] EnvironmentTierPrefabs =
+        {
+            EnvironmentPrefabT1, EnvironmentPrefabT2, EnvironmentPrefabT3, EnvironmentPrefabT4, EnvironmentPrefabT5,
+        };
         public const string CounterPrefab = Paths.Prefabs + "/Counter.prefab";
         public const string BarrelPrefab = Paths.Prefabs + "/Barrel.prefab";
         public const string CratePrefab = Paths.Prefabs + "/Crate.prefab";
@@ -373,17 +378,42 @@ namespace IdleBlacksmith.EditorTools
         /// outward/backward, raise the walls and add awning / windows / banners / lanterns /
         /// denser vegetation.
         /// </summary>
+        /// <summary>
+        /// Footprint of one smithy growth tier. Exposed so the scene builder can hand the same
+        /// numbers to the camera, which cannot measure them itself: the environment is a single
+        /// merged mesh, so its renderer bounds span the 46x46 grass plate as well as the building.
+        /// </summary>
+        public struct TierDims
+        {
+            public float halfWidth;
+            public float frontZ;
+            public float backZ;
+            public float height;
+        }
+
+        public static TierDims EnvironmentDims(int tier)
+        {
+            return new TierDims
+            {
+                halfWidth = 2.5f + 0.7f * (tier - 1),
+                frontZ = -3.5f,
+                backZ = 3.5f + 0.6f * (tier - 1),
+                height = 2.4f + 0.3f * (tier - 1),
+            };
+        }
+
         static void BuildEnvironment()
         {
-            for (int tier = 1; tier <= 3; tier++) BuildEnvironmentTier(tier);
+            for (int tier = 1; tier <= EnvironmentTierPrefabs.Length; tier++) BuildEnvironmentTier(tier);
         }
 
         static void BuildEnvironmentTier(int tier)
         {
-            float halfW = tier == 1 ? 2.5f : tier == 2 ? 3.2f : 3.9f;
-            float backZ = tier == 1 ? 3.5f : tier == 2 ? 4.1f : 4.7f;
+            TierDims d = EnvironmentDims(tier);
+            float halfW = d.halfWidth;
+            float backZ = d.backZ;
             const float frontZ = -3.5f;
-            float tallH = tier == 1 ? 2.4f : tier == 2 ? 2.7f : 3.0f;
+            float tallH = d.height;
             const float lowH = 1.15f;
             float midZ = (frontZ + backZ) * 0.5f;
             float depth = backZ - frontZ;
@@ -401,7 +431,7 @@ namespace IdleBlacksmith.EditorTools
                 new Vector3(2.90f, 0, -4.88f), new Vector3(3.85f, 0, -5.12f), new Vector3(4.90f, 0, -5.38f),
                 new Vector3(6.00f, 0, -5.58f),
             };
-            int stones = tier == 1 ? 4 : tier == 2 ? 6 : 7;
+            int stones = Mathf.Min(7, 3 + tier);
             for (int i = 0; i < stones; i++)
                 b.Cylinder(new Vector3(path[i].x, -0.03f, path[i].z), 0.26f + 0.03f * (i % 2), 0.06f, 7, Palette.PathStone);
 
@@ -412,7 +442,7 @@ namespace IdleBlacksmith.EditorTools
             int tufts = 6 + tier * 6;
             for (int i = 0; i < tufts; i++)
                 Tuft(b, Scatter(rng, halfW, backZ), 0.85f + (float)rng.NextDouble() * 0.7f, i * 3 + tier);
-            int flowers = tier == 1 ? 0 : tier == 2 ? 6 : 11;
+            int flowers = tier <= 1 ? 0 : 3 + tier * 2;
             for (int i = 0; i < flowers; i++)
                 Flower(b, Scatter(rng, halfW, backZ), i + tier);
             Bush(b, new Vector3(-halfW - 1.1f, 0, 1.6f), 1f, 3.3f);
@@ -512,6 +542,44 @@ namespace IdleBlacksmith.EditorTools
                 b.Box(new Vector3(-halfW + 0.05f, tallH - 0.32f, midZ), new Vector3(0.31f, 0.07f, depth), Palette.Gold);
                 StorefrontFlag(b, new Vector3(-0.7f, 0, frontZ - 0.1f));
                 StorefrontFlag(b, new Vector3(2.4f, 0, frontZ - 0.1f));
+            }
+            if (tier >= 4)
+            {
+                // upper storey with a railed gallery over the storefront
+                b.Box(new Vector3(0, tallH + 0.45f, backZ - 0.55f), new Vector3(halfW * 2f, 0.85f, 1.10f), Palette.WallCream);
+                b.Box(new Vector3(0, tallH + 0.92f, backZ - 0.55f), new Vector3(halfW * 2f + 0.3f, 0.12f, 1.30f), Palette.WoodMid);
+                for (int i = 0; i < beams; i++)
+                {
+                    float x = -halfW + (halfW * 2f) * i / (beams - 1);
+                    b.Box(new Vector3(x, tallH + 0.45f, backZ - 1.12f), new Vector3(0.16f, 0.85f, 0.14f), Palette.BeamDark);
+                }
+                b.Box(new Vector3(0, tallH + 0.80f, backZ - 1.14f), new Vector3(halfW * 2f, 0.09f, 0.12f), Palette.WoodMid);
+                // a second window lights up the upper floor
+                b.Box(new Vector3(1.15f, tallH + 0.45f, backZ - 1.16f), new Vector3(0.70f, 0.55f, 0.08f), Palette.BeamDark);
+                b.Box(new Vector3(1.15f, tallH + 0.45f, backZ - 1.19f), new Vector3(0.52f, 0.38f, 0.06f), Palette.Ember, 1);
+                // lantern pair flanking the entrance
+                LanternPost(b, new Vector3(-1.45f, 0, frontZ - 0.85f));
+                LanternPost(b, new Vector3(3.05f, 0, frontZ - 0.85f));
+                Tree(b, new Vector3(-6.4f, 0, 2.4f), 1.1f, 11.2f);
+            }
+            if (tier >= 5)
+            {
+                // the Dragonforge: gilded ridge, banners and a grand gated entrance
+                b.Box(new Vector3(0, tallH + 0.98f, backZ - 0.55f), new Vector3(halfW * 2f + 0.36f, 0.12f, 1.34f), Palette.Gold);
+                b.Box(new Vector3(0, tallH + 0.34f, backZ - 0.06f), new Vector3(halfW * 2f + 0.24f, 0.09f, 0.33f), Palette.Gold);
+                b.Box(new Vector3(-halfW + 0.06f, tallH + 0.34f, midZ), new Vector3(0.33f, 0.09f, depth), Palette.Gold);
+                // twin flag poles proud of the roofline
+                StorefrontFlag(b, new Vector3(-halfW + 0.5f, 0, backZ - 1.3f));
+                StorefrontFlag(b, new Vector3(halfW - 0.5f, 0, backZ - 1.3f));
+                // grand entrance: bigger lintel and stone jambs
+                b.Box(new Vector3(0.3f, 0.95f, frontZ), new Vector3(0.26f, 1.90f, 0.34f), Palette.Stone);
+                b.Box(new Vector3(1.3f, 0.95f, frontZ), new Vector3(0.26f, 1.90f, 0.34f), Palette.Stone);
+                b.Box(new Vector3(0.8f, 2.00f, frontZ), new Vector3(1.65f, 0.26f, 0.40f), Palette.Stone);
+                b.Box(new Vector3(0.8f, 2.18f, frontZ), new Vector3(1.95f, 0.12f, 0.48f), Palette.Gold);
+                // two more lanterns along the front wall
+                LanternPost(b, new Vector3(-halfW + 0.4f, 0, frontZ - 0.7f));
+                LanternPost(b, new Vector3(halfW - 0.4f, 0, frontZ - 0.7f));
+                Tree(b, new Vector3(6.6f, 0, 3.1f), 1.25f, 13.7f);
             }
 
             var root = new GameObject("Environment_T" + tier);

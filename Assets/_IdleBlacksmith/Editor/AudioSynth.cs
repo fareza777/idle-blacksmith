@@ -22,6 +22,16 @@ namespace IdleBlacksmith.EditorTools
             Try("hire", Hire());
             Try("denied", Denied());
             Try("crackle", Crackle());
+            Try("fanfare", Fanfare());
+            Try("mine_pick", MinePick());
+            Try("market_chime", MarketChime());
+            Try("enchant", Enchant());
+            Try("quest_done", QuestDone());
+            Try("achievement", Achievement());
+            Try("prestige", Prestige());
+            Try("unlock", Unlock());
+            Try("levelup", LevelUp());
+            Try("whoosh", Whoosh());
         }
 
         static void Try(string name, float[] samples)
@@ -140,6 +150,120 @@ namespace IdleBlacksmith.EditorTools
                 return bed + pops * 0.6f;
             });
         }
+
+        // ------------------------------------------------------------ content sfx
+
+        static float[] Fanfare() => Render(1.6f, t =>
+        {
+            float[] notes = { 392f, 523.25f, 659.25f, 783.99f, 1046.5f };
+            float sum = 0f;
+            for (int i = 0; i < notes.Length; i++)
+            {
+                float st = i * 0.13f;
+                if (t < st) continue;
+                float lt = t - st;
+                float env = Mathf.Exp(-lt * 3.4f);
+                sum += (Sin(notes[i], lt) + Sin(notes[i] * 2f, lt) * 0.34f + Sin(notes[i] * 3f, lt) * 0.16f) * env;
+            }
+            return sum * 0.3f + Mathf.Sin(2f * Mathf.PI * 4f * t) * Mathf.Exp(-t * 6f) * 0.02f;
+        });
+
+        static float[] MinePick() => Render(0.4f, t =>
+        {
+            float env = Mathf.Exp(-t * 26f);
+            float clink = Sin(1180f, t) * 0.4f + Sin(1760f, t) * 0.24f + Sin(2410f, t) * 0.14f;
+            float thud = Sin(Mathf.Lerp(180f, 84f, Mathf.Clamp01(t * 12f)), t) * 0.5f;
+            float grit = (Mathf.PerlinNoise(t * 5200f, 0.7f) - 0.5f) * 2f * Mathf.Exp(-t * 120f);
+            return (clink * 0.7f + thud) * env + grit * 0.7f;
+        });
+
+        static float[] MarketChime() => Render(0.9f, t =>
+        {
+            float a = Sin(1046.5f, t) * Mathf.Exp(-t * 5f);
+            float b = t >= 0.18f ? Sin(1396.9f, t - 0.18f) * Mathf.Exp(-(t - 0.18f) * 5f) : 0f;
+            float shimmer = Sin(2093f, t) * Mathf.Exp(-t * 11f) * 0.22f;
+            return (a + b) * 0.55f + shimmer;
+        });
+
+        static float[] Enchant() => Render(1.3f, t =>
+        {
+            // two detuned sine sweeps rising a fifth apart
+            float f1 = Mathf.Lerp(300f, 1250f, Mathf.Sqrt(Mathf.Clamp01(t / 1.3f)));
+            float f2 = f1 * 1.5f;
+            float env = Mathf.Sin(Mathf.PI * Mathf.Clamp01(t / 1.3f));
+            float body = Sin(f1, t) * 0.45f + Sin(f2, t) * 0.3f + Sin(f1 * 2.01f, t) * 0.16f;
+            return body * env;
+        });
+
+        static float[] QuestDone() => Render(1.15f, t =>
+        {
+            float[] notes = { 587.33f, 739.99f, 880f, 1174.66f };
+            float sum = 0f;
+            for (int i = 0; i < notes.Length; i++)
+            {
+                float st = i * 0.11f;
+                if (t < st) continue;
+                float lt = t - st;
+                sum += (Sin(notes[i], lt) + Sin(notes[i] * 2f, lt) * 0.28f) * Mathf.Exp(-lt * 5.5f);
+            }
+            return sum * 0.42f;
+        });
+
+        static float[] Achievement() => Render(1.5f, t =>
+        {
+            float[] notes = { 523.25f, 659.25f, 783.99f, 1046.5f, 1318.5f };
+            float sum = 0f;
+            for (int i = 0; i < notes.Length; i++)
+            {
+                float st = i * 0.10f;
+                if (t < st) continue;
+                float lt = t - st;
+                sum += (Sin(notes[i], lt) + Sin(notes[i] * 1.5f, lt) * 0.3f + Sin(notes[i] * 2f, lt) * 0.2f)
+                       * Mathf.Exp(-lt * 3.6f);
+            }
+            return sum * 0.34f;
+        });
+
+        static float[] Prestige() => Render(2.6f, t =>
+        {
+            float ramp = Mathf.Clamp01(t / 2.6f);
+            float f = Mathf.Lerp(160f, 1400f, ramp * ramp);
+            float swell = Mathf.Sin(Mathf.PI * ramp);
+            float chord = Sin(f, t) * 0.4f + Sin(f * 1.5f, t) * 0.3f + Sin(f * 2f, t) * 0.2f + Sin(f * 3f, t) * 0.12f;
+            float air = (Mathf.PerlinNoise(t * 900f, 1.3f) - 0.5f) * 2f * 0.25f * swell;
+            return chord * swell * 0.8f + air;
+        });
+
+        static float[] Unlock() => Render(0.42f, t =>
+        {
+            float click = (Mathf.PerlinNoise(t * 6000f, 2.1f) - 0.5f) * 2f * Mathf.Exp(-t * 90f);
+            float f = Mathf.Lerp(420f, 940f, Mathf.Clamp01(t / 0.42f));
+            float tone = Sin(f, t) * Mathf.Exp(-t * 9f);
+            return click * 0.55f + tone * 0.7f;
+        });
+
+        static float[] LevelUp() => Render(0.95f, t =>
+        {
+            float[] notes = { 659.25f, 830.61f, 987.77f };
+            float sum = 0f;
+            for (int i = 0; i < notes.Length; i++)
+            {
+                float st = i * 0.085f;
+                if (t < st) continue;
+                float lt = t - st;
+                sum += (Sin(notes[i], lt) + Sin(notes[i] * 2f, lt) * 0.25f) * Mathf.Exp(-lt * 8f);
+            }
+            return sum * 0.5f;
+        });
+
+        static float[] Whoosh() => Render(0.55f, t =>
+        {
+            float p = t / 0.55f;
+            float env = Mathf.Sin(Mathf.PI * p);
+            float body = Mathf.PerlinNoise(t * (400f + 2600f * p), 3.7f) - 0.5f;
+            // a little low-end so it reads as movement rather than hiss
+            return body * 2f * env * 0.55f + Sin(Mathf.Lerp(320f, 90f, p), t) * env * 0.16f;
+        });
 
         // ------------------------------------------------------------ WAV IO
 

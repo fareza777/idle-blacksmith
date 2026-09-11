@@ -41,11 +41,15 @@ namespace IdleBlacksmith.UI
             if (coinIcon != null) Tween.PunchScale(coinIcon, Vector3.one * 0.35f, 0.35f);
         }
 
-        public static string Format(int v)
+        public static string Format(int v) => Format((long)v);
+
+        /// <summary>Compact formatter: 12,345 / 12.3K / 1.2M / 3.4B. Lifetime totals need the 64-bit version.</summary>
+        public static string Format(long v)
         {
             if (v < 10000) return v.ToString("N0");
             if (v < 1000000) return (v / 1000f).ToString("0.#") + "K";
-            return (v / 1000000f).ToString("0.#") + "M";
+            if (v < 1000000000L) return (v / 1000000f).ToString("0.#") + "M";
+            return (v / 1000000000f).ToString("0.#") + "B";
         }
     }
 }

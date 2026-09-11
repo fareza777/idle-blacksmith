@@ -225,6 +225,17 @@ namespace IdleBlacksmith.EditorTools
             EditorSettings.enterPlayModeOptions = EnterPlayModeOptions.DisableDomainReload | EnterPlayModeOptions.DisableSceneReload;
 
             int frames = 0, exceptions = 0;
+            // Time.time only advances while the player loop runs, whereas EditorApplication.update
+            // can tick far more often than the game does. Measuring play-mode time is what makes
+            // this test deterministic in batchmode.
+            const float TargetGameSeconds = 15f;
+            const int FrameSafetyCap = 400000;
+            float startTime = -1f;
+            float gameSeconds = 0f;
+            int oreAtStart = -1;
+            bool oreChanged = false;
+            bool oreRatePositive = false;
+            int forgedSeen = 0;
             Application.logMessageReceived += OnLog;
             EditorApplication.update += Tick;
             EditorApplication.EnterPlaymode();
@@ -243,17 +254,75 @@ namespace IdleBlacksmith.EditorTools
             {
                 if (!EditorApplication.isPlaying) return;
                 frames++;
-                if (frames >= 240)
+                if (startTime < 0f) startTime = Time.time;
+                gameSeconds = Time.time - startTime;
+
+                var res = Object.FindFirstObjectByType<IdleBlacksmith.Core.ResourceManager>();
+                if (res != null)
+                {
+                    if (oreAtStart < 0) oreAtStart = res.Ore;
+                    else if (res.Ore != oreAtStart) oreChanged = true;
+                    // The rate is the real contract: the tank may legitimately sit full.
+                    if (res.OrePerSecond > 0f) oreRatePositive = true;
+                }
+
+                var gmNow = IdleBlacksmith.Core.GameManager.Instance;
+                if (gmNow != null && gmNow.Data != null && gmNow.Data.stats != null)
+                    forgedSeen = gmNow.Data.stats.swordsForged;
+
+                if (gameSeconds >= TargetGameSeconds || frames >= FrameSafetyCap)
                 {
                     var gm = IdleBlacksmith.Core.GameManager.Instance;
                     var econ = Object.FindFirstObjectByType<IdleBlacksmith.Core.EconomyManager>();
                     var worker = Object.FindFirstObjectByType<IdleBlacksmith.Gameplay.WorkerController>();
                     var rack = Object.FindFirstObjectByType<IdleBlacksmith.Gameplay.SwordRack>();
-                    Debug.Log($"[Smoke] frames={frames} gm={(gm != null)} econ={(econ != null)} worker={(worker != null)} rack={(rack != null)} exceptions={exceptions}");
+                    var buildings = Object.FindFirstObjectByType<IdleBlacksmith.Core.BuildingManager>();
+                    var recipes = Object.FindFirstObjectByType<IdleBlacksmith.Core.RecipeManager>();
+                    var quests = Object.FindFirstObjectByType<IdleBlacksmith.Core.QuestManager>();
+                    var prestige = Object.FindFirstObjectByType<IdleBlacksmith.Core.PrestigeManager>();
+
+                    // Every gameplay system must be present, the ore economy must be producing,
+                    // and the forge loop must actually turn: ore moves and a sword comes out.
+                    bool ok = gm != null && econ != null && worker != null && rack != null
+                              && buildings != null && recipes != null && quests != null && prestige != null
+                              && oreRatePositive && oreChanged && forgedSeen > 0 && exceptions == 0;
+
+                    int smithyLevel = buildings != null ? buildings.GetLevel(IdleBlacksmith.Core.BuildingId.Smithy) : -1;
+                    int recipesOpen = recipes != null ? recipes.AvailableCount : -1;
+                    int questsClaimed = quests != null ? quests.ClaimedCount : -1;
+                    int questsTotal = quests != null ? quests.TotalCount : -1;
+                    int oreNow = res != null ? res.Ore : -1;
+                    float oreRate = res != null ? res.OrePerSecond : -1f;
+                    int rackStock = rack != null ? rack.Stock : -1;
+
+                    var anvil = Object.FindFirstObjectByType<IdleBlacksmith.Gameplay.AnvilStation>();
+                    var workerNow = Object.FindFirstObjectByType<IdleBlacksmith.Gameplay.WorkerController>();
+                    string craft = anvil != null
+                        ? $"crafting={anvil.IsCrafting} strikes={anvil.HammerStrikes} lastForged={(anvil.LastForged != null)}"
+                        : "anvil=null";
+                    string phase = workerNow != null ? workerNow.Phase : "no-worker";
+                    int oreCap = res != null ? res.OreCapacity : -1;
+                    string prod = $"craftMult={IdleBlacksmith.Core.Production.CraftSpeedMult:0.###} "
+                                + $"priceMult={IdleBlacksmith.Core.Production.PriceMult:0.###} "
+                                + $"oreMult={IdleBlacksmith.Core.Production.OreRateMult:0.###}";
+                    Vector3 wpos = workerNow != null ? workerNow.transform.position : Vector3.zero;
+
+                    Debug.Log($"[Smoke] frames={frames} gameSeconds={gameSeconds:0.#} gm={(gm != null)} econ={(econ != null)} "
+                            + $"worker={(worker != null)} rack={(rack != null)} buildings={(buildings != null)} "
+                            + $"recipes={(recipes != null)} quests={(quests != null)} prestige={(prestige != null)} "
+                            + $"ore={oreAtStart}->{oreNow} rate={oreRate:0.##}/s oreChanged={oreChanged} "
+                            + $"forged={forgedSeen} smithy={smithyLevel} recipesOpen={recipesOpen} rackStock={rackStock} "
+                            + $"questsDone={questsClaimed}/{questsTotal} exceptions={exceptions}");
+                    Debug.Log($"[Smoke] {craft} phase={phase} oreCap={oreCap} {prod} workerPos={wpos}");
+
+                    if (!oreRatePositive) Debug.LogWarning("[Smoke] ore production rate is zero");
+                    if (!oreChanged) Debug.LogWarning("[Smoke] ore never moved during the run");
+                    if (forgedSeen <= 0) Debug.LogWarning("[Smoke] no sword was forged during the run");
+
                     Application.logMessageReceived -= OnLog;
                     EditorApplication.update -= Tick;
                     EditorApplication.ExitPlaymode();
-                    EditorApplication.Exit(exceptions == 0 ? 0 : 1);
+                    EditorApplication.Exit(ok ? 0 : 1);
                 }
             }
         }

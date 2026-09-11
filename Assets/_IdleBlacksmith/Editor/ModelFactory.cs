@@ -44,9 +44,11 @@ namespace IdleBlacksmith.EditorTools
         {
             LoadMaterials();
             BuildItems();
+            BuildRecipeSwords();
             BuildCharacters();
             BuildStations();
             BuildEnvironment();
+            BuildBuildings();
             AssetDatabase.SaveAssets();
         }
 

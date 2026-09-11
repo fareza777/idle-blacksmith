@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2493583231326751674
+--- !u!1 &2426274649055759504
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,12 +8,12 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8614656525989755562}
-  - component: {fileID: 4077095466326707146}
-  - component: {fileID: 3859655614705952679}
-  - component: {fileID: 1399633955150101014}
-  - component: {fileID: 2264912185859938103}
-  - component: {fileID: 9026102086733919986}
+  - component: {fileID: 1671375295887704300}
+  - component: {fileID: 1354232186472909242}
+  - component: {fileID: 4206389687248136674}
+  - component: {fileID: 2079877146756443270}
+  - component: {fileID: 8560592159077230516}
+  - component: {fileID: 129294691434380981}
   m_Layer: 0
   m_Name: UI_FloatingText
   m_TagString: Untagged
@@ -21,13 +21,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &8614656525989755562
+--- !u!224 &1671375295887704300
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2493583231326751674}
+  m_GameObject: {fileID: 2426274649055759504}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -40,33 +40,33 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 240, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!225 &4077095466326707146
+--- !u!225 &1354232186472909242
 CanvasGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2493583231326751674}
+  m_GameObject: {fileID: 2426274649055759504}
   m_Enabled: 1
   m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!222 &3859655614705952679
+--- !u!222 &4206389687248136674
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2493583231326751674}
+  m_GameObject: {fileID: 2426274649055759504}
   m_CullTransparentMesh: 1
---- !u!114 &1399633955150101014
+--- !u!114 &2079877146756443270
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2493583231326751674}
+  m_GameObject: {fileID: 2426274649055759504}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
@@ -152,13 +152,13 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &2264912185859938103
+--- !u!114 &8560592159077230516
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2493583231326751674}
+  m_GameObject: {fileID: 2426274649055759504}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
@@ -167,16 +167,16 @@ MonoBehaviour:
   m_EffectColor: {r: 0.36, g: 0.25, b: 0.15, a: 0.9}
   m_EffectDistance: {x: 1.5, y: -1.5}
   m_UseGraphicAlpha: 1
---- !u!114 &9026102086733919986
+--- !u!114 &129294691434380981
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2493583231326751674}
+  m_GameObject: {fileID: 2426274649055759504}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e47486541fb382c40baf0b0d8c37ce27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IdleBlacksmith.UI.FloatingText
-  label: {fileID: 1399633955150101014}
+  label: {fileID: 2079877146756443270}

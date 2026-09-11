@@ -20,7 +20,7 @@ namespace IdleBlacksmith.EditorTools
     /// relic ore pills, bottom bar (Upgrades / Dungeon), bottom-sheet panels, splash screen,
     /// onboarding, world-space bars, plus the UpgradeRow / DungeonRow / FloatingText prefabs.
     /// </summary>
-    public static class UiBuilder
+    public static partial class UiBuilder
     {
         static readonly Color Brown = Hex(0x6B4127);
         static readonly Color Secondary = Hex(0xA98B6C);
@@ -53,6 +53,11 @@ namespace IdleBlacksmith.EditorTools
             GameObject floatingTextPrefab = BuildFloatingTextPrefab();
             GameObject upgradeRowPrefab = BuildUpgradeRowPrefab();
             GameObject dungeonRowPrefab = BuildDungeonRowPrefab();
+            GameObject buildingRowPrefab = BuildBuildingRowPrefab();
+            GameObject runeRowPrefab = BuildRuneRowPrefab();
+            GameObject recipeCardPrefab = BuildRecipeCardPrefab();
+            GameObject achRowPrefab = BuildAchRowPrefab();
+            GameObject talentRowPrefab = BuildTalentRowPrefab();
 
             // ------------------------------------------------ canvas
             var canvasGo = new GameObject("UI", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
@@ -84,8 +89,20 @@ namespace IdleBlacksmith.EditorTools
             goldCounter.label = goldLabel;
             goldCounter.coinIcon = coinIcon;
 
-            // Relic ore pill (below gold)
-            var orePill = Box("OrePill", hud, new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -128), new Vector2(240, 68));
+            // Metal ore pill (below gold) — the resource every forge spends.
+            var metalPill = Box("MetalOrePill", hud, new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -128), new Vector2(250, 72));
+            var metalImg = metalPill.gameObject.AddComponent<Image>();
+            metalImg.sprite = pill; metalImg.type = Image.Type.Sliced; metalImg.color = new Color(0.34f, 0.27f, 0.22f, 0.94f);
+            SoftShadow(metalPill.gameObject);
+            var metalIconGo = Box("Icon", metalPill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(12, 0), new Vector2(50, 50));
+            Img(metalIconGo.gameObject, AssetFactory.LoadIcon("ore"), Color.white).raycastTarget = false;
+            var metalLabelGo = Box("Label", metalPill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(68, 0), new Vector2(100, 50));
+            var metalOreLabel = Txt(metalLabelGo, "0", 38, Color.white, TextAlignmentOptions.Left, titleFont);
+            var metalPerSecGo = Box("Rate", metalPill, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-14, 0), new Vector2(86, 46));
+            var metalRateLabel = Txt(metalPerSecGo, "+0/s", 24, new Color(0.78f, 0.86f, 0.90f), TextAlignmentOptions.Right, bodyFont);
+
+            // Relic ore pill (dungeon currency, below metal ore)
+            var orePill = Box("OrePill", hud, new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -210), new Vector2(250, 68));
             var oreImg = orePill.gameObject.AddComponent<Image>();
             oreImg.sprite = pill; oreImg.type = Image.Type.Sliced; oreImg.color = new Color(0.18f, 0.32f, 0.36f, 0.94f);
             SoftShadow(orePill.gameObject);
@@ -94,60 +111,53 @@ namespace IdleBlacksmith.EditorTools
             var oreLabelGo = Box("Label", orePill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(68, 0), new Vector2(150, 48));
             var oreLabel = Txt(oreLabelGo, "0", 36, OreText, TextAlignmentOptions.Left, titleFont);
 
-            // Mute button (top-right)
-            var muteGo = Box("MuteButton", hud, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-24, -22), new Vector2(84, 84));
-            var muteBtn = muteGo.gameObject.AddComponent<BouncyButton>();
-            var muteImg = muteGo.gameObject.AddComponent<Image>();
-            muteImg.sprite = circle; muteImg.type = Image.Type.Sliced; muteImg.color = Cream;
-            muteBtn.targetGraphic = muteImg;
-            SoftShadow(muteGo.gameObject);
-            var muteIconGo = Box("Icon", muteGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(52, 52));
-            var muteIcon = Img(muteIconGo.gameObject, AssetFactory.LoadIcon("sound_on"), Color.white);
-            muteIcon.raycastTarget = false;
+            // ---------------- top-right rail: menu, upgrades, achievements, prestige, mute
+            var railGo = Box("TopRail", hud, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-24, -22), new Vector2(84, 460));
+            var rail = railGo.gameObject.AddComponent<VerticalLayoutGroup>();
+            rail.spacing = 14;
+            rail.childAlignment = TextAnchor.UpperRight;
+            rail.childControlWidth = false;
+            rail.childControlHeight = false;
+            rail.childForceExpandWidth = false;
+            rail.childForceExpandHeight = false;
 
-            // Title badge (top-center, below the pill row)
-            var titleBadge = Box("TitleBadge", hud, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -126), new Vector2(430, 66));
-            var titleImg = titleBadge.gameObject.AddComponent<Image>();
-            titleImg.sprite = pill; titleImg.type = Image.Type.Sliced;
-            titleImg.color = new Color(0.98f, 0.95f, 0.89f, 0.92f);
-            SoftShadow(titleBadge.gameObject);
-            var logoGo = Box("Logo", titleBadge, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(10, 0), new Vector2(50, 50));
-            Img(logoGo.gameObject, AssetFactory.LoadMenuArt("emblem"), Color.white).raycastTarget = false;
-            var titleTextGo = Box("Text", titleBadge, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-10, 0), new Vector2(352, 48));
-            Txt(titleTextGo, "Idle Blacksmith RPG", 36, Brown, TextAlignmentOptions.Right, titleFont);
+            BouncyButton menuBtn = RailButton(railGo, "MenuButton", "settings", Cream, out Image _);
+            BouncyButton upBtn = RailButton(railGo, "UpgradesButton", "craft", Orange, out _);
+            BouncyButton achBtn = RailButton(railGo, "AchievementsButton", "trophy", Hex(0xC99638), out _);
+            BouncyButton prestBtn = RailButton(railGo, "PrestigeButton", "ember", Hex(0xD95F4E), out _);
+            BouncyButton muteBtn = RailButton(railGo, "MuteButton", "sound_on", Cream, out Image muteIcon);
 
-            // ---------------- bottom bar: Upgrades + Dungeon
-            var upGo = Box("UpgradesButton", hud, new Vector2(0, 0), new Vector2(0, 0), new Vector2(24, 28), new Vector2(500, 112));
-            var upBtn = upGo.gameObject.AddComponent<BouncyButton>();
-            var upImg = upGo.gameObject.AddComponent<Image>();
-            upImg.sprite = pill; upImg.type = Image.Type.Sliced; upImg.color = Orange;
-            upBtn.targetGraphic = upImg;
-            SetButtonColors(upBtn);
-            SoftShadow(upGo.gameObject, -5f, 0.35f);
-            var upPulse = upGo.gameObject.AddComponent<PulseLoop>();
-            var upIcon = Box("Icon", upGo, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(26, 0), new Vector2(70, 70));
-            Img(upIcon.gameObject, AssetFactory.LoadIcon("craft"), Color.white).raycastTarget = false;
-            var upLabelGo = Box("Label", upGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(30, 0), new Vector2(300, 64));
-            Txt(upLabelGo, "UPGRADES", 46, Color.white, TextAlignmentOptions.Center, titleFont);
+            // ---------------- bottom bar: Complex / Forge / Dungeon / Quest
+            BouncyButton complexBtn = BarButton(hud, "ComplexButton", "complex", Hex(0xF2994A), 0, out _);
+            BouncyButton forgeBtn = BarButton(hud, "ForgeButton", "craft", Hex(0xDF7F47), 1, out _);
+            BouncyButton dgBtn = BarButton(hud, "DungeonButton", "dungeon", Teal, 2, out _);
+            BouncyButton questBtn = BarButton(hud, "QuestButton", "scroll", Green, 3, out _);
 
-            var dgGo = Box("DungeonButton", hud, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-24, 28), new Vector2(500, 112));
-            var dgBtn = dgGo.gameObject.AddComponent<BouncyButton>();
-            var dgImg = dgGo.gameObject.AddComponent<Image>();
-            dgImg.sprite = pill; dgImg.type = Image.Type.Sliced; dgImg.color = Teal;
-            dgBtn.targetGraphic = dgImg;
-            SetButtonColors(dgBtn);
-            SoftShadow(dgGo.gameObject, -5f, 0.35f);
-            var dgIcon = Box("Icon", dgGo, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(26, 0), new Vector2(70, 70));
-            Img(dgIcon.gameObject, AssetFactory.LoadIcon("dungeon"), Color.white).raycastTarget = false;
-            var dgLabelGo = Box("Label", dgGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(30, 0), new Vector2(300, 64));
-            Txt(dgLabelGo, "DUNGEON", 46, Color.white, TextAlignmentOptions.Center, titleFont);
-            // claim-ready badge
-            var badgeGo = Box("Badge", dgGo, new Vector2(1, 1), new Vector2(1, 1), new Vector2(6, 6), new Vector2(52, 52));
+            // claim-ready badge on the dungeon button
+            var badgeGo = Box("Badge", dgBtn.transform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(6, 6), new Vector2(52, 52));
             var badgeImg = badgeGo.gameObject.AddComponent<Image>();
             badgeImg.sprite = circle; badgeImg.type = Image.Type.Sliced; badgeImg.color = Hex(0xE25B4E);
             var badgeTxtGo = Box("Mark", badgeGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(44, 44));
             Txt(badgeTxtGo, "!", 34, Color.white, TextAlignmentOptions.Center, titleFont);
             badgeGo.gameObject.SetActive(false);
+
+            // quest-complete badge on the quest button
+            var qBadgeGo = Box("Badge", questBtn.transform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(6, 6), new Vector2(52, 52));
+            var qBadgeImg = qBadgeGo.gameObject.AddComponent<Image>();
+            qBadgeImg.sprite = circle; qBadgeImg.type = Image.Type.Sliced; qBadgeImg.color = Hex(0xF2C14E);
+            var qBadgeTxtGo = Box("Mark", qBadgeGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(44, 44));
+            Txt(qBadgeTxtGo, "✓", 30, Brown, TextAlignmentOptions.Center, titleFont);
+            qBadgeGo.gameObject.SetActive(false);
+
+            var titleBadge = Box("TitleBadge", hud, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -128), new Vector2(430, 62));
+            var titleImg = titleBadge.gameObject.AddComponent<Image>();
+            titleImg.sprite = pill; titleImg.type = Image.Type.Sliced;
+            titleImg.color = new Color(0.98f, 0.95f, 0.89f, 0.92f);
+            SoftShadow(titleBadge.gameObject);
+            var logoGo = Box("Logo", titleBadge, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(10, 0), new Vector2(48, 48));
+            Img(logoGo.gameObject, AssetFactory.LoadMenuArt("emblem"), Color.white).raycastTarget = false;
+            var titleTextGo = Box("Text", titleBadge, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-10, 0), new Vector2(352, 46));
+            Txt(titleTextGo, "Idle Blacksmith RPG", 34, Brown, TextAlignmentOptions.Right, titleFont);
 
             // Floating text layer
             var ftLayer = StretchBox("FloatingTextLayer", safeArea);
@@ -158,8 +168,17 @@ namespace IdleBlacksmith.EditorTools
             // ------------------------------------------------ panels
             var panel = BuildUpgradePanel(canvasGo.transform, upgradeRowPrefab);
             var dungeonPanel = BuildDungeonPanel(canvasGo.transform, dungeonRowPrefab);
+            var complexPanel = BuildComplexPanel(canvasGo.transform, buildingRowPrefab, runeRowPrefab);
+            var forgePanel = BuildForgePanel(canvasGo.transform, recipeCardPrefab);
+            var questPanel = BuildQuestPanel(canvasGo.transform);
+            var metaPanel = BuildMetaPanel(canvasGo.transform, achRowPrefab);
+            var prestigePanel = BuildPrestigePanel(canvasGo.transform, talentRowPrefab);
+            var settingsPanel = BuildSettingsPanel(canvasGo.transform);
+            var welcomeBack = BuildWelcomeBack(canvasGo.transform);
+            var mainMenu = BuildMainMenu(canvasGo.transform);
             var onboarding = BuildOnboarding(canvasGo.transform);
             var splash = BuildSplash(canvasGo.transform);
+            var ticker = BuildTicker(hud, questPanel);
 
             // ------------------------------------------------ world bars
             refs.anvilBar = BuildAnvilBar(anvilStation, new Vector3(0, 1.55f, 0), "AnvilBar");
@@ -170,22 +189,94 @@ namespace IdleBlacksmith.EditorTools
             var ui = canvasGo.AddComponent<UIManager>();
             ui.goldCounter = goldCounter;
             ui.oreLabel = oreLabel;
-            ui.upgradesButton = upBtn;
+            ui.metalOreLabel = metalOreLabel;
+            ui.metalOreRateLabel = metalRateLabel;
             ui.muteButton = muteBtn;
             ui.muteIcon = muteIcon;
             ui.soundOnSprite = AssetFactory.LoadIcon("sound_on");
             ui.soundOffSprite = AssetFactory.LoadIcon("sound_off");
+            ui.upgradesButton = upBtn;
             ui.upgradePanel = panel;
-            ui.upgradesButtonPulse = upPulse;
             ui.dungeonButton = dgBtn;
             ui.dungeonPanel = dungeonPanel;
             ui.dungeonBadge = badgeGo.gameObject;
+            ui.complexButton = complexBtn;
+            ui.complexPanel = complexPanel;
+            ui.forgeButton = forgeBtn;
+            ui.forgePanel = forgePanel;
+            ui.questButton = questBtn;
+            ui.questPanel = questPanel;
+            ui.questBadge = qBadgeGo.gameObject;
+            ui.menuButton = menuBtn;
+            ui.metaPanel = metaPanel;
+            ui.prestigePanel = prestigePanel;
+            ui.settingsPanel = settingsPanel;
+            ui.welcomeBackPanel = welcomeBack;
+            ui.mainMenuPanel = mainMenu;
+            ui.ticker = ticker;
+            ui.hudGroup = hud.gameObject.AddComponent<CanvasGroup>();
             ui.splashScreen = splash;
             ui.onboardingPanel = onboarding;
             ui.floatingTextLayer = ftLayer;
             ui.floatingTextPrefab = floatingTextPrefab.GetComponent<FloatingText>();
+
+            // Secondary entry points: achievements and prestige are reached from the top rail,
+            // so they go through the same exclusive-open path as the bottom-bar sheets.
+            achBtn.onClick.AddListener(() => ui.OpenMeta(false));
+            prestBtn.onClick.AddListener(() => ui.OpenPrestige());
+            if (questPanel.achievementsButton != null)
+            {
+                var qa = questPanel.achievementsButton.GetComponent<BouncyButton>();
+                if (qa != null) qa.onClick.AddListener(() => ui.OpenMeta(false));
+            }
+
             refs.uiManager = ui;
             return refs;
+        }
+
+        // ------------------------------------------------------------ hud buttons
+
+        /// <summary>One round button in the top-right rail (menu / upgrades / achievements / prestige / mute).</summary>
+        static BouncyButton RailButton(RectTransform rail, string name, string icon, Color tint, out Image iconImage)
+        {
+            var go = Box(name, rail, new Vector2(1, 1), new Vector2(1, 1), Vector2.zero, new Vector2(80, 80));
+            var btn = go.gameObject.AddComponent<BouncyButton>();
+            var img = go.gameObject.AddComponent<Image>();
+            img.sprite = circle; img.type = Image.Type.Sliced; img.color = tint;
+            btn.targetGraphic = img;
+            SetButtonColors(btn);
+            SoftShadow(go.gameObject, -3f, 0.3f);
+            var le = go.gameObject.AddComponent<LayoutElement>();
+            le.preferredWidth = 80; le.preferredHeight = 80;
+
+            var iconGo = Box("Icon", go, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(50, 50));
+            iconImage = Img(iconGo.gameObject, AssetFactory.LoadIcon(icon), Color.white);
+            iconImage.raycastTarget = false;
+            return btn;
+        }
+
+        /// <summary>One of the four wide buttons along the bottom bar.</summary>
+        static BouncyButton BarButton(RectTransform hud, string name, string icon, Color tint, int index, out TMP_Text label)
+        {
+            const float margin = 18f;
+            const float gap = 12f;
+            float width = (1080f - margin * 2f - gap * 3f) / 4f;
+            float x = margin + index * (width + gap);
+
+            var go = Box(name, hud, new Vector2(0, 0), new Vector2(0, 0), new Vector2(x, 26), new Vector2(width, 118));
+            var btn = go.gameObject.AddComponent<BouncyButton>();
+            var img = go.gameObject.AddComponent<Image>();
+            img.sprite = pill; img.type = Image.Type.Sliced; img.color = tint;
+            btn.targetGraphic = img;
+            SetButtonColors(btn);
+            SoftShadow(go.gameObject, -5f, 0.35f);
+
+            var iconGo = Box("Icon", go, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -12), new Vector2(52, 52));
+            Img(iconGo.gameObject, AssetFactory.LoadIcon(icon), Color.white).raycastTarget = false;
+
+            var labelGo = Box("Label", go, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 10), new Vector2(width - 8f, 40));
+            label = Txt(labelGo, name.Replace("Button", "").ToUpperInvariant(), 24, Color.white, TextAlignmentOptions.Center, titleFont);
+            return btn;
         }
 
         // ------------------------------------------------------------ upgrade panel
@@ -378,10 +469,8 @@ namespace IdleBlacksmith.EditorTools
             var artGo = StretchBox("Art", artMaskGo);
             var art = artGo.gameObject.AddComponent<Image>();
             art.sprite = AssetFactory.LoadMenuArt("dungeon_bg");
-            art.preserveAspect = false;
             art.raycastTarget = false;
-            var fitter = artGo.gameObject.AddComponent<AspectRatioFitter>();
-            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            CoverFitter(artGo, art, 21f / 9f);
             // dim the bottom of the art so the title reads
             var dimGo = Box("Dim", artMaskGo, new Vector2(0.5f, 0), new Vector2(0.5f, 0), Vector2.zero, new Vector2(976, 120));
             var dimImg = dimGo.gameObject.AddComponent<Image>();
@@ -456,8 +545,7 @@ namespace IdleBlacksmith.EditorTools
             var artImg = artGo.gameObject.AddComponent<Image>();
             artImg.sprite = AssetFactory.LoadMenuArt("splash");
             artImg.raycastTarget = false;
-            var fitter = artGo.gameObject.AddComponent<AspectRatioFitter>();
-            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            CoverFitter(artGo, artImg, 9f / 16f);
 
             // soft dark gradient strip at the bottom for the title block
             var shadeGo = Box("Shade", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), Vector2.zero, new Vector2(1080, 620));
@@ -504,7 +592,7 @@ namespace IdleBlacksmith.EditorTools
             dimImg.color = new Color(0.10f, 0.07f, 0.04f, 0.78f);
             dimImg.raycastTarget = true;
 
-            var card = Box("Card", root, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(940, 1420));
+            var card = Box("Card", root, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(940, 1300));
             var cardImg = card.gameObject.AddComponent<Image>();
             cardImg.sprite = rounded; cardImg.type = Image.Type.Sliced; cardImg.color = Cream;
             SoftShadow(card.gameObject, -8f, 0.45f);
@@ -517,10 +605,8 @@ namespace IdleBlacksmith.EditorTools
             mask.showMaskGraphic = true;
             var artGo = StretchBox("Art", artMaskGo);
             var artImg = artGo.gameObject.AddComponent<Image>();
-            artImg.preserveAspect = false;
             artImg.raycastTarget = false;
-            var fitter = artGo.gameObject.AddComponent<AspectRatioFitter>();
-            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            var artFitter = CoverFitter(artGo, artImg, 3f / 2f);
 
             var titleGo = Box("Title", card, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -672), new Vector2(860, 64));
             var titleLabel = Txt(titleGo, "Welcome!", 50, Brown, TextAlignmentOptions.Center, titleFont);
@@ -528,14 +614,14 @@ namespace IdleBlacksmith.EditorTools
             var bodyLabel = Txt(bodyGo, "...", 30, Secondary, TextAlignmentOptions.Center, bodyFont, true);
 
             // dots
-            var dotsGo = Box("Dots", card, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 330), new Vector2(200, 40));
+            var dotsGo = Box("Dots", card, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 258), new Vector2(300, 40));
             var hlg = dotsGo.gameObject.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 18;
             hlg.childAlignment = TextAnchor.MiddleCenter;
             hlg.childControlWidth = false;
             hlg.childControlHeight = false;
-            var dots = new Image[3];
-            for (int i = 0; i < 3; i++)
+            var dots = new Image[5];
+            for (int i = 0; i < dots.Length; i++)
             {
                 var dotGo = Box("Dot" + i, dotsGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(26, 26));
                 var dotImg = dotGo.gameObject.AddComponent<Image>();
@@ -547,7 +633,7 @@ namespace IdleBlacksmith.EditorTools
             }
 
             // next button
-            var nextGo = Box("NextButton", card, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 110), new Vector2(440, 104));
+            var nextGo = Box("NextButton", card, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 100), new Vector2(440, 104));
             var nextBtn = nextGo.gameObject.AddComponent<BouncyButton>();
             var nextImg = nextGo.gameObject.AddComponent<Image>();
             nextImg.sprite = pill; nextImg.type = Image.Type.Sliced; nextImg.color = Orange;
@@ -571,6 +657,7 @@ namespace IdleBlacksmith.EditorTools
             ob.group = cg;
             ob.card = card;
             ob.artImage = artImg;
+            ob.artFitter = artFitter;
             ob.titleLabel = titleLabel;
             ob.bodyLabel = bodyLabel;
             ob.dots = dots;
@@ -581,21 +668,38 @@ namespace IdleBlacksmith.EditorTools
             {
                 new OnboardingPanel.Page
                 {
-                    art = AssetFactory.LoadMenuArt("onboard_forge"),
+                    art = LoadPageArt("page_forge", "onboard_forge"),
                     title = "Forge Legendary Swords",
-                    body = "Mine ore, hammer it on the anvil and stock the rack. Your smiths keep working while you relax.",
+                    body = "Miners dig ore, your smith hammers it on the anvil, and the rack fills up with swords. "
+                         + "Every blade rolls its own quality — from Common all the way to Legendary.",
                 },
                 new OnboardingPanel.Page
                 {
-                    art = AssetFactory.LoadMenuArt("onboard_shop"),
+                    art = LoadPageArt("page_mine", "onboard_forge"),
+                    title = "Feed the Forge",
+                    body = "Ore is the fuel of the whole workshop. Raise the Ore Mine so the pile keeps growing, "
+                         + "even while the app is closed.",
+                },
+                new OnboardingPanel.Page
+                {
+                    art = LoadPageArt("page_market", "onboard_shop"),
                     title = "Sell at the Counter",
-                    body = "Customers stop at your counter to buy. Earn gold, hire a helper, and expand your tiny stall into a Grand Forge.",
+                    body = "Customers walk the path and buy the best sword on your rack — better quality, better pay. "
+                         + "Gold buys upgrades, and upgrades buy better swords.",
                 },
                 new OnboardingPanel.Page
                 {
-                    art = AssetFactory.LoadMenuArt("onboard_dungeon"),
-                    title = "Raid Idle Dungeons",
-                    body = "Send adventurers on expeditions — they return with relic ore that makes every sword worth more gold. Even while you're away!",
+                    art = LoadPageArt("page_dungeon", "onboard_dungeon"),
+                    title = "Raid the Dungeons",
+                    body = "Send adventurers through the Dungeon Gate. They return with gold and relic ore, "
+                         + "and the run finishes even while you are away.",
+                },
+                new OnboardingPanel.Page
+                {
+                    art = LoadPageArt("page_prestige", "onboard_dungeon"),
+                    title = "Rekindle the Forge",
+                    body = "When the complex is running at full tilt, burn the run for ember shards. "
+                         + "Talents are permanent, so every rekindle makes the next forge stronger.",
                 },
             };
             root.gameObject.SetActive(false);
@@ -959,6 +1063,10 @@ namespace IdleBlacksmith.EditorTools
         static Sprite LoadSprite(string name)
             => AssetDatabase.LoadAssetAtPath<Sprite>($"{Paths.UiSprites}/{name}.png");
 
+        /// <summary>Prefers a purpose-made onboarding page, falling back to an older piece of art.</summary>
+        static Sprite LoadPageArt(string preferred, string fallback)
+            => AssetFactory.LoadMenuArt(preferred) ?? AssetFactory.LoadMenuArt(fallback);
+
         static RectTransform Box(string name, Transform parent, Vector2 anchor, Vector2 pivot, Vector2 pos, Vector2 size)
         {
             var go = new GameObject(name, typeof(RectTransform));
@@ -983,6 +1091,28 @@ namespace IdleBlacksmith.EditorTools
             rt.offsetMax = Vector2.zero;
             return rt;
         }
+
+        /// <summary>
+        /// Cover-fit an art Image inside a masked box: the rect is driven to the sprite's
+        /// own aspect ratio and the parent Mask crops the overflow, so the art is never
+        /// stretched. The ratio must be assigned BEFORE the mode — AddComponent runs
+        /// OnEnable/UpdateRect right away, and with the default AspectMode.None the editor
+        /// branch writes the *container's* ratio into the serialized field, which
+        /// EnvelopeParent would then use.
+        /// </summary>
+        static AspectRatioFitter CoverFitter(RectTransform rt, Image img, float fallbackAspect = 1f)
+        {
+            img.preserveAspect = false;
+            var fitter = rt.gameObject.AddComponent<AspectRatioFitter>();
+            Sprite s = img.sprite;
+            fitter.aspectRatio = (s != null && s.rect.height > 0.01f) ? s.rect.width / s.rect.height : fallbackAspect;
+            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            return fitter;
+        }
+
+        /// <summary>Sprite aspect ratio, or the fallback when the sprite is missing/empty.</summary>
+        static float AspectOf(Sprite s, float fallback = 1f)
+            => (s != null && s.rect.height > 0.01f) ? s.rect.width / s.rect.height : fallback;
 
         static Image Img(GameObject go, Sprite sprite, Color color)
         {

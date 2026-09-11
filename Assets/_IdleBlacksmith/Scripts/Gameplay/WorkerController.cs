@@ -32,8 +32,10 @@ namespace IdleBlacksmith.Gameplay
 
         GameObject carriedOre;
         GameObject carriedSword;
+        SwordItem carriedItem;
         Vector3 baseModelScale = Vector3.one;
         bool announcedFullRack;
+        bool announcedNoOre;
 
         void Awake()
         {
@@ -52,6 +54,12 @@ namespace IdleBlacksmith.Gameplay
             lane = laneIndex;
             initialized = true;
         }
+
+        /// <summary>
+        /// Which step of the work loop the smith is on. Purely diagnostic — the smoke test reads
+        /// it to tell a stall apart from a slow loop.
+        /// </summary>
+        public string Phase { get; private set; } = "starting";
 
         void Start()
         {
@@ -80,32 +88,60 @@ namespace IdleBlacksmith.Gameplay
                 }
 
                 GameConfig config = GameManager.Instance.config;
+                ResourceManager resources = GameManager.Instance.resources;
                 float moveSpeed = GameManager.Instance.upgrades.MoveSpeed(config);
 
-                // 1. Walk to the ore pile and pick up a chunk.
+                // 1. Walk to the ore pile; wait there until there is ore to smelt.
+                Phase = "walk-to-pile";
                 yield return walker.MoveTo(orePile.GetPickupPoint(lane), moveSpeed);
+                Phase = "at-pile";
                 walker.FaceTowards(orePile.transform.position);
+
+                int oreCost = GameManager.Instance.ActiveOreCost;
+                if (resources != null && !resources.TryConsume(oreCost))
+                {
+                    Phase = "waiting-for-ore";
+                    if (!announcedNoOre)
+                    {
+                        announcedNoOre = true;
+                        UIManager.Instance?.SpawnFloatingText(
+                            orePile.transform.position + Vector3.up * 1.3f, "No ore!",
+                            new Color(1f, 0.62f, 0.3f));
+                    }
+                    // The base prospecting rate is always positive, so this always clears.
+                    while (!resources.TryConsume(oreCost)) yield return null;
+                }
+                announcedNoOre = false;
+
+                Phase = "pickup";
                 yield return SquashWait(config.pickupDuration);
                 carriedOre = orePile.TakeOre(handAnchor);
 
                 // 2. Walk to the anvil and hammer the sword.
+                Phase = "walk-to-anvil";
                 yield return walker.MoveTo(anvil.GetWorkPoint(lane), moveSpeed);
+                Phase = "at-anvil";
                 walker.FaceTowards(anvil.transform.position);
                 if (carriedOre != null) { Destroy(carriedOre); carriedOre = null; }
 
-                float craftDuration = GameManager.Instance.upgrades.CraftDuration(config);
+                float craftDuration = GameManager.Instance.upgrades.CraftDuration(config, GameManager.Instance.ActiveRecipe);
+                Phase = $"crafting({craftDuration:0.##}s)";
                 anim.SetBool(HammerHash, true);
                 bool done = false;
-                anvil.BeginCraft(craftDuration, () => done = true);
+                anvil.BeginCraft(craftDuration, GameManager.Instance.ActiveRecipe, () => done = true);
                 while (!done) yield return null;
                 anim.SetBool(HammerHash, false);
+                Phase = "forged";
 
                 carriedSword = anvil.TakeForgedSword(handAnchor);
+                carriedItem = anvil.LastForged;
+                AnnounceRarity(carriedItem, anvil.transform.position);
                 anim.SetBool(CarryHash, true);
 
                 // 3. Carry the sword to the rack; wait politely if it's full.
                 if (rack.IsFull)
                 {
+                    Phase = "rack-full";
                     if (!announcedFullRack)
                     {
                         announcedFullRack = true;
@@ -118,14 +154,34 @@ namespace IdleBlacksmith.Gameplay
                 }
                 announcedFullRack = false;
 
+                Phase = "walk-to-rack";
                 yield return walker.MoveTo(rack.GetDepositPoint(lane), moveSpeed);
                 walker.FaceTowards(rack.transform.position);
                 yield return new WaitForSeconds(config.depositDuration);
 
                 if (carriedSword != null) { Destroy(carriedSword); carriedSword = null; }
-                rack.DepositSword();
+                rack.DepositSword(carriedItem);
+                carriedItem = null;
                 anim.SetBool(CarryHash, false);
             }
+        }
+
+        /// <summary>
+        /// Records the forge in the stats and celebrates anything better than Common, so the
+        /// player notices when a Rare or Legendary drops.
+        /// </summary>
+        void AnnounceRarity(SwordItem item, Vector3 anvilPos)
+        {
+            GameManager gm = GameManager.Instance;
+            if (item == null || gm == null) return;
+            gm.RegisterForged(item);
+            if (item.rarity < Rarity.Uncommon) return;
+
+            UIManager.Instance?.SpawnFloatingText(
+                anvilPos + Vector3.up * 1.95f,
+                RarityInfo.NameOf(item.rarity) + "!",
+                RarityInfo.TextColor(item.rarity));
+            AudioManager.Play(item.rarity >= Rarity.Epic ? "achievement" : "levelup", 0.05f, 0.65f);
         }
 
         IEnumerator SquashWait(float seconds)

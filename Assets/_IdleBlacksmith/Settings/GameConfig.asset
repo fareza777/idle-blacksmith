@@ -14,6 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IdleBlacksmith.Core.GameConfig
   swordPrice: 10
   helperCost: 300
+  baseOrePerSecond: 0.45
+  baseOreCapacity: 40
+  offlineRate: 0.5
+  offlineCapHours: 8
+  offlineGoldPerBuildingLevel: 1.2
   baseMoveSpeed: 2.3
   pickupDuration: 0.7
   depositDuration: 0.35
@@ -24,9 +29,6 @@ MonoBehaviour:
   minCustomerInterval: 4.5
   maxCustomerInterval: 9
   baseRackCapacity: 4
-  expandCosts: fa000000dc050000
-  tierPriceBonus: 0.15
-  tierRackBonus: 2
   expeditions:
   - id: goblin_caves
     displayName: Goblin Caves
@@ -34,20 +36,40 @@ MonoBehaviour:
     durationSeconds: 120
     goldReward: 60
     relicOreReward: 2
+    requiredGateLevel: 1
   - id: ember_depths
     displayName: Ember Depths
     description: Warm tunnels, richer seams
     durationSeconds: 480
     goldReward: 220
     relicOreReward: 6
+    requiredGateLevel: 2
   - id: dragons_hoard
     displayName: Dragon's Hoard
     description: A long raid beneath the mountain
     durationSeconds: 1800
     goldReward: 900
     relicOreReward: 15
+    requiredGateLevel: 3
+  - id: frozen_deep
+    displayName: The Frozen Deep
+    description: Ice-bound halls where old kings sleep
+    durationSeconds: 3600
+    goldReward: 2600
+    relicOreReward: 30
+    requiredGateLevel: 4
+  - id: abyssal_throne
+    displayName: Abyssal Throne
+    description: The bottom of the world. Few return, all return rich
+    durationSeconds: 7200
+    goldReward: 8000
+    relicOreReward: 70
+    requiredGateLevel: 5
   relicOrePriceBonus: 0.05
   relicOreMaxBonusCount: 40
+  prestigeGoldDivisor: 5000
+  prestigeShardScale: 6
+  prestigeExponent: 0.6
   splashArt: {fileID: 21300000, guid: 9e4cad4eb00aaff45bcd3104364fd8b6, type: 3}
   emblemArt: {fileID: 21300000, guid: b688f4439210e3742bde110863f54a8a, type: 3}
   dungeonArt: {fileID: 21300000, guid: 6fdfff5213375244fba5b392bb94e80f, type: 3}
@@ -77,9 +99,829 @@ MonoBehaviour:
     maxLevel: 6
     baseCost: 75
     costGrowth: 2
-  workerPrefab: {fileID: 3444088055970376272, guid: 25182fd6a6fc62348aa8bb3ada4eda28, type: 3}
-  helperPrefab: {fileID: 7304879475038475084, guid: 083b0901ccd174747a41c075f0565afa, type: 3}
-  customerPrefabA: {fileID: 8866417865259600934, guid: 1d08f49f91edf184283cde0f1e58c8bc, type: 3}
-  customerPrefabB: {fileID: 2171777330126920352, guid: 15f74a505191f8340bba110430fe5493, type: 3}
-  swordPrefab: {fileID: 2893191719528542008, guid: 22e3ee917efd8a742a7a90da3fe4207c, type: 3}
-  oreChunkPrefab: {fileID: 1276150202310226839, guid: a1d9016c2feadbd4ebfd9626a66d342b, type: 3}
+  - id: orecap
+    displayName: Ore Store
+    description: Hold more ore so the forge never stalls
+    icon: {fileID: 21300000, guid: baf67803e280dec44a1975a6e3425f61, type: 3}
+    maxLevel: 8
+    baseCost: 60
+    costGrowth: 1.9
+  - id: luck
+    displayName: Lucky Anvil
+    description: Better odds of forging rare swords
+    icon: {fileID: 21300000, guid: b2f6a7c67844c79449db6e1197b31e44, type: 3}
+    maxLevel: 8
+    baseCost: 150
+    costGrowth: 2.05
+  - id: charm
+    displayName: Shop Charm
+    description: Customers arrive more often
+    icon: {fileID: 21300000, guid: 65f5718ca2f088147a0f218ec5a051d4, type: 3}
+    maxLevel: 8
+    baseCost: 120
+    costGrowth: 2
+  buildings:
+  - id: smithy
+    displayName: The Smithy
+    description: Your forge. Each level widens the shop, adds rack space and raises
+      every price.
+    icon: {fileID: 21300000, guid: 818ecf373ef105d4e802402039b274c7, type: 3}
+    startLevel: 1
+    maxLevel: 5
+    levelCosts: fa000000dc050000401f0000409c0000
+    levelPerks:
+    - "Roadside Stall \u2014 +2 rack, +15% prices"
+    - "Village Smithy \u2014 +2 rack, +15%, Iron"
+    - "Grand Forge \u2014 +2 rack, +15%, Steel"
+    - "Mithril Works \u2014 +2 rack, +15%, Mithril"
+    - "Dragonforge \u2014 +2 rack, +15%, Dragonsteel"
+    priceBonus: 0.15
+    rackBonus: 2
+    orePerSecond: 0
+    oreCapacity: 0
+    customerIntervalCut: 0
+    expeditionSlots: 0
+    dungeonRewardBonus: 0
+    runeLevelsPerTier: 0
+    runeCostCut: 0
+  - id: mine
+    displayName: Ore Mine
+    description: Miners feed the forge while you are away. No ore, no swords.
+    icon: {fileID: 21300000, guid: d02bc3fc5b2b2f9498c56ff89798c274, type: 3}
+    startLevel: 0
+    maxLevel: 5
+    levelCosts: b40000008403000068100000204e0000905f0100
+    levelPerks:
+    - "Prospector's Dig \u2014 +0.6 ore/s"
+    - "Timbered Shaft \u2014 +0.6 ore/s, +25 ore storage"
+    - "Deep Seam \u2014 +0.6 ore/s, +25 storage, Silver unlocked"
+    - "Crystal Vein \u2014 +0.6 ore/s, +25 storage, Mithril unlocked"
+    - "Rich Core \u2014 +0.6 ore/s, +25 storage, Dragonsteel unlocked"
+    priceBonus: 0
+    rackBonus: 0
+    orePerSecond: 0.6
+    oreCapacity: 25
+    customerIntervalCut: 0
+    expeditionSlots: 0
+    dungeonRewardBonus: 0
+    runeLevelsPerTier: 0
+    runeCostCut: 0
+  - id: market
+    displayName: Trading Post
+    description: A busy storefront pulls in more customers and better offers.
+    icon: {fileID: 21300000, guid: 65f5718ca2f088147a0f218ec5a051d4, type: 3}
+    startLevel: 0
+    maxLevel: 5
+    levelCosts: dc0000004c0400005014000090650000b0ad0100
+    levelPerks:
+    - "Market Stall \u2014 customers arrive 7% faster"
+    - "Open Front \u2014 14% faster, +6% prices"
+    - "Trade Sign \u2014 21% faster, +12% prices"
+    - "Merchant Guild \u2014 28% faster, +18% prices"
+    - "Grand Bazaar \u2014 35% faster, +24% prices"
+    priceBonus: 0.06
+    rackBonus: 0
+    orePerSecond: 0
+    oreCapacity: 0
+    customerIntervalCut: 0.07
+    expeditionSlots: 0
+    dungeonRewardBonus: 0
+    runeLevelsPerTier: 0
+    runeCostCut: 0
+  - id: gate
+    displayName: Dungeon Gate
+    description: Opens the way below. Higher levels send more parties and pay better.
+    icon: {fileID: 21300000, guid: 3f49287ce5233fc468b2ad66b7ff3805, type: 3}
+    startLevel: 0
+    maxLevel: 5
+    levelCosts: 9001000098080000f82a0000d8d6000080a90300
+    levelPerks:
+    - "Sealed Arch \u2014 adventurers can delve"
+    - "Warded Gate \u2014 +1 expedition at a time"
+    - "Deep Passage \u2014 +1 expedition, +15% rewards"
+    - "Rift Mouth \u2014 +1 expedition, +30% rewards"
+    - "Abyssal Gate \u2014 +1 expedition, +45% rewards"
+    priceBonus: 0
+    rackBonus: 0
+    orePerSecond: 0
+    oreCapacity: 0
+    customerIntervalCut: 0
+    expeditionSlots: 1
+    dungeonRewardBonus: 0.15
+    runeLevelsPerTier: 0
+    runeCostCut: 0
+  - id: sanctum
+    displayName: Enchanter's Sanctum
+    description: Spend relic ore on runes that sharpen every part of the forge.
+    icon: {fileID: 21300000, guid: 570918d128aeebf4285a6360c01fa9ae, type: 3}
+    startLevel: 0
+    maxLevel: 5
+    levelCosts: 8403000088130000c05d0000c0d4010020a10700
+    levelPerks:
+    - "Rune Circle \u2014 runes up to level 4"
+    - "Stone Altar \u2014 runes up to level 8, costs -8%"
+    - "Crystal Font \u2014 runes up to level 12, costs -16%"
+    - "Astral Chamber \u2014 runes up to level 16, costs -24%"
+    - "Worldheart \u2014 runes up to level 20, costs -32%"
+    priceBonus: 0
+    rackBonus: 0
+    orePerSecond: 0
+    oreCapacity: 0
+    customerIntervalCut: 0
+    expeditionSlots: 0
+    dungeonRewardBonus: 0
+    runeLevelsPerTier: 4
+    runeCostCut: 0.08
+  recipes:
+  - id: copper
+    displayName: Copper Blade
+    description: Cheap, quick and always in demand.
+    icon: {fileID: 21300000, guid: 44d7742f8bc450d4a985810f9c04e49d, type: 3}
+    oreCost: 1
+    baseValue: 10
+    craftDuration: 3.2
+    requiredSmithyLevel: 1
+    requiredMineLevel: 0
+    swordPrefab: {fileID: 3904159096346708307, guid: cffa8cc058209234ea17542312f4c5b7, type: 3}
+    bladeColor: 40
+  - id: iron
+    displayName: Iron Sword
+    description: A soldier's honest blade.
+    icon: {fileID: 21300000, guid: 67a4a84059e5a114b9b0f6f99c510e48, type: 3}
+    oreCost: 2
+    baseValue: 26
+    craftDuration: 4
+    requiredSmithyLevel: 2
+    requiredMineLevel: 0
+    swordPrefab: {fileID: 3361545050183286364, guid: 720d77cb1d8f7a848bb28bbd78e4ad46, type: 3}
+    bladeColor: 40
+  - id: steel
+    displayName: Steel Sabre
+    description: Folded steel, keen and bright.
+    icon: {fileID: 21300000, guid: d0f962bb84523bb4d9c3b94b4ae3dda8, type: 3}
+    oreCost: 4
+    baseValue: 70
+    craftDuration: 5
+    requiredSmithyLevel: 3
+    requiredMineLevel: 0
+    swordPrefab: {fileID: 1075462511075482850, guid: 552ff5c26808b234abca3f255fc20749, type: 3}
+    bladeColor: 40
+  - id: silver
+    displayName: Silver Edge
+    description: Bites deep into things that haunt the dark.
+    icon: {fileID: 21300000, guid: c468069c2e5b42842ba123963ede3060, type: 3}
+    oreCost: 7
+    baseValue: 190
+    craftDuration: 6
+    requiredSmithyLevel: 3
+    requiredMineLevel: 2
+    swordPrefab: {fileID: 6674409238896764202, guid: ec1749fbdc24daf4a8777b3072f212a7, type: 3}
+    bladeColor: 40
+  - id: mithril
+    displayName: Mithril Longsword
+    description: Light as air, hard as dawn.
+    icon: {fileID: 21300000, guid: 9b0b7c20713ad234ba91f4ad5d9c4db2, type: 3}
+    oreCost: 12
+    baseValue: 520
+    craftDuration: 7.5
+    requiredSmithyLevel: 4
+    requiredMineLevel: 3
+    swordPrefab: {fileID: 3606616223245686817, guid: 45adde9f1f19d594481c12a7ef930410, type: 3}
+    bladeColor: 40
+  - id: dragonsteel
+    displayName: Dragonsteel Greatsword
+    description: Quenched in dragonfire. Nothing survives it.
+    icon: {fileID: 21300000, guid: db83ced98bdf11f46acf4a03e8c47d7c, type: 3}
+    oreCost: 20
+    baseValue: 1500
+    craftDuration: 9
+    requiredSmithyLevel: 5
+    requiredMineLevel: 4
+    swordPrefab: {fileID: 9070354558213152864, guid: ac64d29a15ee56d4c8720e1ddbd6a01c, type: 3}
+    bladeColor: 40
+  runes:
+  - id: rune_flame
+    displayName: Rune of Flame
+    description: +6% to every sword price per level
+    icon: {fileID: 21300000, guid: fe2949c599b7dd347a6fbe1f6ed0f774, type: 3}
+    baseMaxLevel: 20
+    baseCost: 8
+    costGrowth: 1.55
+    effectPerLevel: 0.06
+  - id: rune_haste
+    displayName: Rune of Haste
+    description: -3% forging time per level
+    icon: {fileID: 21300000, guid: 58c5a2d5a496ca640a561a037378cd1f, type: 3}
+    baseMaxLevel: 20
+    baseCost: 10
+    costGrowth: 1.6
+    effectPerLevel: 0.03
+  - id: rune_fortune
+    displayName: Rune of Fortune
+    description: +1 luck per level, tilting the odds toward rare swords
+    icon: {fileID: 21300000, guid: b2f6a7c67844c79449db6e1197b31e44, type: 3}
+    baseMaxLevel: 20
+    baseCost: 14
+    costGrowth: 1.65
+    effectPerLevel: 1
+  - id: rune_wealth
+    displayName: Rune of Wealth
+    description: +10% ore mined per level
+    icon: {fileID: 21300000, guid: baf67803e280dec44a1975a6e3425f61, type: 3}
+    baseMaxLevel: 20
+    baseCost: 9
+    costGrowth: 1.55
+    effectPerLevel: 0.1
+  talents:
+  - id: ember_heat
+    displayName: Ember Heat
+    description: +10% gold from every sale
+    icon: {fileID: 21300000, guid: b51935894df4bdd48a41f46b40830b25, type: 3}
+    kind: 0
+    maxLevel: 5
+    baseCost: 1
+    costGrowth: 2
+    effectPerLevel: 0.1
+  - id: deep_veins
+    displayName: Deep Veins
+    description: +15% ore mined
+    icon: {fileID: 21300000, guid: d02bc3fc5b2b2f9498c56ff89798c274, type: 3}
+    kind: 1
+    maxLevel: 5
+    baseCost: 1
+    costGrowth: 2
+    effectPerLevel: 0.15
+  - id: quick_hands
+    displayName: Quick Hands
+    description: -5% forging time
+    icon: {fileID: 21300000, guid: 58c5a2d5a496ca640a561a037378cd1f, type: 3}
+    kind: 2
+    maxLevel: 5
+    baseCost: 2
+    costGrowth: 2.1
+    effectPerLevel: 0.05
+  - id: silver_tongue
+    displayName: Silver Tongue
+    description: +8% to every sword price
+    icon: {fileID: 21300000, guid: c468069c2e5b42842ba123963ede3060, type: 3}
+    kind: 3
+    maxLevel: 5
+    baseCost: 2
+    costGrowth: 2.1
+    effectPerLevel: 0.08
+  - id: lucky_strike
+    displayName: Lucky Strike
+    description: +1.5 luck on every forge
+    icon: {fileID: 21300000, guid: b2f6a7c67844c79449db6e1197b31e44, type: 3}
+    kind: 4
+    maxLevel: 5
+    baseCost: 3
+    costGrowth: 2.2
+    effectPerLevel: 1.5
+  - id: night_shift
+    displayName: Night Shift
+    description: +7% offline production rate
+    icon: {fileID: 21300000, guid: d02a07a161bc92f478fbdebb926fc8c3, type: 3}
+    kind: 5
+    maxLevel: 5
+    baseCost: 3
+    costGrowth: 2.2
+    effectPerLevel: 0.07
+  - id: master_merchant
+    displayName: Master Merchant
+    description: +10% customer frequency
+    icon: {fileID: 21300000, guid: 65f5718ca2f088147a0f218ec5a051d4, type: 3}
+    kind: 6
+    maxLevel: 5
+    baseCost: 2
+    costGrowth: 2
+    effectPerLevel: 0.1
+  - id: rich_veins
+    displayName: Rich Veins
+    description: +20 ore storage
+    icon: {fileID: 21300000, guid: baf67803e280dec44a1975a6e3425f61, type: 3}
+    kind: 7
+    maxLevel: 5
+    baseCost: 2
+    costGrowth: 2
+    effectPerLevel: 20
+  - id: guild_contacts
+    displayName: Guild Contacts
+    description: -8% expedition duration
+    icon: {fileID: 21300000, guid: 3f49287ce5233fc468b2ad66b7ff3805, type: 3}
+    kind: 8
+    maxLevel: 5
+    baseCost: 3
+    costGrowth: 2.1
+    effectPerLevel: 0.08
+  - id: rune_mastery
+    displayName: Rune Mastery
+    description: +12% to every rune effect
+    icon: {fileID: 21300000, guid: fe2949c599b7dd347a6fbe1f6ed0f774, type: 3}
+    kind: 9
+    maxLevel: 5
+    baseCost: 4
+    costGrowth: 2.3
+    effectPerLevel: 0.12
+  quests:
+  - id: q_forge5
+    title: Fire and Iron
+    body: Hammer out five swords. The anvil bar shows how far along you are.
+    goal: 0
+    targetId: 
+    target: 5
+    goldReward: 60
+    oreReward: 5
+    relicReward: 0
+    shardReward: 0
+  - id: q_sell5
+    title: Open for Business
+    body: Your smith stocks the rack; customers walking the path buy from it.
+    goal: 1
+    targetId: 
+    target: 5
+    goldReward: 80
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
+  - id: q_earn250
+    title: First Purse
+    body: Pile up 250 gold from sales.
+    goal: 2
+    targetId: 
+    target: 250
+    goldReward: 100
+    oreReward: 10
+    relicReward: 0
+    shardReward: 0
+  - id: q_mine1
+    title: Dig Deeper
+    body: Build the Ore Mine so the forge never runs dry while you are away.
+    goal: 5
+    targetId: mine
+    target: 1
+    goldReward: 150
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
+  - id: q_ore60
+    title: Stockpile
+    body: Hold 60 ore at once. Upgrade Ore Store if the pile keeps filling.
+    goal: 4
+    targetId: 
+    target: 60
+    goldReward: 120
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
+  - id: q_forge25
+    title: Production Line
+    body: Twenty-five swords forged. The rack is the bottleneck, not the hammer.
+    goal: 0
+    targetId: 
+    target: 25
+    goldReward: 200
+    oreReward: 20
+    relicReward: 0
+    shardReward: 0
+  - id: q_smithy2
+    title: Room to Grow
+    body: Grow the Smithy to level 2 and watch the shop widen.
+    goal: 5
+    targetId: smithy
+    target: 2
+    goldReward: 250
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
+  - id: q_iron
+    title: Better Metal
+    body: "Unlock the Iron Sword recipe \u2014 the Smithy's second level opens it."
+    goal: 6
+    targetId: 
+    target: 2
+    goldReward: 200
+    oreReward: 15
+    relicReward: 0
+    shardReward: 0
+  - id: q_helper
+    title: An Extra Pair of Hands
+    body: Hire the apprentice and let two smiths share the work.
+    goal: 8
+    targetId: 
+    target: 1
+    goldReward: 200
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
+  - id: q_gate1
+    title: The Way Down
+    body: Build the Dungeon Gate. Expeditions pay out even while the app is closed.
+    goal: 5
+    targetId: gate
+    target: 1
+    goldReward: 300
+    oreReward: 25
+    relicReward: 0
+    shardReward: 0
+  - id: q_exped1
+    title: First Blood
+    body: Send a party through the gate and claim what they bring back.
+    goal: 7
+    targetId: 
+    target: 1
+    goldReward: 300
+    oreReward: 0
+    relicReward: 5
+    shardReward: 0
+  - id: q_smithy3
+    title: The Grand Forge
+    body: Grow the Smithy to level 3.
+    goal: 5
+    targetId: smithy
+    target: 3
+    goldReward: 600
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
+  - id: q_forge100
+    title: A Hundred Blades
+    body: Forge one hundred swords.
+    goal: 0
+    targetId: 
+    target: 100
+    goldReward: 800
+    oreReward: 40
+    relicReward: 0
+    shardReward: 0
+  - id: q_market1
+    title: Word of Mouth
+    body: Open the Trading Post to pull in more customers.
+    goal: 5
+    targetId: market
+    target: 1
+    goldReward: 700
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
+  - id: q_mine2
+    title: Timbered Shaft
+    body: Take the mine to level 2 for more ore and more storage.
+    goal: 5
+    targetId: mine
+    target: 2
+    goldReward: 800
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
+  - id: q_silver
+    title: Silver and Steel
+    body: Unlock four recipes. Silver needs a deeper mine than the rest.
+    goal: 6
+    targetId: 
+    target: 4
+    goldReward: 1200
+    oreReward: 0
+    relicReward: 10
+    shardReward: 0
+  - id: q_gate2
+    title: Two Parties
+    body: Upgrade the gate so two expeditions run at the same time.
+    goal: 5
+    targetId: gate
+    target: 2
+    goldReward: 1500
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
+  - id: q_runes3
+    title: Enchanted
+    body: "Raise three rune levels at the Sanctum \u2014 relic ore is for spending,
+      not hoarding."
+    goal: 10
+    targetId: 
+    target: 3
+    goldReward: 1500
+    oreReward: 0
+    relicReward: 15
+    shardReward: 0
+  - id: q_forge250
+    title: Master Smith
+    body: Forge two hundred and fifty swords.
+    goal: 0
+    targetId: 
+    target: 250
+    goldReward: 4000
+    oreReward: 100
+    relicReward: 0
+    shardReward: 0
+  - id: q_sanctum1
+    title: The Enchanter Arrives
+    body: Build the Enchanter's Sanctum.
+    goal: 5
+    targetId: sanctum
+    target: 1
+    goldReward: 5000
+    oreReward: 0
+    relicReward: 25
+    shardReward: 0
+  - id: q_smithy4
+    title: Mithril Works
+    body: Grow the Smithy to level 4 and unlock mithril.
+    goal: 5
+    targetId: smithy
+    target: 4
+    goldReward: 8000
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
+  - id: q_rare
+    title: Something Rare
+    body: Forge a Rare sword. Luck, the Sanctum and the Lucky Anvil all help.
+    goal: 11
+    targetId: 
+    target: 2
+    goldReward: 6000
+    oreReward: 0
+    relicReward: 0
+    shardReward: 1
+  - id: q_forge500
+    title: Five Hundred
+    body: Forge five hundred swords.
+    goal: 0
+    targetId: 
+    target: 500
+    goldReward: 12000
+    oreReward: 0
+    relicReward: 0
+    shardReward: 2
+  - id: q_prestige
+    title: Rekindle the Forge
+    body: Burn this run for ember shards and start again, permanently stronger.
+    goal: 9
+    targetId: 
+    target: 1
+    goldReward: 0
+    oreReward: 0
+    relicReward: 0
+    shardReward: 5
+  - id: q_smithy5
+    title: Dragonforge
+    body: Take the Smithy all the way to level 5.
+    goal: 5
+    targetId: smithy
+    target: 5
+    goldReward: 20000
+    oreReward: 0
+    relicReward: 0
+    shardReward: 5
+  - id: q_legendary
+    title: Legend of the Forge
+    body: Forge a Legendary sword.
+    goal: 11
+    targetId: 
+    target: 4
+    goldReward: 0
+    oreReward: 0
+    relicReward: 0
+    shardReward: 12
+  - id: q_forge2000
+    title: The Endless Anvil
+    body: Two thousand swords. The forge never sleeps.
+    goal: 0
+    targetId: 
+    target: 2000
+    goldReward: 0
+    oreReward: 0
+    relicReward: 0
+    shardReward: 30
+  achievements:
+  - id: a_first_sword
+    displayName: First Strike
+    description: Forge your first sword
+    icon: {fileID: 21300000, guid: 58c5a2d5a496ca640a561a037378cd1f, type: 3}
+    goal: 0
+    targetId: 
+    target: 1
+    bonusKind: 0
+    bonus: 0.02
+  - id: a_forge50
+    displayName: Working Smithy
+    description: Forge 50 swords
+    icon: {fileID: 21300000, guid: 58c5a2d5a496ca640a561a037378cd1f, type: 3}
+    goal: 0
+    targetId: 
+    target: 50
+    bonusKind: 0
+    bonus: 0.03
+  - id: a_forge500
+    displayName: Veteran Smith
+    description: Forge 500 swords
+    icon: {fileID: 21300000, guid: 58c5a2d5a496ca640a561a037378cd1f, type: 3}
+    goal: 0
+    targetId: 
+    target: 500
+    bonusKind: 0
+    bonus: 0.04
+  - id: a_sell100
+    displayName: Shopkeeper
+    description: Sell 100 swords
+    icon: {fileID: 21300000, guid: 9356777743c664e428d46d89a23f8b34, type: 3}
+    goal: 1
+    targetId: 
+    target: 100
+    bonusKind: 2
+    bonus: 0.03
+  - id: a_sell1000
+    displayName: Guild Merchant
+    description: Sell 1000 swords
+    icon: {fileID: 21300000, guid: 9356777743c664e428d46d89a23f8b34, type: 3}
+    goal: 1
+    targetId: 
+    target: 1000
+    bonusKind: 2
+    bonus: 0.05
+  - id: a_gold10k
+    displayName: Ten Thousand
+    description: Earn 10,000 gold in one run
+    icon: {fileID: 21300000, guid: 9356777743c664e428d46d89a23f8b34, type: 3}
+    goal: 2
+    targetId: 
+    target: 10000
+    bonusKind: 0
+    bonus: 0.03
+  - id: a_gold1m
+    displayName: Gold Hoard
+    description: Earn 1,000,000 gold in one run
+    icon: {fileID: 21300000, guid: e8c7874a722f30141ada4f7a4d915908, type: 3}
+    goal: 2
+    targetId: 
+    target: 1000000
+    bonusKind: 0
+    bonus: 0.06
+  - id: a_ore250
+    displayName: Stockpiled
+    description: Hold 250 ore at once
+    icon: {fileID: 21300000, guid: baf67803e280dec44a1975a6e3425f61, type: 3}
+    goal: 4
+    targetId: 
+    target: 250
+    bonusKind: 1
+    bonus: 0.04
+  - id: a_mine3
+    displayName: Deep Miner
+    description: Raise the Ore Mine to level 3
+    icon: {fileID: 21300000, guid: d02bc3fc5b2b2f9498c56ff89798c274, type: 3}
+    goal: 5
+    targetId: mine
+    target: 3
+    bonusKind: 1
+    bonus: 0.05
+  - id: a_smithy5
+    displayName: Dragonforge Built
+    description: Raise the Smithy to level 5
+    icon: {fileID: 21300000, guid: 818ecf373ef105d4e802402039b274c7, type: 3}
+    goal: 5
+    targetId: smithy
+    target: 5
+    bonusKind: 2
+    bonus: 0.05
+  - id: a_market5
+    displayName: Grand Bazaar
+    description: Raise the Trading Post to level 5
+    icon: {fileID: 21300000, guid: 65f5718ca2f088147a0f218ec5a051d4, type: 3}
+    goal: 5
+    targetId: market
+    target: 5
+    bonusKind: 0
+    bonus: 0.05
+  - id: a_gate5
+    displayName: Abyssal Gate
+    description: Raise the Dungeon Gate to level 5
+    icon: {fileID: 21300000, guid: 3f49287ce5233fc468b2ad66b7ff3805, type: 3}
+    goal: 5
+    targetId: gate
+    target: 5
+    bonusKind: 5
+    bonus: 0.05
+  - id: a_exp25
+    displayName: Seasoned Party
+    description: Complete 25 expeditions
+    icon: {fileID: 21300000, guid: cd60e2615b4077b449fa13f9c7af8282, type: 3}
+    goal: 7
+    targetId: 
+    target: 25
+    bonusKind: 5
+    bonus: 0.05
+  - id: a_exp100
+    displayName: Dungeon Delver
+    description: Complete 100 expeditions
+    icon: {fileID: 21300000, guid: cd60e2615b4077b449fa13f9c7af8282, type: 3}
+    goal: 7
+    targetId: 
+    target: 100
+    bonusKind: 5
+    bonus: 0.05
+  - id: a_rare
+    displayName: Rare Find
+    description: Forge a Rare sword
+    icon: {fileID: 21300000, guid: 8862744bda5e1df408e20290f0ab1c79, type: 3}
+    goal: 11
+    targetId: 
+    target: 2
+    bonusKind: 4
+    bonus: 1
+  - id: a_epic
+    displayName: Epic Forge
+    description: Forge an Epic sword
+    icon: {fileID: 21300000, guid: 8862744bda5e1df408e20290f0ab1c79, type: 3}
+    goal: 11
+    targetId: 
+    target: 3
+    bonusKind: 4
+    bonus: 1.5
+  - id: a_legendary
+    displayName: Legendary
+    description: Forge a Legendary sword
+    icon: {fileID: 21300000, guid: af567f88b0bed5e499f9a16bc3ed62e6, type: 3}
+    goal: 11
+    targetId: 
+    target: 4
+    bonusKind: 4
+    bonus: 2
+  - id: a_runes20
+    displayName: Rune Carver
+    description: Raise 20 rune levels
+    icon: {fileID: 21300000, guid: fe2949c599b7dd347a6fbe1f6ed0f774, type: 3}
+    goal: 10
+    targetId: 
+    target: 20
+    bonusKind: 3
+    bonus: 0.05
+  - id: a_runes60
+    displayName: Rune Master
+    description: Raise 60 rune levels
+    icon: {fileID: 21300000, guid: fe2949c599b7dd347a6fbe1f6ed0f774, type: 3}
+    goal: 10
+    targetId: 
+    target: 60
+    bonusKind: 3
+    bonus: 0.06
+  - id: a_helper
+    displayName: Not Alone
+    description: Hire the apprentice
+    icon: {fileID: 21300000, guid: 5f8f044d4a6db9446af75084fdf8e621, type: 3}
+    goal: 8
+    targetId: 
+    target: 1
+    bonusKind: 3
+    bonus: 0.03
+  - id: a_prestige1
+    displayName: Reborn in Ember
+    description: Rekindle the forge once
+    icon: {fileID: 21300000, guid: b51935894df4bdd48a41f46b40830b25, type: 3}
+    goal: 9
+    targetId: 
+    target: 1
+    bonusKind: 0
+    bonus: 0.05
+  - id: a_prestige5
+    displayName: Phoenix Smith
+    description: Rekindle the forge five times
+    icon: {fileID: 21300000, guid: b51935894df4bdd48a41f46b40830b25, type: 3}
+    goal: 9
+    targetId: 
+    target: 5
+    bonusKind: 0
+    bonus: 0.08
+  - id: a_play60
+    displayName: Dedicated
+    description: Play for an hour
+    icon: {fileID: 21300000, guid: d02a07a161bc92f478fbdebb926fc8c3, type: 3}
+    goal: 12
+    targetId: 
+    target: 60
+    bonusKind: 5
+    bonus: 0.03
+  - id: a_play600
+    displayName: Forge Never Sleeps
+    description: Play for ten hours
+    icon: {fileID: 21300000, guid: d02a07a161bc92f478fbdebb926fc8c3, type: 3}
+    goal: 12
+    targetId: 
+    target: 600
+    bonusKind: 0
+    bonus: 0.04
+  workerPrefab: {fileID: 6449812203960417740, guid: 25182fd6a6fc62348aa8bb3ada4eda28, type: 3}
+  helperPrefab: {fileID: 7179213584375850706, guid: 083b0901ccd174747a41c075f0565afa, type: 3}
+  customerPrefabA: {fileID: 3531243824080966597, guid: 1d08f49f91edf184283cde0f1e58c8bc, type: 3}
+  customerPrefabB: {fileID: 4755300925614321708, guid: 15f74a505191f8340bba110430fe5493, type: 3}
+  swordPrefab: {fileID: 3904159096346708307, guid: cffa8cc058209234ea17542312f4c5b7, type: 3}
+  oreChunkPrefab: {fileID: 9147819223927269173, guid: a1d9016c2feadbd4ebfd9626a66d342b, type: 3}
+  rarityGems:
+  - {fileID: 2100000, guid: f153a870602450b4ebc65bc8a9e6aeaa, type: 2}
+  - {fileID: 2100000, guid: 5276a3a093993744f8e8ab45771aa254, type: 2}
+  - {fileID: 2100000, guid: b8471345792c602488fc34c03298acdc, type: 2}
+  - {fileID: 2100000, guid: f861e7a3c99dee844ac7e77fa0ecec6b, type: 2}
+  - {fileID: 2100000, guid: 9ee529ab45c5aac4182dc02c3af7bd1c, type: 2}
+  raritySparklePrefab: {fileID: 4997970653848394817, guid: 1efd08fdc2c83404db1a5b00a50c0c28, type: 3}

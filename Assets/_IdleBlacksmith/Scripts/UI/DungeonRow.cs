@@ -41,21 +41,34 @@ namespace IdleBlacksmith.UI
             GameManager gm = GameManager.Instance;
             if (gm == null || def == null || gm.expeditions == null) return;
             ExpeditionManager ex = gm.expeditions;
-            bool isThis = ex.ActiveId == def.id;
-            bool ready = isThis && ex.ReadyToClaim;
+
+            bool unlocked = ex.IsUnlocked(def);
+            bool isThis = ex.IsRunning(def.id);
+            bool ready = ex.IsReady(def.id);
 
             if (goState != null) goState.SetActive(!isThis);
             if (runState != null) runState.SetActive(isThis && !ready);
             if (claimState != null) claimState.SetActive(ready);
-            if (goButton != null) goButton.interactable = !ex.HasActive;
-            if (content != null) content.alpha = !isThis && ex.HasActive ? 0.55f : 1f;
+            if (goButton != null) goButton.interactable = !isThis && ex.HasFreeSlot;
+            if (content != null) content.alpha = unlocked ? 1f : 0.45f;
+            if (nameLabel != null)
+                nameLabel.text = unlocked ? def.displayName : def.displayName + "  (locked)";
+            if (durationLabel != null && unlocked)
+                durationLabel.text = DungeonPanel.FormatDuration(Mathf.RoundToInt(ex.EffectiveDuration(def)));
+
+            if (rewardLabel != null && unlocked)
+            {
+                float mult = Mathf.Max(0.01f, Production.DungeonRewardMult);
+                rewardLabel.text = $"+{Mathf.RoundToInt(def.goldReward * mult)} gold"
+                                 + $"   +{Mathf.RoundToInt(def.relicOreReward * mult)} relic ore";
+            }
 
             if (isThis && !ready)
             {
-                if (progressFill != null) progressFill.fillAmount = ex.Progress01;
+                if (progressFill != null) progressFill.fillAmount = ex.ProgressOf(def.id);
                 if (timerLabel != null)
                 {
-                    float s = ex.RemainingSeconds;
+                    float s = ex.RemainingOf(def.id);
                     timerLabel.text = string.Format("{0}:{1:00}", (int)(s / 60f), (int)(s % 60f));
                 }
             }

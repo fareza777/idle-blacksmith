@@ -25,6 +25,7 @@ namespace IdleBlacksmith.UI
         public CanvasGroup group;
         public RectTransform card;
         public Image artImage;
+        public AspectRatioFitter artFitter;
         public TMP_Text titleLabel;
         public TMP_Text bodyLabel;
         public Image[] dots;
@@ -59,10 +60,21 @@ namespace IdleBlacksmith.UI
             if (skipButton != null) skipButton.onClick.AddListener(Finish);
         }
 
+        /// <summary>Swaps the page art and re-fits it to the new sprite's aspect ratio.</summary>
+        void SetArt(Sprite sprite)
+        {
+            if (artImage == null) return;
+            artImage.sprite = sprite;
+            if (artFitter != null)
+                artFitter.aspectRatio = (sprite != null && sprite.rect.height > 0.01f)
+                    ? sprite.rect.width / sprite.rect.height
+                    : 1.5f;
+        }
+
         void ApplyPage(bool animate)
         {
             Page p = pages[index];
-            if (artImage != null) artImage.sprite = p.art;
+            SetArt(p.art);
             if (titleLabel != null) titleLabel.text = p.title;
             if (bodyLabel != null) bodyLabel.text = p.body;
             if (nextLabel != null) nextLabel.text = index >= pages.Length - 1 ? "START FORGING!" : "NEXT";
@@ -104,7 +116,7 @@ namespace IdleBlacksmith.UI
             gameObject.SetActive(true);
             if (group != null) group.alpha = 1f;
             Page p = pages[0];
-            if (artImage != null) artImage.sprite = p.art;
+            SetArt(p.art);
             if (titleLabel != null) titleLabel.text = p.title;
             if (bodyLabel != null) bodyLabel.text = p.body;
             if (nextLabel != null) nextLabel.text = "NEXT";

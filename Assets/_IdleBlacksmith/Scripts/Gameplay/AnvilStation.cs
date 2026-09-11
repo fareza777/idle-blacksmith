@@ -6,8 +6,9 @@ using UnityEngine;
 namespace IdleBlacksmith.Gameplay
 {
     /// <summary>
-    /// Crafting station: tracks progress, shows the hot sword, fires sparks and
-    /// drives a world-space progress bar.
+    /// Crafting station: tracks progress, shows the hot sword, fires sparks and drives a
+    /// world-space progress bar. The rarity of the sword is rolled the moment the craft
+    /// completes, so the same anvil can turn out anything from a Common to a Legendary.
     /// </summary>
     public class AnvilStation : MonoBehaviour
     {
@@ -21,10 +22,14 @@ namespace IdleBlacksmith.Gameplay
 
         public bool IsCrafting { get; private set; }
 
+        /// <summary>The item produced by the craft that just finished.</summary>
+        public SwordItem LastForged { get; private set; }
+
         float timer;
         float duration;
         System.Action onComplete;
         Vector3 hotSwordBaseScale = Vector3.one;
+        int hammerStrikes;
 
         void Awake()
         {
@@ -41,13 +46,17 @@ namespace IdleBlacksmith.Gameplay
             return workPoints[Mathf.Clamp(lane, 0, workPoints.Length - 1)].position;
         }
 
-        public void BeginCraft(float craftDuration, System.Action onCraftComplete)
+        public void BeginCraft(float craftDuration, RecipeDef recipe, System.Action onCraftComplete)
         {
             if (IsCrafting) { onCraftComplete?.Invoke(); return; }
             IsCrafting = true;
             duration = Mathf.Max(0.1f, craftDuration);
             timer = 0f;
+            hammerStrikes = 0;
             onComplete = onCraftComplete;
+            LastForged = null;
+            pendingRecipe = recipe;
+
             if (hotSwordVisual != null)
             {
                 hotSwordVisual.SetActive(true);
@@ -55,6 +64,8 @@ namespace IdleBlacksmith.Gameplay
                 Tween.Scale(hotSwordVisual.transform, hotSwordBaseScale, 0.3f, Ease.OutBack);
             }
         }
+
+        RecipeDef pendingRecipe;
 
         void Update()
         {
@@ -65,30 +76,52 @@ namespace IdleBlacksmith.Gameplay
             if (timer >= duration)
             {
                 IsCrafting = false;
+                LastForged = RollForged();
                 if (progressBar != null) progressBar.CompleteFlash();
                 onComplete?.Invoke();
                 onComplete = null;
             }
         }
 
+        SwordItem RollForged()
+        {
+            GameManager gm = GameManager.Instance;
+            string recipeId = pendingRecipe != null ? pendingRecipe.id : RecipeId.Copper;
+            Rarity rarity = gm != null && gm.recipes != null ? gm.recipes.RollRarity() : Rarity.Common;
+            return new SwordItem(recipeId, rarity);
+        }
+
         /// <summary>Called by the worker's hammer animation event on each strike.</summary>
         public void OnHammerStrike()
         {
+            hammerStrikes++;
             if (sparks != null) sparks.Play();
             AudioManager.Play("hammer", 0.09f, 0.9f);
             if (hotSwordVisual != null)
                 Tween.PunchScale(hotSwordVisual.transform, hotSwordBaseScale * 0.18f, 0.25f);
         }
 
+        /// <summary>Number of hammer blows landed on the current/last craft — drives the smoke test.</summary>
+        public int HammerStrikes => hammerStrikes;
+
+        /// <summary>Hands the freshly forged sword to the worker, shaped by its recipe and rarity.</summary>
         public GameObject TakeForgedSword(Transform hand)
         {
             if (hotSwordVisual != null) hotSwordVisual.SetActive(false);
             if (progressBar != null) progressBar.SetProgress(0f);
-            GameObject prefab = GameManager.Instance != null ? GameManager.Instance.config.swordPrefab : null;
-            if (prefab == null || hand == null) return null;
+            if (hand == null || LastForged == null) return null;
+
+            GameConfig config = GameManager.Instance != null ? GameManager.Instance.config : null;
+            if (config == null) return null;
+
+            RecipeDef recipe = config.GetRecipe(LastForged.recipeId);
+            GameObject prefab = recipe != null && recipe.swordPrefab != null ? recipe.swordPrefab : config.swordPrefab;
+            if (prefab == null) return null;
+
             GameObject sword = Instantiate(prefab, hand);
             sword.transform.localPosition = new Vector3(0f, 0.04f, 0.06f);
             sword.transform.localRotation = Quaternion.Euler(15f, 0f, 0f);
+            SwordVisuals.ApplyRarity(sword, LastForged.rarity, config);
             return sword;
         }
     }
