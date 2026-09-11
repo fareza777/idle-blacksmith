@@ -125,19 +125,39 @@ namespace IdleBlacksmith.EditorTools
             return root.AddComponent<CanvasGroup>();
         }
 
-        /// <summary>A right-aligned action pill with a label, used as the row's CTA.</summary>
-        static BouncyButton RowAction(RectTransform row, string label, Color color, out TMP_Text labelText)
+        /// <summary>
+        /// A right-aligned action pill with a label, used as the row's CTA.
+        /// <paramref name="rightOffset"/> is the distance from the row's right edge to the button's
+        /// right edge, so callers can stack a cost pill beside it without overlap.
+        /// </summary>
+        static BouncyButton RowAction(RectTransform row, string label, Color color, out TMP_Text labelText,
+            float rightOffset = 18f, float width = 200f)
         {
-            var go = Box("Action", row, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-18, 0), new Vector2(220, 76));
+            var go = Box("Action", row, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-rightOffset, 0), new Vector2(width, 70));
             var btn = go.gameObject.AddComponent<BouncyButton>();
             var img = go.gameObject.AddComponent<Image>();
             img.sprite = pill; img.type = Image.Type.Sliced; img.color = color;
             btn.targetGraphic = img;
             SetButtonColors(btn);
             SoftShadow(go.gameObject, -3f, 0.3f);
-            var txtGo = Box("Label", go, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(200, 56));
-            labelText = Txt(txtGo, label, 32, Color.white, TextAlignmentOptions.Center, titleFont);
+            var txtGo = Box("Label", go, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(width - 16f, 52));
+            labelText = Txt(txtGo, label, 30, Color.white, TextAlignmentOptions.Center, titleFont);
             return btn;
+        }
+
+        /// <summary>
+        /// The cost chip that sits beside a row's action button. Keeping it in the same horizontal
+        /// band as the button means it can never collide with the row's text column.
+        /// </summary>
+        static RectTransform RowCostPill(RectTransform row, string iconName, Color tint, Color textColor,
+            float rightOffset, out TMP_Text costLabel)
+        {
+            var pill = Chip("CostPill", row, new Vector2(1, 0.5f), new Vector2(-rightOffset, 0), new Vector2(170, 62), tint);
+            var iconGo = Box("Icon", pill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(12, 0), new Vector2(42, 42));
+            Img(iconGo.gameObject, AssetFactory.LoadIcon(iconName), Color.white).raycastTarget = false;
+            var costGo = Box("Value", pill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(58, 0), new Vector2(104, 48));
+            costLabel = Txt(costGo, "0", 30, textColor, TextAlignmentOptions.Left, titleFont);
+            return pill;
         }
 
         /// <summary>A tiny row of level pips showing filled vs empty progress.</summary>
@@ -178,41 +198,32 @@ namespace IdleBlacksmith.EditorTools
         {
             var root = new GameObject("BuildingRow", typeof(RectTransform));
             var rt = (RectTransform)root.transform;
-            var content = RowShell(root, 190, Color.white);
+            var content = RowShell(root, 168, Color.white);
 
             Image icon = RowIcon(rt, null);
 
-            var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -16), new Vector2(400, 44));
-            var nameLabel = Txt(nameGo, "Building", 34, Brown, TextAlignmentOptions.Left, titleFont);
+            // Left column: everything descriptive.
+            var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -14), new Vector2(420, 42));
+            var nameLabel = Txt(nameGo, "Building", 32, Brown, TextAlignmentOptions.Left, titleFont);
 
-            var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-262, -20), new Vector2(220, 36));
-            var levelLabel = Txt(levelGo, "Not built", 26, Secondary, TextAlignmentOptions.Right, bodyFont);
-
-            // Kept clear of both the cost pill below and the action button on the right.
-            var perkGo = Box("Perk", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(540, 30));
+            var perkGo = Box("Perk", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(430, 30));
             var perkLabel = Txt(perkGo, "Effect", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
 
-            Pips(rt, new Vector2(140, -92), 5, out Image[] levelPips);
+            Pips(rt, new Vector2(140, -96), 5, out Image[] levelPips);
 
-            var costPill = Chip("CostPill", rt, new Vector2(0, 0), new Vector2(140, 18), new Vector2(190, 62), Hex(0xF2994A));
-            var coinGo = Box("Coin", costPill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(12, 0), new Vector2(44, 44));
-            Img(coinGo.gameObject, AssetFactory.LoadIcon("coin"), Color.white).raycastTarget = false;
-            var costGo = Box("Cost", costPill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(62, 0), new Vector2(120, 48));
-            var costLabel = Txt(costGo, "0", 32, Color.white, TextAlignmentOptions.Left, titleFont);
+            // Right column: state, cost, action — laid out horizontally so nothing can overlap.
+            var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -16), new Vector2(220, 34));
+            var levelLabel = Txt(levelGo, "Not built", 24, Secondary, TextAlignmentOptions.Right, bodyFont);
 
-            BouncyButton buyBtn = RowAction(rt, "BUILD", Orange, out _);
+            RectTransform costPill = RowCostPill(rt, "coin", Hex(0xF2994A), Color.white, 224f, out TMP_Text costLabel);
+            BouncyButton buyBtn = RowAction(rt, "BUILD", Orange, out _, 18f, 190f);
 
-            var maxBadge = Chip("MaxBadge", rt, new Vector2(1, 0), new Vector2(-18, 18), new Vector2(200, 62), Hex(0xC99638));
+            var maxBadge = Chip("MaxBadge", rt, new Vector2(1, 1), new Vector2(-18, -58), new Vector2(190, 54), Hex(0xC99638));
             var maxGo = StretchBox("Label", maxBadge);
-            Txt(maxGo, "MAXED", 30, Color.white, TextAlignmentOptions.Center, titleFont);
+            Txt(maxGo, "MAXED", 28, Color.white, TextAlignmentOptions.Center, titleFont);
             maxBadge.gameObject.SetActive(false);
 
-            var lockedBadge = Chip("LockedBadge", rt, new Vector2(0, 0), new Vector2(342, 18), new Vector2(200, 62), new Color(0.72f, 0.55f, 0.42f, 0.9f));
-            var lockedGo = StretchBox("Label", lockedBadge);
-            Txt(lockedGo, "Save up!", 26, Color.white, TextAlignmentOptions.Center, bodyFont);
-            lockedBadge.gameObject.SetActive(false);
-
-            var runeGo = Box("RuneButton", rt, new Vector2(0, 0), new Vector2(0, 0), new Vector2(554, 18), new Vector2(200, 62));
+            var runeGo = Box("RuneButton", rt, new Vector2(0, 0), new Vector2(0, 0), new Vector2(140, 22), new Vector2(210, 62));
             var runeBtn = runeGo.gameObject.AddComponent<BouncyButton>();
             var runeImg = runeGo.gameObject.AddComponent<Image>();
             runeImg.sprite = pill; runeImg.type = Image.Type.Sliced; runeImg.color = Teal;
@@ -231,7 +242,7 @@ namespace IdleBlacksmith.EditorTools
             row.costPill = costPill.gameObject;
             row.buyButton = buyBtn;
             row.maxBadge = maxBadge.gameObject;
-            row.lockedBadge = lockedBadge.gameObject;
+            row.lockedBadge = null;
             row.content = content;
             row.levelPips = levelPips;
             row.runeButton = runeBtn;
@@ -248,30 +259,25 @@ namespace IdleBlacksmith.EditorTools
         {
             var root = new GameObject("RuneRow", typeof(RectTransform));
             var rt = (RectTransform)root.transform;
-            var content = RowShell(root, 172, Color.white);
+            var content = RowShell(root, 168, Color.white);
 
             Image icon = RowIcon(rt, null);
 
-            var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -16), new Vector2(420, 44));
-            var nameLabel = Txt(nameGo, "Rune", 34, Brown, TextAlignmentOptions.Left, titleFont);
+            var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -14), new Vector2(420, 42));
+            var nameLabel = Txt(nameGo, "Rune", 32, Brown, TextAlignmentOptions.Left, titleFont);
 
-            var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-260, -20), new Vector2(220, 36));
-            var levelLabel = Txt(levelGo, "Lv 0/4", 26, Secondary, TextAlignmentOptions.Right, bodyFont);
+            var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(430, 30));
+            var descLabel = Txt(descGo, "Effect", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
 
-            var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(540, 32));
-            var descLabel = Txt(descGo, "Effect", 22, Secondary, TextAlignmentOptions.Left, bodyFont, true);
+            var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -16), new Vector2(220, 34));
+            var levelLabel = Txt(levelGo, "Lv 0/4", 24, Secondary, TextAlignmentOptions.Right, bodyFont);
 
-            var costPill = Chip("CostPill", rt, new Vector2(0, 0), new Vector2(140, 16), new Vector2(190, 62), new Color(0.18f, 0.32f, 0.36f, 1f));
-            var oreGo = Box("Icon", costPill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(12, 0), new Vector2(44, 44));
-            Img(oreGo.gameObject, AssetFactory.LoadIcon("ore"), Color.white).raycastTarget = false;
-            var costGo = Box("Cost", costPill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(62, 0), new Vector2(120, 48));
-            var costLabel = Txt(costGo, "0", 32, OreText, TextAlignmentOptions.Left, titleFont);
+            RectTransform costPill = RowCostPill(rt, "ore", new Color(0.18f, 0.32f, 0.36f, 1f), OreText, 224f, out TMP_Text costLabel);
+            BouncyButton buyBtn = RowAction(rt, "CARVE", PurpleAccent, out _, 18f, 190f);
 
-            BouncyButton buyBtn = RowAction(rt, "CARVE", PurpleAccent, out _);
-
-            var maxBadge = Chip("MaxBadge", rt, new Vector2(1, 0), new Vector2(-18, 18), new Vector2(200, 62), Hex(0xC99638));
+            var maxBadge = Chip("MaxBadge", rt, new Vector2(1, 1), new Vector2(-18, -58), new Vector2(190, 54), Hex(0xC99638));
             var maxGo = StretchBox("Label", maxBadge);
-            Txt(maxGo, "MAXED", 30, Color.white, TextAlignmentOptions.Center, titleFont);
+            Txt(maxGo, "MAXED", 28, Color.white, TextAlignmentOptions.Center, titleFont);
             maxBadge.gameObject.SetActive(false);
 
             var row = root.AddComponent<RuneRow>();
@@ -298,7 +304,7 @@ namespace IdleBlacksmith.EditorTools
         {
             var root = new GameObject("RecipeCard", typeof(RectTransform));
             var rt = (RectTransform)root.transform;
-            var content = RowShell(root, 172, Color.white);
+            var content = RowShell(root, 168, Color.white);
 
             var frameGo = StretchBox("Frame", rt);
             var frameImg = frameGo.gameObject.AddComponent<Image>();
@@ -309,25 +315,22 @@ namespace IdleBlacksmith.EditorTools
 
             Image icon = RowIcon(rt, null);
 
-            var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -16), new Vector2(460, 44));
-            var nameLabel = Txt(nameGo, "Recipe", 34, Brown, TextAlignmentOptions.Left, titleFont);
+            var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -14), new Vector2(420, 42));
+            var nameLabel = Txt(nameGo, "Recipe", 32, Brown, TextAlignmentOptions.Left, titleFont);
 
-            var statGo = Box("Stats", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-250, -20), new Vector2(340, 34));
-            var statLabel = Txt(statGo, "1 ore · 10 gold · 3.2s", 24, Secondary, TextAlignmentOptions.Right, bodyFont);
-
-            var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(540, 30));
-            var descLabel = Txt(descGo, "Description", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
+            var statGo = Box("Stats", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(430, 30));
+            var statLabel = Txt(statGo, "1 ore · 10 gold · 3.2s", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
 
             BouncyButton selectBtn = RowAction(rt, "SELECT", Orange, out TMP_Text selectLabel);
 
-            var activeBadge = Chip("ActiveBadge", rt, new Vector2(0, 0), new Vector2(140, 16), new Vector2(200, 54), Hex(0x5BA86B));
+            var activeBadge = Chip("ActiveBadge", rt, new Vector2(1, 1), new Vector2(-18, -58), new Vector2(190, 54), Hex(0x5BA86B));
             var activeGo = StretchBox("Label", activeBadge);
-            Txt(activeGo, "FORGING NOW", 24, Color.white, TextAlignmentOptions.Center, bodyFont);
+            Txt(activeGo, "FORGING NOW", 22, Color.white, TextAlignmentOptions.Center, bodyFont);
             activeBadge.gameObject.SetActive(false);
 
-            var lockedBadge = Chip("LockedBadge", rt, new Vector2(0, 0), new Vector2(356, 16), new Vector2(240, 54), new Color(0.62f, 0.60f, 0.58f, 0.92f));
+            var lockedBadge = Chip("LockedBadge", rt, new Vector2(1, 1), new Vector2(-18, -58), new Vector2(190, 54), new Color(0.62f, 0.60f, 0.58f, 0.92f));
             var lockedGo = StretchBox("Label", lockedBadge);
-            var lockedLabel = Txt(lockedGo, "Needs Smithy 2", 22, Color.white, TextAlignmentOptions.Center, bodyFont);
+            var lockedLabel = Txt(lockedGo, "Needs Smithy 2", 20, Color.white, TextAlignmentOptions.Center, bodyFont);
             lockedBadge.gameObject.SetActive(false);
 
             var card = root.AddComponent<RecipeCard>();
@@ -335,7 +338,7 @@ namespace IdleBlacksmith.EditorTools
             card.frame = frameImg;
             card.nameLabel = nameLabel;
             card.statLabel = statLabel;
-            card.descLabel = descLabel;
+            card.descLabel = null;
             card.selectButton = selectBtn;
             card.selectLabel = selectLabel;
             card.lockedBadge = lockedBadge.gameObject;
@@ -402,28 +405,23 @@ namespace IdleBlacksmith.EditorTools
         {
             var root = new GameObject("TalentRow", typeof(RectTransform));
             var rt = (RectTransform)root.transform;
-            var content = RowShell(root, 172, Color.white);
+            var content = RowShell(root, 168, Color.white);
 
             Image icon = RowIcon(rt, null);
 
-            var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -16), new Vector2(420, 44));
-            var nameLabel = Txt(nameGo, "Talent", 34, Brown, TextAlignmentOptions.Left, titleFont);
+            var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -14), new Vector2(420, 42));
+            var nameLabel = Txt(nameGo, "Talent", 32, Brown, TextAlignmentOptions.Left, titleFont);
 
-            var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-260, -20), new Vector2(220, 36));
-            var levelLabel = Txt(levelGo, "Lv 0/5", 26, Secondary, TextAlignmentOptions.Right, bodyFont);
+            var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(430, 30));
+            var descLabel = Txt(descGo, "Effect", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
 
-            var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(540, 32));
-            var descLabel = Txt(descGo, "Effect", 22, Secondary, TextAlignmentOptions.Left, bodyFont, true);
+            var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -16), new Vector2(220, 34));
+            var levelLabel = Txt(levelGo, "Lv 0/5", 24, Secondary, TextAlignmentOptions.Right, bodyFont);
 
-            var costPill = Chip("CostPill", rt, new Vector2(0, 0), new Vector2(140, 16), new Vector2(190, 62), Hex(0xF2994A));
-            var emberGo = Box("Icon", costPill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(12, 0), new Vector2(44, 44));
-            Img(emberGo.gameObject, AssetFactory.LoadIcon("ember"), Color.white).raycastTarget = false;
-            var costGo = Box("Cost", costPill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(62, 0), new Vector2(120, 48));
-            var costLabel = Txt(costGo, "1", 32, Color.white, TextAlignmentOptions.Left, titleFont);
+            RectTransform costPill = RowCostPill(rt, "ember", Hex(0xF2994A), Color.white, 224f, out TMP_Text costLabel);
+            BouncyButton buyBtn = RowAction(rt, "LEARN", Hex(0xDF7F47), out _, 18f, 190f);
 
-            BouncyButton buyBtn = RowAction(rt, "LEARN", Hex(0xDF7F47), out _);
-
-            var maxBadge = Chip("MaxBadge", rt, new Vector2(1, 0), new Vector2(-18, 18), new Vector2(200, 62), Hex(0xC99638));
+            var maxBadge = Chip("MaxBadge", rt, new Vector2(1, 1), new Vector2(-18, -58), new Vector2(190, 54), Hex(0xC99638));
             var maxGo = StretchBox("Label", maxBadge);
             Txt(maxGo, "MASTERED", 26, Color.white, TextAlignmentOptions.Center, titleFont);
             maxBadge.gameObject.SetActive(false);

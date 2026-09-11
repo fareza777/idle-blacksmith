@@ -273,22 +273,35 @@ namespace IdleBlacksmith.EditorTools
             foreach (string file in Directory.GetFiles(Paths.IconRaw, "*.png"))
             {
                 // AssetDatabase paths require forward slashes.
-                var imp = AssetImporter.GetAtPath(file.Replace('\\', '/')) as TextureImporter;
-                if (imp == null) continue;
-                imp.textureType = TextureImporterType.Sprite;
-                imp.spriteImportMode = SpriteImportMode.Single;
-                imp.alphaIsTransparency = true;
-                imp.mipmapEnabled = false;
-                imp.filterMode = FilterMode.Bilinear;
-                imp.maxTextureSize = 512;
-                imp.wrapMode = TextureWrapMode.Clamp;
-                imp.SaveAndReimport();
+                string assetPath = file.Replace('\\', '/');
+
+                // A PNG written by IconFallback may not be imported yet, in which case there is no
+                // importer to configure and the texture would stay a plain Texture (not a Sprite).
+                AssetImporter imp = AssetImporter.GetAtPath(assetPath);
+                if (imp == null)
+                {
+                    AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
+                    imp = AssetImporter.GetAtPath(assetPath);
+                }
+                if (!(imp is TextureImporter tex)) continue;
+
+                tex.textureType = TextureImporterType.Sprite;
+                tex.spriteImportMode = SpriteImportMode.Single;
+                tex.alphaIsTransparency = true;
+                tex.mipmapEnabled = false;
+                tex.filterMode = FilterMode.Bilinear;
+                tex.maxTextureSize = 512;
+                tex.wrapMode = TextureWrapMode.Clamp;
+                tex.SaveAndReimport();
             }
         }
 
         public static Sprite LoadIcon(string name)
         {
-            return AssetDatabase.LoadAssetAtPath<Sprite>($"{Paths.IconRaw}/{name}.png");
+            Sprite s = AssetDatabase.LoadAssetAtPath<Sprite>($"{Paths.IconRaw}/{name}.png");
+            if (s == null)
+                Debug.LogWarning($"[AssetFactory] icon '{name}' did not import as a Sprite — the UI will show an empty box");
+            return s;
         }
 
         // ------------------------------------------------------------ menu art (Replicate)

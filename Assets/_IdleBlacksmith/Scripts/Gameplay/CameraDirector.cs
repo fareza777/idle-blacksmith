@@ -47,10 +47,16 @@ namespace IdleBlacksmith.Gameplay
         [Tooltip("Seconds for the framing to settle; larger is a slower, calmer pull-back")]
         public float easeSeconds = 1.6f;
 
+        [Tooltip("Barely-there idle sway so the shop feels alive; 0 disables it")]
+        public float swayAmount = 0.04f;
+        public float swaySpeed = 0.35f;
+
         Camera cam;
         Vector3 focus;
         float size;
 
+        /// <summary>Where the framing has settled, before the idle sway offset is added.</summary>
+        Vector3 settledPos;
         Vector3 targetPos;
         float targetSize;
         Vector3 offsetDir;
@@ -81,7 +87,8 @@ namespace IdleBlacksmith.Gameplay
             Vector3 dir = transform.position - baseFocus;
             offsetDir = dir.sqrMagnitude > 0.001f ? dir.normalized : new Vector3(0.4f, 0.72f, -0.63f);
             distance = dir.magnitude > 0.001f ? dir.magnitude : 14f;
-            targetPos = transform.position;
+            settledPos = transform.position;
+            targetPos = settledPos;
             targetSize = size;
         }
 
@@ -108,25 +115,49 @@ namespace IdleBlacksmith.Gameplay
                 Frame();
             }
 
-            if (!easing) return;
-
-            float tau = Mathf.Max(0.05f, easeSeconds / 3f);
-            float k = 1f - Mathf.Exp(-Time.deltaTime / tau);
-
-            transform.position = Vector3.Lerp(transform.position, targetPos, k);
-            size = Mathf.Lerp(size, targetSize, k);
-            if (cam != null) cam.orthographicSize = size;
-            AimAtFocus();
-
-            if (Vector3.SqrMagnitude(transform.position - targetPos) < 0.0009f
-                && Mathf.Abs(size - targetSize) < 0.02f)
+            if (easing)
             {
-                transform.position = targetPos;
-                size = targetSize;
+                float tau = Mathf.Max(0.05f, easeSeconds / 3f);
+                float k = 1f - Mathf.Exp(-Time.deltaTime / tau);
+
+                settledPos = Vector3.Lerp(settledPos, targetPos, k);
+                size = Mathf.Lerp(size, targetSize, k);
                 if (cam != null) cam.orthographicSize = size;
-                AimAtFocus();
-                easing = false;
+
+                if (Vector3.SqrMagnitude(settledPos - targetPos) < 0.0009f
+                    && Mathf.Abs(size - targetSize) < 0.02f)
+                {
+                    settledPos = targetPos;
+                    size = targetSize;
+                    if (cam != null) cam.orthographicSize = size;
+                    easing = false;
+                }
             }
+
+            // This component is the only writer of the camera transform (a second sway script
+            // writing position here would fight the framing and make the whole view jitter), so
+            // the idle sway is applied on top of the settled position instead.
+            ApplySway();
+        }
+
+        /// <summary>Places the camera at its settled position plus the idle sway offset.</summary>
+        void ApplySway()
+        {
+            if (swayAmount <= 0f)
+            {
+                transform.position = settledPos;
+                AimAtFocus();
+                return;
+            }
+
+            float t = Time.time * swaySpeed;
+            var offset = new Vector3(
+                Mathf.Sin(t) * swayAmount,
+                Mathf.Sin(t * 0.7f) * swayAmount * 0.5f,
+                Mathf.Cos(t * 0.85f) * swayAmount);
+
+            transform.position = settledPos + offset;
+            AimAtFocus();
         }
 
         /// <summary>
@@ -196,7 +227,7 @@ namespace IdleBlacksmith.Gameplay
             distance = (baseFocus - new Vector3(5.5f, 10.1f, -8.9f)).magnitude + (targetSize - baseSize) * 2.2f;
             targetPos = focus + offsetDir * distance;
 
-            if (Vector3.SqrMagnitude(targetPos - transform.position) > 0.0009f
+            if (Vector3.SqrMagnitude(targetPos - settledPos) > 0.0009f
                 || Mathf.Abs(targetSize - size) > 0.02f)
                 easing = true;
         }
@@ -257,11 +288,11 @@ namespace IdleBlacksmith.Gameplay
         {
             EnsureInit();
             Frame();
-            transform.position = targetPos;
+            settledPos = targetPos;
             size = targetSize;
             if (cam != null) cam.orthographicSize = size;
-            AimAtFocus();
             easing = false;
+            ApplySway();
         }
 
         void AimAtFocus()

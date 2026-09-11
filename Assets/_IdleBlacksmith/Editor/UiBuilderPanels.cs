@@ -730,7 +730,9 @@ namespace IdleBlacksmith.EditorTools
 
         static HudTicker BuildTicker(RectTransform hud, QuestPanel questPanel)
         {
-            var go = Box("Ticker", hud, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -216), new Vector2(760, 84));
+            // Sits below the resource pills (the last of which ends at y -244), so the three
+            // resource readouts and the objective banner never overlap.
+            var go = Box("Ticker", hud, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -326), new Vector2(760, 84));
             var cg = go.gameObject.AddComponent<CanvasGroup>();
             var bg = go.gameObject.AddComponent<Image>();
             bg.sprite = pill; bg.type = Image.Type.Sliced; bg.color = new Color(0.24f, 0.18f, 0.13f, 0.86f);

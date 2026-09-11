@@ -1,4 +1,5 @@
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 namespace IdleBlacksmith.EditorTools
@@ -81,6 +82,11 @@ namespace IdleBlacksmith.EditorTools
             var c = new Canvas2D();
             draw(c);
             File.WriteAllBytes(path, c.Encode());
+            // Import straight away. Without this the file sits on disk unimported, so the icon
+            // import pass that follows sees no AssetImporter for it and leaves the texture as a
+            // plain Texture rather than a Sprite — LoadAssetAtPath<Sprite> then returns null and
+            // the UI draws an empty white box.
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
             Debug.Log($"[IconFallback] drew fallback icon '{name}'");
         }
 
@@ -140,22 +146,6 @@ namespace IdleBlacksmith.EditorTools
             c.Ellipse(128, 178, 22, 12, new Color32(226, 171, 127, 255)); // smile shadow
         }
 
-        static void DrawSpeaker(Canvas2D c, bool muted)
-        {
-            c.Rect(52, 104, 40, 52, Steel);
-            c.Tri(92, 104, 150, 62, 150, 198, Steel);
-            if (muted)
-            {
-                c.RotRect(196, 130, 14, 64, 45, Red);
-                c.RotRect(196, 130, 14, 64, -45, Red);
-            }
-            else
-            {
-                c.Arc(96, 130, 62, -55, 55, 10, Steel);
-                c.Arc(96, 130, 92, -55, 55, 10, Steel);
-            }
-        }
-
         static void DrawLogo(Canvas2D c)
         {
             c.Circle(128, 128, 108, Brown);
@@ -181,14 +171,20 @@ namespace IdleBlacksmith.EditorTools
 
         static void DrawOre(Canvas2D c)
         {
-            var rock = new Color32(86, 91, 102, 255);
+            // A rock with crystal veins: the raw material icon, distinct from the smelted ingots.
+            var rock = new Color32(108, 114, 126, 255);
+            var rockDark = new Color32(78, 83, 94, 255);
             var cyan = new Color32(127, 212, 232, 255);
-            c.Circle(118, 158, 74, rock);                   // rock base
-            c.Circle(158, 176, 42, rock);
-            c.Tri(88, 218, 108, 120, 68, 120, cyan);        // crystal spikes
-            c.Tri(128, 232, 146, 130, 110, 130, cyan);
-            c.Tri(162, 206, 176, 140, 148, 140, cyan);
-            c.Tri(126, 210, 136, 150, 116, 150, White);     // highlight
+
+            c.Circle(122, 152, 86, rockDark);                // rock mass
+            c.Circle(112, 146, 74, rock);
+            c.Circle(170, 178, 44, rockDark);
+            c.Circle(72, 172, 38, rockDark);
+
+            c.Tri(86, 224, 112, 116, 70, 116, cyan);         // crystal veins
+            c.Tri(132, 236, 156, 124, 112, 124, cyan);
+            c.Tri(166, 208, 184, 138, 152, 138, new Color32(84, 176, 208, 255));
+            c.Tri(124, 214, 136, 146, 114, 146, White);      // highlight
         }
 
         // ------------------------------------------------------------ content icons
@@ -196,14 +192,83 @@ namespace IdleBlacksmith.EditorTools
         /// <summary>Ore rock with crystal spikes tinted to the metal tier.</summary>
         static void DrawMetal(Canvas2D c, Color32 gem, Color32 gemDark)
         {
-            var rock = new Color32(86, 91, 102, 255);
-            c.Circle(112, 150, 76, rock);
-            c.Circle(158, 172, 42, rock);
-            c.Circle(80, 176, 40, new Color32(72, 76, 86, 255));
-            c.Tri(84, 216, 106, 112, 62, 112, gem);
-            c.Tri(130, 238, 152, 122, 110, 122, gem);
-            c.Tri(168, 200, 186, 132, 154, 132, gemDark);
-            c.Tri(126, 212, 138, 142, 116, 142, White);
+            // A stack of smelted ingots. The silhouette says "metal" instantly and the tint says
+            // which metal, which is clearer at icon size than trying to draw ore in a rock.
+            var shadow = new Color32(56, 60, 68, 255);
+            Ingot(c, 128, 186, 1.00f, gem, gemDark, shadow);
+            Ingot(c, 104, 130, 0.86f, gem, gemDark, shadow);
+            Ingot(c, 150, 78, 0.72f, gem, gemDark, shadow);
+            c.Star(206, 60, 26, 11, White);
+        }
+
+        /// <summary>One isometric-ish metal bar: dark base, lit top face, bright rim light.</summary>
+        static void Ingot(Canvas2D c, float cx, float cy, float s, Color32 light, Color32 dark, Color32 shadow)
+        {
+            float w = 176f * s;
+            float h = 62f * s;
+            float x = cx - w * 0.5f;
+            float y = cy - h * 0.5f;
+
+            c.RRect(x, y - h * 0.16f, w, h, h * 0.26f, shadow);           // contact shadow
+            c.RRect(x, y, w, h, h * 0.24f, dark);                          // body
+            c.RRect(x + w * 0.05f, y + h * 0.42f, w * 0.90f, h * 0.46f, h * 0.20f, light);  // lit top
+            c.RRect(x + w * 0.14f, y + h * 0.62f, w * 0.26f, h * 0.14f, h * 0.07f, White); // specular
+        }
+
+        /// <summary>One chunky gem: a faceted stone with a bright top facet.</summary>
+        static void DrawGem(Canvas2D c)
+        {
+            var dark = new Color32(64, 148, 178, 255);
+            var mid = new Color32(127, 212, 232, 255);
+            c.Tri(128, 40, 44, 126, 212, 126, mid);                        // crown
+            c.Tri(44, 126, 212, 126, 128, 226, dark);                      // pavilion
+            c.Tri(128, 40, 128, 126, 84, 126, White);                      // lit facet
+            c.Tri(128, 40, 172, 126, 128, 126, new Color32(190, 240, 250, 255));
+            c.Star(196, 74, 22, 9, White);
+        }
+
+        /// <summary>A five-point star, used for luck and rating slots.</summary>
+        static void DrawStar(Canvas2D c)
+        {
+            var edge = new Color32(214, 158, 40, 255);
+            c.Star(128, 132, 108, 46, edge);
+            c.Star(128, 134, 88, 36, Gold);
+            c.Star(128, 138, 56, 22, new Color32(255, 242, 190, 255));
+        }
+
+        /// <summary>A clean gear cog for the settings button.</summary>
+        static void DrawSettings(Canvas2D c)
+        {
+            var body = new Color32(126, 134, 148, 255);
+            var edge = new Color32(78, 84, 96, 255);
+            for (int i = 0; i < 8; i++)                                     // teeth
+                c.RotRect(128, 128, 34, 214, i * 22.5f, edge);
+            c.Circle(128, 128, 92, edge);
+            c.Circle(128, 128, 82, body);
+            c.Circle(128, 128, 40, new Color32(52, 58, 68, 255));           // hub
+            c.Circle(128, 128, 26, new Color32(232, 236, 242, 255));
+        }
+
+        /// <summary>Speaker with waves (on) or a cross (off).</summary>
+        static void DrawSpeaker(Canvas2D c, bool muted)
+        {
+            var body = new Color32(126, 134, 148, 255);
+            var edge = new Color32(72, 78, 90, 255);
+            c.RRect(48, 100, 44, 56, 8, edge);                              // box
+            c.Tri(88, 100, 152, 58, 152, 198, edge);                        // cone
+            c.RRect(54, 106, 34, 44, 6, body);
+            c.Tri(92, 106, 146, 68, 146, 188, body);
+
+            if (muted)
+            {
+                c.RotRect(198, 128, 18, 76, 45, Red);
+                c.RotRect(198, 128, 18, 76, -45, Red);
+            }
+            else
+            {
+                c.Arc(100, 128, 74, -52, 52, 16, body);
+                c.Arc(100, 128, 108, -52, 52, 16, body);
+            }
         }
 
         static void DrawSmithy(Canvas2D c)
@@ -322,12 +387,6 @@ namespace IdleBlacksmith.EditorTools
             c.RotRect(146, 166, 12, 34, 30, Wood);
         }
 
-        static void DrawStar(Canvas2D c)
-        {
-            c.Star(128, 132, 106, 44, Gold);
-            c.Star(128, 132, 74, 30, new Color32(255, 236, 160, 255));
-        }
-
         static void DrawOffline(Canvas2D c)
         {
             c.Circle(120, 132, 100, new Color32(74, 96, 118, 255));       // moon
@@ -346,23 +405,6 @@ namespace IdleBlacksmith.EditorTools
             c.Rect(112, 132, 32, 46, Gold);                               // lock
             c.Circle(128, 150, 10, GoldDark);
             c.Rect(120, 60, 16, 10, Gold);
-        }
-
-        static void DrawGem(Canvas2D c)
-        {
-            c.Tri(128, 34, 60, 116, 196, 116, Cyan);                      // crown
-            c.Tri(60, 116, 196, 116, 128, 226, new Color32(88, 176, 208, 255));
-            c.Tri(112, 46, 128, 116, 96, 116, White);                     // facet
-        }
-
-        static void DrawSettings(Canvas2D c)
-        {
-            var body = new Color32(120, 128, 142, 255);
-            for (int i = 0; i < 8; i++)                                   // gear teeth
-                c.RotRect(128, 128, 30, 196, i * 22.5f, body);
-            c.Circle(128, 128, 82, body);
-            c.Circle(128, 128, 40, CreamBg);
-            c.Circle(128, 128, 26, new Color32(72, 78, 92, 255));
         }
 
         static void DrawComplex(Canvas2D c)

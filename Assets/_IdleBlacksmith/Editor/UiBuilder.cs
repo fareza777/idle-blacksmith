@@ -107,7 +107,7 @@ namespace IdleBlacksmith.EditorTools
             oreImg.sprite = pill; oreImg.type = Image.Type.Sliced; oreImg.color = new Color(0.18f, 0.32f, 0.36f, 0.94f);
             SoftShadow(orePill.gameObject);
             var oreIconGo = Box("OreIcon", orePill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(12, 0), new Vector2(48, 48));
-            Img(oreIconGo.gameObject, AssetFactory.LoadIcon("ore"), Color.white).raycastTarget = false;
+            Img(oreIconGo.gameObject, AssetFactory.LoadIcon("gem"), Color.white).raycastTarget = false;
             var oreLabelGo = Box("Label", orePill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(68, 0), new Vector2(150, 48));
             var oreLabel = Txt(oreLabelGo, "0", 36, OreText, TextAlignmentOptions.Left, titleFont);
 

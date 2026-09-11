@@ -266,7 +266,6 @@ namespace IdleBlacksmith.EditorTools
             data.volumeLayerMask = 1;
 
             camGo.AddComponent<AudioListener>();
-            camGo.AddComponent<CameraBreath>();
             return camGo.AddComponent<CameraDirector>();
         }
 
