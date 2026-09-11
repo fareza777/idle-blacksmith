@@ -53,13 +53,7 @@ namespace IdleBlacksmith.EditorTools
         }
 
         static Mesh SaveMesh(MeshBuilder b, string name)
-        {
-            Mesh m = b.Build(name);
-            string path = $"{Paths.Models}/{name}.asset";
-            AssetDatabase.DeleteAsset(path);
-            AssetDatabase.CreateAsset(m, path);
-            return m;
-        }
+            => AssetReplace.SaveMesh(b.Build(name), name, $"{Paths.Models}/{name}.asset");
 
         static GameObject Part(string name, Transform parent, Mesh mesh, Material[] mats, Vector3 localPos)
         {
@@ -105,12 +99,10 @@ namespace IdleBlacksmith.EditorTools
         {
             // Sword (blade along +Z, pivot at guard).
             {
-                Mesh mesh = BuildSwordMesh(0);
-                AssetDatabase.DeleteAsset($"{Paths.Models}/Sword.asset");
-                AssetDatabase.CreateAsset(mesh, $"{Paths.Models}/Sword.asset");
-                carriedSwordMesh = mesh;
+                carriedSwordMesh = AssetReplace.SaveMesh(
+                    BuildSwordMesh(0), "Sword", $"{Paths.Models}/Sword.asset");
                 var root = new GameObject("Sword");
-                Part("Blade", root.transform, mesh, PM, Vector3.zero);
+                Part("Blade", root.transform, carriedSwordMesh, PM, Vector3.zero);
                 SavePrefab(root, SwordPrefab);
             }
             // Ore chunk (rock + crystal).
@@ -242,10 +234,6 @@ namespace IdleBlacksmith.EditorTools
         static Mesh carriedSwordMesh;
 
         static void SavePrefab(GameObject root, string path)
-        {
-            AssetDatabase.DeleteAsset(path);
-            PrefabUtility.SaveAsPrefabAsset(root, path);
-            Object.DestroyImmediate(root);
-        }
+            => AssetReplace.SavePrefab(root, path);
     }
 }

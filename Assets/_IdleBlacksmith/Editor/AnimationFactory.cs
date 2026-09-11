@@ -47,12 +47,7 @@ namespace IdleBlacksmith.EditorTools
         }
 
         static AnimationClip Save(AnimationClip clip)
-        {
-            string path = $"{Paths.Animations}/{clip.name}.anim";
-            AssetDatabase.DeleteAsset(path);
-            AssetDatabase.CreateAsset(clip, path);
-            return clip;
-        }
+            => AssetReplace.SaveClip(clip, $"{Paths.Animations}/{clip.name}.anim");
 
         static void Curve(AnimationClip clip, string path, string prop, params float[] timeValues)
         {
@@ -128,8 +123,7 @@ namespace IdleBlacksmith.EditorTools
             AnimationClip carry, AnimationClip hammer)
         {
             string path = Paths.Animations + "/Worker.controller";
-            AssetDatabase.DeleteAsset(path);
-            var c = AnimatorController.CreateAnimatorControllerAtPath(path);
+            var c = AnimatorController.CreateAnimatorControllerAtPath(AssetReplace.ScratchPath(Paths.Animations, "WorkerController"));
             c.AddParameter("Speed", AnimatorControllerParameterType.Float);
             c.AddParameter("Carry", AnimatorControllerParameterType.Bool);
             c.AddParameter("Hammer", AnimatorControllerParameterType.Bool);
@@ -159,14 +153,13 @@ namespace IdleBlacksmith.EditorTools
             toHammer.AddCondition(AnimatorConditionMode.If, 0, "Hammer");
 
             T(sHammer, sIdle, 0.15f, (AnimatorConditionMode.IfNot, 0, "Hammer"));
-            return c;
+            return AssetReplace.SaveController(c, path);
         }
 
         static AnimatorController BuildCustomerController(AnimationClip idle, AnimationClip walk)
         {
             string path = Paths.Animations + "/Customer.controller";
-            AssetDatabase.DeleteAsset(path);
-            var c = AnimatorController.CreateAnimatorControllerAtPath(path);
+            var c = AnimatorController.CreateAnimatorControllerAtPath(AssetReplace.ScratchPath(Paths.Animations, "CustomerController"));
             c.AddParameter("Speed", AnimatorControllerParameterType.Float);
             AnimatorStateMachine sm = c.layers[0].stateMachine;
             AnimatorState sIdle = sm.AddState("Idle");
@@ -176,7 +169,7 @@ namespace IdleBlacksmith.EditorTools
             sm.defaultState = sIdle;
             T(sIdle, sWalk, 0.12f, (AnimatorConditionMode.Greater, 0.1f, "Speed"));
             T(sWalk, sIdle, 0.12f, (AnimatorConditionMode.Less, 0.1f, "Speed"));
-            return c;
+            return AssetReplace.SaveController(c, path);
         }
 
         static void AssignController(string prefabPath, RuntimeAnimatorController controller)

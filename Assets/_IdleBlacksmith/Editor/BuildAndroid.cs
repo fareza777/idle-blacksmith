@@ -2,6 +2,7 @@ using UnityEditor;
 using UnityEditor.Android;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -18,10 +19,20 @@ namespace IdleBlacksmith.EditorTools
     {
         const string ApkPath = "_Builds/IdleBlacksmith.apk";
 
+        /// <summary>
+        /// Pass this on the command line to skip the asset rebuild. The player build then runs in
+        /// a clean editor session that only reads already-generated assets, which keeps it away
+        /// from the import caches that regenerating everything would invalidate mid-build.
+        /// </summary>
+        const string SkipRebuildFlag = "-skipAssetRebuild";
+
         [MenuItem("Tools/Idle Blacksmith/Build Android APK")]
         public static void BuildApk()
         {
-            EditorBoot.BuildAll(); // make sure generated assets/scene exist and are fresh
+            bool skipRebuild = System.Array.IndexOf(
+                System.Environment.GetCommandLineArgs(), SkipRebuildFlag) >= 0;
+
+            if (!skipRebuild) EditorBoot.BuildAll(); // make sure generated assets/scene exist and are fresh
 
             // ------------------------------------------------ player settings
             PlayerSettings.companyName = "CozyForge";
@@ -47,6 +58,15 @@ namespace IdleBlacksmith.EditorTools
             AssetDatabase.SaveAssets();
 
             // ------------------------------------------------ build
+            // The player build serializes scenes from disk. BuildAll has just rewritten the shop
+            // scene, and leaving it open and dirty while the build runs is what produces a
+            // half-written level0 that crashes on device with "level0 is corrupted". Flush
+            // everything to disk and let the build read a clean, closed scene instead.
+            EditorSceneManager.SaveOpenScenes();
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
             var options = new BuildPlayerOptions
             {
                 scenes = new[] { SceneBuilder.ScenePath },

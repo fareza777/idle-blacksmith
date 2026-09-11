@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3080720571062756718
+--- !u!1 &3152819675470974904
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,63 +8,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8311731125536238742}
-  - component: {fileID: 8903631826289361841}
-  m_Layer: 0
-  m_Name: Building_gate_L4
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8311731125536238742
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3080720571062756718}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 5086047647939107979}
-  - {fileID: 5223784485182935278}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8903631826289361841
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3080720571062756718}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ca2ec72188f45f4b934d7286de3e9f4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::IdleBlacksmith.Gameplay.BuildingFlourish
-  floaters: []
-  floatAmplitude: 0.1
-  floatSpeed: 1.3
-  bursts: []
-  burstInterval: 5
-  glow: {fileID: 4841613300276349066}
-  glowBase: 2.4
-  glowSwing: 0.45
-  glowSpeed: 1.7
---- !u!1 &3729483254652014582
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5223784485182935278}
-  - component: {fileID: 4841613300276349066}
+  - component: {fileID: 3705540797837688593}
+  - component: {fileID: 2896159676307902928}
   m_Layer: 0
   m_Name: PortalLight
   m_TagString: Untagged
@@ -72,28 +17,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5223784485182935278
+--- !u!4 &3705540797837688593
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3729483254652014582}
+  m_GameObject: {fileID: 3152819675470974904}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1.3859999, z: -0.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8311731125536238742}
+  m_Father: {fileID: 8114394950991219331}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!108 &4841613300276349066
+--- !u!108 &2896159676307902928
 Light:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3729483254652014582}
+  m_GameObject: {fileID: 3152819675470974904}
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
@@ -152,7 +97,7 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
---- !u!1 &4805259076643676404
+--- !u!1 &5518966046395431789
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -160,9 +105,64 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5086047647939107979}
-  - component: {fileID: 4117102661038383646}
-  - component: {fileID: 7192478130602603381}
+  - component: {fileID: 8114394950991219331}
+  - component: {fileID: 4295494015266697473}
+  m_Layer: 0
+  m_Name: Building_gate_L4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8114394950991219331
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5518966046395431789}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1283857056159221682}
+  - {fileID: 3705540797837688593}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4295494015266697473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5518966046395431789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ca2ec72188f45f4b934d7286de3e9f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IdleBlacksmith.Gameplay.BuildingFlourish
+  floaters: []
+  floatAmplitude: 0.1
+  floatSpeed: 1.3
+  bursts: []
+  burstInterval: 5
+  glow: {fileID: 2896159676307902928}
+  glowBase: 2.4
+  glowSwing: 0.45
+  glowSpeed: 1.7
+--- !u!1 &8267623514255341838
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1283857056159221682}
+  - component: {fileID: 3417297062963311160}
+  - component: {fileID: 2398712815961190740}
   m_Layer: 0
   m_Name: Mesh
   m_TagString: Untagged
@@ -170,36 +170,36 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5086047647939107979
+--- !u!4 &1283857056159221682
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4805259076643676404}
+  m_GameObject: {fileID: 8267623514255341838}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8311731125536238742}
+  m_Father: {fileID: 8114394950991219331}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &4117102661038383646
+--- !u!33 &3417297062963311160
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4805259076643676404}
+  m_GameObject: {fileID: 8267623514255341838}
   m_Mesh: {fileID: 4300000, guid: 30c733535665ae14eb00f97b449ed462, type: 2}
---- !u!23 &7192478130602603381
+--- !u!23 &2398712815961190740
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4805259076643676404}
+  m_GameObject: {fileID: 8267623514255341838}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1

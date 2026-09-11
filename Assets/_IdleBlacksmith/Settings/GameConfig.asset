@@ -242,7 +242,7 @@ MonoBehaviour:
     craftDuration: 3.2
     requiredSmithyLevel: 1
     requiredMineLevel: 0
-    swordPrefab: {fileID: 3904159096346708307, guid: cffa8cc058209234ea17542312f4c5b7, type: 3}
+    swordPrefab: {fileID: 1231381036963706882, guid: cffa8cc058209234ea17542312f4c5b7, type: 3}
     bladeColor: 40
   - id: iron
     displayName: Iron Sword
@@ -253,7 +253,7 @@ MonoBehaviour:
     craftDuration: 4
     requiredSmithyLevel: 2
     requiredMineLevel: 0
-    swordPrefab: {fileID: 3361545050183286364, guid: 720d77cb1d8f7a848bb28bbd78e4ad46, type: 3}
+    swordPrefab: {fileID: 8569551720534233613, guid: 720d77cb1d8f7a848bb28bbd78e4ad46, type: 3}
     bladeColor: 40
   - id: steel
     displayName: Steel Sabre
@@ -264,7 +264,7 @@ MonoBehaviour:
     craftDuration: 5
     requiredSmithyLevel: 3
     requiredMineLevel: 0
-    swordPrefab: {fileID: 1075462511075482850, guid: 552ff5c26808b234abca3f255fc20749, type: 3}
+    swordPrefab: {fileID: 325418125089619118, guid: 552ff5c26808b234abca3f255fc20749, type: 3}
     bladeColor: 40
   - id: silver
     displayName: Silver Edge
@@ -275,7 +275,7 @@ MonoBehaviour:
     craftDuration: 6
     requiredSmithyLevel: 3
     requiredMineLevel: 2
-    swordPrefab: {fileID: 6674409238896764202, guid: ec1749fbdc24daf4a8777b3072f212a7, type: 3}
+    swordPrefab: {fileID: 2986372140127373836, guid: ec1749fbdc24daf4a8777b3072f212a7, type: 3}
     bladeColor: 40
   - id: mithril
     displayName: Mithril Longsword
@@ -286,7 +286,7 @@ MonoBehaviour:
     craftDuration: 7.5
     requiredSmithyLevel: 4
     requiredMineLevel: 3
-    swordPrefab: {fileID: 3606616223245686817, guid: 45adde9f1f19d594481c12a7ef930410, type: 3}
+    swordPrefab: {fileID: 988116297695304717, guid: 45adde9f1f19d594481c12a7ef930410, type: 3}
     bladeColor: 40
   - id: dragonsteel
     displayName: Dragonsteel Greatsword
@@ -297,7 +297,7 @@ MonoBehaviour:
     craftDuration: 9
     requiredSmithyLevel: 5
     requiredMineLevel: 4
-    swordPrefab: {fileID: 9070354558213152864, guid: ac64d29a15ee56d4c8720e1ddbd6a01c, type: 3}
+    swordPrefab: {fileID: 6705926366516421157, guid: ac64d29a15ee56d4c8720e1ddbd6a01c, type: 3}
     bladeColor: 40
   runes:
   - id: rune_flame
@@ -912,16 +912,16 @@ MonoBehaviour:
     target: 600
     bonusKind: 0
     bonus: 0.04
-  workerPrefab: {fileID: 6449812203960417740, guid: 25182fd6a6fc62348aa8bb3ada4eda28, type: 3}
-  helperPrefab: {fileID: 7179213584375850706, guid: 083b0901ccd174747a41c075f0565afa, type: 3}
-  customerPrefabA: {fileID: 3531243824080966597, guid: 1d08f49f91edf184283cde0f1e58c8bc, type: 3}
-  customerPrefabB: {fileID: 4755300925614321708, guid: 15f74a505191f8340bba110430fe5493, type: 3}
-  swordPrefab: {fileID: 3904159096346708307, guid: cffa8cc058209234ea17542312f4c5b7, type: 3}
-  oreChunkPrefab: {fileID: 9147819223927269173, guid: a1d9016c2feadbd4ebfd9626a66d342b, type: 3}
+  workerPrefab: {fileID: 1208270762283020123, guid: 25182fd6a6fc62348aa8bb3ada4eda28, type: 3}
+  helperPrefab: {fileID: 5151690350410580974, guid: 083b0901ccd174747a41c075f0565afa, type: 3}
+  customerPrefabA: {fileID: 6717537910521031009, guid: 1d08f49f91edf184283cde0f1e58c8bc, type: 3}
+  customerPrefabB: {fileID: 1825171781917545765, guid: 15f74a505191f8340bba110430fe5493, type: 3}
+  swordPrefab: {fileID: 1231381036963706882, guid: cffa8cc058209234ea17542312f4c5b7, type: 3}
+  oreChunkPrefab: {fileID: 8549194295169169001, guid: a1d9016c2feadbd4ebfd9626a66d342b, type: 3}
   rarityGems:
   - {fileID: 2100000, guid: f153a870602450b4ebc65bc8a9e6aeaa, type: 2}
   - {fileID: 2100000, guid: 5276a3a093993744f8e8ab45771aa254, type: 2}
   - {fileID: 2100000, guid: b8471345792c602488fc34c03298acdc, type: 2}
   - {fileID: 2100000, guid: f861e7a3c99dee844ac7e77fa0ecec6b, type: 2}
   - {fileID: 2100000, guid: 9ee529ab45c5aac4182dc02c3af7bd1c, type: 2}
-  raritySparklePrefab: {fileID: 4997970653848394817, guid: 1efd08fdc2c83404db1a5b00a50c0c28, type: 3}
+  raritySparklePrefab: {fileID: 1055889702366721936, guid: 1efd08fdc2c83404db1a5b00a50c0c28, type: 3}

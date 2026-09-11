@@ -162,12 +162,10 @@ namespace IdleBlacksmith.EditorTools
             }
         }
 
-        /// <summary>Rebuilds a prefab asset from a temporary GameObject, exactly like the core rows.</summary>
+        /// <summary>Rebuilds a prefab asset from a temporary GameObject, in place so its GUID survives.</summary>
         static GameObject SavePrefabRow(GameObject root, string path)
         {
-            AssetDatabase.DeleteAsset(path);
-            PrefabUtility.SaveAsPrefabAsset(root, path);
-            Object.DestroyImmediate(root);
+            AssetReplace.SavePrefab(root, path);
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
             return AssetDatabase.LoadAssetAtPath<GameObject>(path);
         }

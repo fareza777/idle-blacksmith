@@ -58,17 +58,19 @@ namespace IdleBlacksmith.EditorTools
             Spawn(ModelFactory.SignPostPrefab, V(3.3f, 0, -4.6f), 160f);
 
             // ------------------------------------------------ the rest of the complex
-            // Each plot faces the forge, so every building reads as part of one yard. The cluster
-            // is deliberately tight and biased along Z: the camera looks down a portrait screen,
-            // where horizontal spread costs far more framing than depth does.
+            // Each plot faces the forge, so every building reads as part of one yard. The plots sit
+            // clear of the Smithy's *widest* growth stage (level 5 reaches x ±5.3, z -3.5..5.9),
+            // otherwise the fully grown forge swallows the buildings around it.
+            // The front-right is deliberately left clear: that is the customer approach path
+            // (spawn -> yard -> door -> counter), so nothing may block it.
             var plotsRoot = new GameObject("Buildings");
             Vector3 shopCentre = V(0.15f, 0f, -0.55f);
             BuildingVisuals[] plots =
             {
-                MakePlot(plotsRoot, BuildingId.Mine, V(-4.2f, 0, 3.2f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Market, V(4.4f, 0, -2.6f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Gate, V(-3.2f, 0, -5.2f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Sanctum, V(4.2f, 0, 3.6f), shopCentre),
+                MakePlot(plotsRoot, BuildingId.Mine, V(-7.6f, 0, 1.8f), shopCentre),
+                MakePlot(plotsRoot, BuildingId.Market, V(7.6f, 0, 1.8f), shopCentre),
+                MakePlot(plotsRoot, BuildingId.Gate, V(-4.6f, 0, -6.6f), shopCentre),
+                MakePlot(plotsRoot, BuildingId.Sanctum, V(7.0f, 0, 6.4f), shopCentre),
             };
 
             Transform helperSpawn = Marker("HelperSpawn", V(1.3f, 0, 0.85f));

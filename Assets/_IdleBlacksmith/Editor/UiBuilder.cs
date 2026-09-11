@@ -791,9 +791,7 @@ namespace IdleBlacksmith.EditorTools
             row.content = content;
 
             string path = Paths.Prefabs + "/UI_UpgradeRow.prefab";
-            AssetDatabase.DeleteAsset(path);
-            PrefabUtility.SaveAsPrefabAsset(root, path);
-            Object.DestroyImmediate(root);
+            AssetReplace.SavePrefab(root, path);
             AssetDatabase.ImportAsset(path);
             return AssetDatabase.LoadAssetAtPath<GameObject>(path);
         }
@@ -890,9 +888,7 @@ namespace IdleBlacksmith.EditorTools
             row.content = content;
 
             string path = Paths.Prefabs + "/UI_DungeonRow.prefab";
-            AssetDatabase.DeleteAsset(path);
-            PrefabUtility.SaveAsPrefabAsset(root, path);
-            Object.DestroyImmediate(root);
+            AssetReplace.SavePrefab(root, path);
             // Reload through the AssetDatabase: GetComponent on the in-memory result of
             // SaveAsPrefabAsset can return null for a script compiled in this same session.
             AssetDatabase.ImportAsset(path);
@@ -921,9 +917,7 @@ namespace IdleBlacksmith.EditorTools
             ft.label = label;
 
             string path = Paths.Prefabs + "/UI_FloatingText.prefab";
-            AssetDatabase.DeleteAsset(path);
-            PrefabUtility.SaveAsPrefabAsset(root, path);
-            Object.DestroyImmediate(root);
+            AssetReplace.SavePrefab(root, path);
             AssetDatabase.ImportAsset(path);
             return AssetDatabase.LoadAssetAtPath<GameObject>(path);
         }

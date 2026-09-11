@@ -38,7 +38,8 @@ namespace IdleBlacksmith.Gameplay
 
         [Tooltip("Breathing room around the outermost building")]
         public float padding = 0.4f;
-        public float maxSize = 24f;
+        [Tooltip("Hard limit on how far the camera may pull back, so the yard never shrinks to nothing")]
+        public float maxSize = 30f;
 
         [Tooltip("Positive values push the complex up the screen, clear of the bottom bar")]
         public float verticalBias = 0.10f;
@@ -202,10 +203,14 @@ namespace IdleBlacksmith.Gameplay
 
         readonly System.Collections.Generic.List<Vector3> points = new System.Collections.Generic.List<Vector3>(256);
 
-        /// <summary>Adds a renderer's bounds corners. The 46-unit ground plate is skipped.</summary>
+        /// <summary>
+        /// Adds a mesh renderer's bounds corners. Only meshes count: particle systems report bounds
+        /// sized for their maximum particle budget, which is far larger than the effect itself and
+        /// would drag the camera much too far back.
+        /// </summary>
         void CollectRenderer(Renderer r)
         {
-            if (r == null) return;
+            if (r == null || !(r is MeshRenderer)) return;
             Bounds b = r.bounds;
             if (b.size.x > 20f || b.size.z > 20f) return;
 

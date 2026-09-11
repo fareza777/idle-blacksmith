@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3606616223245686817
+--- !u!1 &988116297695304717
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,7 +8,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6494427746580130302}
+  - component: {fileID: 5846366412210737287}
   m_Layer: 0
   m_Name: Sword_mithril
   m_TagString: Untagged
@@ -16,24 +16,24 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6494427746580130302
+--- !u!4 &5846366412210737287
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3606616223245686817}
+  m_GameObject: {fileID: 988116297695304717}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 860102658769566933}
-  - {fileID: 8150066797697501534}
+  - {fileID: 1592379842170184683}
+  - {fileID: 6857330800170635089}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &4485265182245712477
+--- !u!1 &7571100547578131251
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,46 +41,46 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 860102658769566933}
-  - component: {fileID: 7945886242784796415}
-  - component: {fileID: 4095571005100213626}
+  - component: {fileID: 6857330800170635089}
+  - component: {fileID: 1580136403909614922}
+  - component: {fileID: 8468493675094820167}
   m_Layer: 0
-  m_Name: Blade
+  m_Name: Gem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &860102658769566933
+--- !u!4 &6857330800170635089
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4485265182245712477}
+  m_GameObject: {fileID: 7571100547578131251}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6494427746580130302}
+  m_Father: {fileID: 5846366412210737287}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &7945886242784796415
+--- !u!33 &1580136403909614922
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4485265182245712477}
-  m_Mesh: {fileID: 4300000, guid: f484f734f5b38544c86902fb1095183f, type: 2}
---- !u!23 &4095571005100213626
+  m_GameObject: {fileID: 7571100547578131251}
+  m_Mesh: {fileID: 4300000, guid: c5465b6103f847f4ca5b44afe8305739, type: 2}
+--- !u!23 &8468493675094820167
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4485265182245712477}
+  m_GameObject: {fileID: 7571100547578131251}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -100,6 +100,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 25f1948f3ba3fd74e83da16eff9c7f63, type: 2}
+  - {fileID: 2100000, guid: f153a870602450b4ebc65bc8a9e6aeaa, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -123,7 +124,7 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &8847419410309602963
+--- !u!1 &8423135840506712206
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131,46 +132,46 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8150066797697501534}
-  - component: {fileID: 7804669995854961630}
-  - component: {fileID: 251088344810639180}
+  - component: {fileID: 1592379842170184683}
+  - component: {fileID: 5464935783558837296}
+  - component: {fileID: 6860451324319145111}
   m_Layer: 0
-  m_Name: Gem
+  m_Name: Blade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8150066797697501534
+--- !u!4 &1592379842170184683
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8847419410309602963}
+  m_GameObject: {fileID: 8423135840506712206}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6494427746580130302}
+  m_Father: {fileID: 5846366412210737287}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &7804669995854961630
+--- !u!33 &5464935783558837296
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8847419410309602963}
-  m_Mesh: {fileID: 4300000, guid: c5465b6103f847f4ca5b44afe8305739, type: 2}
---- !u!23 &251088344810639180
+  m_GameObject: {fileID: 8423135840506712206}
+  m_Mesh: {fileID: 4300000, guid: f484f734f5b38544c86902fb1095183f, type: 2}
+--- !u!23 &6860451324319145111
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8847419410309602963}
+  m_GameObject: {fileID: 8423135840506712206}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -190,7 +191,6 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 25f1948f3ba3fd74e83da16eff9c7f63, type: 2}
-  - {fileID: 2100000, guid: f153a870602450b4ebc65bc8a9e6aeaa, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -70,10 +70,8 @@ namespace IdleBlacksmith.EditorTools
             craftPoint.transform.SetParent(root.transform, false);
             craftPoint.transform.localPosition = new Vector3(0, craftY, 0);
 
-            Mesh hot = BuildSwordMesh(1);
-            hot.name = name + "_HotSword";
-            AssetDatabase.DeleteAsset($"{Paths.Models}/{name}_HotSword.asset");
-            AssetDatabase.CreateAsset(hot, $"{Paths.Models}/{name}_HotSword.asset");
+            Mesh hot = AssetReplace.SaveMesh(
+                BuildSwordMesh(1), name + "_HotSword", $"{Paths.Models}/{name}_HotSword.asset");
             GameObject hotGo = Part("HotSword", root.transform, hot, new[] { hotSwordMat }, new Vector3(0, craftY - 0.045f, 0.03f));
             hotGo.transform.localRotation = Quaternion.Euler(0, 25f, 0);
 
@@ -393,9 +391,11 @@ namespace IdleBlacksmith.EditorTools
 
         public static TierDims EnvironmentDims(int tier)
         {
+            // Width grows slowly and depth grows fast: the camera looks down a portrait screen,
+            // where horizontal spread is what forces it to pull back. Growth along Z is nearly free.
             return new TierDims
             {
-                halfWidth = 2.5f + 0.7f * (tier - 1),
+                halfWidth = 2.5f + 0.45f * (tier - 1),
                 frontZ = -3.5f,
                 backZ = 3.5f + 0.6f * (tier - 1),
                 height = 2.4f + 0.3f * (tier - 1),
