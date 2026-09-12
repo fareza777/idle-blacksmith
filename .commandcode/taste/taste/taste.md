@@ -7,3 +7,7 @@
 - Keeps the project in a GitHub repository and expects the agent to handle git and push commits to the remote. Confidence: 0.6
 - Prefers the agent to leverage the project's existing tooling/scripts (e.g. its asset-generation "game dev tools") as part of the work rather than ignoring them. Confidence: 0.55
 - Holds the visual output to a high standard and treats stretched art, a jittering camera and overlapping UI as defects to be fixed — not cosmetic nitpicks. Confidence: 0.6
+- Expects a clear, self-explaining flow so the user always knows the next step — repeatedly asks for a "jelas" workflow / "alur yang jelas" and treats an unclear progression path as a defect. Confidence: 0.7
+- Prefers gradual, earned progression over everything being available at once — objects to content appearing without pacing ("tiba2 juga sudah 2org blacksmith, harusnya kan bertahap"). Confidence: 0.6
+- Expects things presented in the UI/world to be actionable, not inert — flags non-interactable elements ("tambah2 bangunan juga gak bisa di apa2in") as a problem. Confidence: 0.55
+- Expects standard mobile direct-manipulation controls over the game world (pinch-zoom, drag to pan), treating their absence as a defect ("harusnya bisa zoom dan geser di world nya"). Confidence: 0.55

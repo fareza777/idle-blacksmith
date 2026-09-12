@@ -74,11 +74,13 @@ namespace IdleBlacksmith.EditorTools
             };
 
             Transform helperSpawn = Marker("HelperSpawn", V(1.3f, 0, 0.85f));
-            // customer flow: along the yard path -> front door -> the counter
-            Transform wpYard = Marker("WpYard", V(2.4f, 0, -4.55f));
-            Transform wpDoor = Marker("WpDoor", V(0.8f, 0, -4.1f));
-            Transform wpCounter = Marker("WpCounter", V(0.8f, 0, -2.8f));
-            Transform customerSpawn = Marker("CustomerSpawn", V(6.4f, 0, -5.7f));
+            // Customer flow: along the yard path -> front door -> the counter.
+            // The yard waypoints sit on the grass (the ground slab's top face), not on the shop
+            // floor, otherwise the customer hovers a few centimetres above the grass on the way in.
+            Transform wpYard = Marker("WpYard", V(2.4f, ModelFactory.OutdoorGroundY, -4.55f));
+            Transform wpDoor = Marker("WpDoor", V(0.8f, 0f, -4.1f));
+            Transform wpCounter = Marker("WpCounter", V(0.8f, 0f, -2.8f));
+            Transform customerSpawn = Marker("CustomerSpawn", V(6.4f, ModelFactory.OutdoorGroundY, -5.7f));
 
             // ------------------------------------------------ systems
             var gameGo = new GameObject("Game");

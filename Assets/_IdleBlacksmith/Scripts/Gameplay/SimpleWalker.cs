@@ -15,6 +15,11 @@ namespace IdleBlacksmith.Gameplay
 
         public float turnSpeed = 12f;
 
+        [Tooltip("How fast a step between ground levels is taken, in units per second. The yard sits " +
+                 "a few centimetres below the shop floor, and without this the walker would keep " +
+                 "whatever height it spawned at and appear to float off the grass.")]
+        public float stepSpeed = 1.2f;
+
         Animator anim;
 
         void Awake()
@@ -24,7 +29,6 @@ namespace IdleBlacksmith.Gameplay
 
         public IEnumerator MoveTo(Vector3 target, float speed, float arriveDist = 0.07f)
         {
-            target.y = transform.position.y;
             while (true)
             {
                 Vector3 pos = transform.position;
@@ -34,7 +38,13 @@ namespace IdleBlacksmith.Gameplay
                 if (dist <= arriveDist) break;
 
                 float effective = speed * Mathf.Clamp01(dist * 2f + 0.2f);
-                transform.position = Vector3.MoveTowards(pos, target, effective * Time.deltaTime);
+                Vector3 next = Vector3.MoveTowards(pos, new Vector3(target.x, pos.y, target.z),
+                    effective * Time.deltaTime);
+
+                // Height is eased separately so stepping between the grass and the floor reads as a
+                // step rather than a jump, and never blocks arrival in the horizontal plane.
+                next.y = Mathf.MoveTowards(pos.y, target.y, stepSpeed * Time.deltaTime);
+                transform.position = next;
 
                 if (to.sqrMagnitude > 0.0001f)
                 {

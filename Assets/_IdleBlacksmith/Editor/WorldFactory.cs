@@ -389,6 +389,12 @@ namespace IdleBlacksmith.EditorTools
             public float height;
         }
 
+        /// <summary>
+        /// Height of the grass slab's top face. Characters' feet rest at y = 0, so anything
+        /// walking outdoors has to be placed here rather than at 0, or it hovers.
+        /// </summary>
+        public const float OutdoorGroundY = -0.06f;
+
         public static TierDims EnvironmentDims(int tier)
         {
             // Width is capped hard: the camera frames the forge tightly so it stays the hero of the
@@ -424,7 +430,6 @@ namespace IdleBlacksmith.EditorTools
 
             // ---------------- outside: grass, path, vegetation
             b.Box(new Vector3(0, -0.11f, 0), new Vector3(46f, 0.10f, 46f), Palette.Grass, 0, Palette.Grass);
-
             // stone path from the door to the customer approach (front-right)
             Vector3[] path =
             {

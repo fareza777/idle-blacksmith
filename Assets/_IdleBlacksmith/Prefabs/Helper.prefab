@@ -612,6 +612,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IdleBlacksmith.Gameplay.SimpleWalker
   turnSpeed: 12
+  stepSpeed: 1.2
 --- !u!114 &5819661797261144297
 MonoBehaviour:
   m_ObjectHideFlags: 0

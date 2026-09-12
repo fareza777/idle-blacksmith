@@ -694,6 +694,13 @@ namespace IdleBlacksmith.EditorTools
                 },
                 new OnboardingPanel.Page
                 {
+                    art = LoadPageArt("page_forge", "onboard_forge"),
+                    title = "Look Around",
+                    body = "Drag the yard to pan, pinch to zoom, and double-tap to snap back to the forge. "
+                         + "Tap the marked plots — or the COMPLEX button — to raise a new building.",
+                },
+                new OnboardingPanel.Page
+                {
                     art = LoadPageArt("page_dungeon", "onboard_dungeon"),
                     title = "Raid the Dungeons",
                     body = "Send adventurers through the Dungeon Gate. They return with gold and relic ore, "

@@ -19,21 +19,45 @@ namespace IdleBlacksmith.Gameplay
         [Tooltip("Tap tolerance as a fraction of screen height, so it feels the same on any device")]
         public float tapRadiusNormalized = 0.12f;
 
+        [Tooltip("How far the finger may travel and still count as a tap rather than a drag")]
+        public float dragThreshold = 22f;
+
+        [Tooltip("The camera director; taps are ignored while the player is dragging the view")]
+        public CameraDirector director;
+
         Camera cam;
+        Vector2 pressedAt;
+        bool pressed;
+        bool pressedOverUI;
 
         void Awake()
         {
             cam = Camera.main;
+            if (director == null) director = FindFirstObjectByType<CameraDirector>();
         }
 
         void Update()
         {
             if (buildings == null || buildings.Length == 0) return;
             if (cam == null) { cam = Camera.main; if (cam == null) return; }
-            if (!Input.GetMouseButtonDown(0)) return;
 
-            var es = UnityEngine.EventSystems.EventSystem.current;
-            if (es != null && es.IsPointerOverGameObject()) return;
+            // A building opens on release, and only when the press stayed put: otherwise every
+            // attempt to drag the view would also open whatever was under the finger.
+            if (Input.GetMouseButtonDown(0))
+            {
+                pressed = true;
+                pressedAt = Input.mousePosition;
+                var es = UnityEngine.EventSystems.EventSystem.current;
+                pressedOverUI = es != null && es.IsPointerOverGameObject();
+                return;
+            }
+
+            if (!Input.GetMouseButtonUp(0) || !pressed) return;
+            pressed = false;
+
+            if (pressedOverUI) return;
+            if (director != null && director.IsDragging) return;
+            if (Vector2.Distance(Input.mousePosition, pressedAt) > dragThreshold) return;
 
             TryPick(Input.mousePosition);
         }

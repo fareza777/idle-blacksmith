@@ -52,6 +52,32 @@ namespace IdleBlacksmith.Gameplay
         public float swayAmount = 0.04f;
         public float swaySpeed = 0.35f;
 
+        [Header("Player pan and zoom")]
+        [Tooltip("How far the player may drag the view away from the auto-framed centre, in world units")]
+        public float panLimit = 7f;
+        [Tooltip("Closest the player may zoom in, as an orthographic size")]
+        public float manualMinSize = 3.4f;
+        [Tooltip("Furthest the player may zoom out, as an orthographic size")]
+        public float manualMaxSize = 19f;
+        [Tooltip("Drag distance in pixels before a press counts as a pan rather than a tap")]
+        public float dragThreshold = 22f;
+
+        /// <summary>Player-applied shift from the auto-framed centre; reset by a double tap.</summary>
+        Vector3 userPan;
+        /// <summary>Player-applied zoom offset on top of the auto-framed size.</summary>
+        float userZoom;
+
+        Vector2 pressedAt;
+        bool pressed;
+        bool pressedOverUI;
+        bool dragging;
+        float lastTapTime = -10f;
+        Vector2 lastTapPos;
+        float pinchPrev;
+
+        /// <summary>True while the player is dragging the view, so other input can stand down.</summary>
+        public bool IsDragging => dragging;
+
         Camera cam;
         Vector3 focus;
         float size;
@@ -60,6 +86,8 @@ namespace IdleBlacksmith.Gameplay
         Vector3 settledPos;
         Vector3 targetPos;
         float targetSize;
+        /// <summary>Frame size the world asks for, before the player's zoom offset.</summary>
+        float autoSize;
         Vector3 offsetDir;
         float distance;
         bool easing;
@@ -91,6 +119,7 @@ namespace IdleBlacksmith.Gameplay
             settledPos = transform.position;
             targetPos = settledPos;
             targetSize = size;
+            autoSize = size;
         }
 
         void Start()
@@ -108,6 +137,8 @@ namespace IdleBlacksmith.Gameplay
         void Update()
         {
             if (!initialized) EnsureInit();
+            HandleGestures();
+
             // Cheap safety net: the anchor set can change without an event (prestige, load).
             checkTimer -= Time.deltaTime;
             if (checkTimer <= 0f)
@@ -140,6 +171,157 @@ namespace IdleBlacksmith.Gameplay
             // the idle sway is applied on top of the settled position instead.
             ApplySway();
         }
+
+        /// <summary>
+        /// Drag to shift the view, pinch (or scroll) to zoom, double tap to snap back to the
+        /// auto-framed shot. The player's pan and zoom are kept as offsets from the auto framing
+        /// rather than replacements, so a building going up still re-frames sensibly underneath.
+        /// </summary>
+        void HandleGestures()
+        {
+            // A press that starts on a panel belongs to that panel, not to the view.
+            if (pressed && pressedOverUI) { Reset(); return; }
+            if (!pressed && IsOverUI()) return;
+
+            if (Input.touchCount >= 2) { HandlePinch(); return; }
+            if (Input.touchCount == 1) { HandleOneFinger(Input.GetTouch(0)); return; }
+
+            // Mouse and trackpad fallback — this is also what the editor previews exercise.
+            HandleMouse();
+        }
+
+        static bool IsOverUI()
+        {
+            var es = UnityEngine.EventSystems.EventSystem.current;
+            return es != null && es.IsPointerOverGameObject();
+        }
+
+        void HandlePinch()
+        {
+            dragging = true;
+            float d = Vector2.Distance(Input.GetTouch(0).position, Input.GetTouch(1).position);
+            if (pinchPrev > 1f)
+            {
+                // Screen pixels to ortho size: the zoom tracks the fingers rather than a fixed rate.
+                float perPixel = 2f * CurrentSize() / Mathf.Max(1f, Screen.height);
+                userZoom -= (d - pinchPrev) * perPixel * 0.9f;
+                ClampZoom();
+                Frame();
+            }
+            pinchPrev = d;
+        }
+
+        void HandleOneFinger(Touch t)
+        {
+            switch (t.phase)
+            {
+                case TouchPhase.Began: BeginPress(t.position); break;
+                case TouchPhase.Moved:
+                case TouchPhase.Stationary: Drag(t.position, t.deltaPosition); break;
+                case TouchPhase.Ended: EndPress(t.position); break;
+                case TouchPhase.Canceled: Reset(); break;
+            }
+        }
+
+        void HandleMouse()
+        {
+            if (Input.GetMouseButtonDown(0)) BeginPress(Input.mousePosition);
+            else if (Input.GetMouseButton(0)) Drag(Input.mousePosition, new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 14f);
+            else if (Input.GetMouseButtonUp(0)) EndPress(Input.mousePosition);
+            else Reset();
+
+            // Wheel zoom, handy in the editor.
+            float wheel = Input.GetAxis("Mouse ScrollWheel");
+            if (Mathf.Abs(wheel) > 0.0001f)
+            {
+                userZoom -= wheel * 6f;
+                ClampZoom();
+                Frame();
+            }
+        }
+
+        void BeginPress(Vector2 pos)
+        {
+            pressed = true;
+            dragging = false;
+            pressedOverUI = IsOverUI();
+            pressedAt = pos;
+            pinchPrev = 0f;
+        }
+
+        void Drag(Vector2 pos, Vector2 delta)
+        {
+            if (!pressed) return;
+
+            if (!dragging && Vector2.Distance(pos, pressedAt) > dragThreshold)
+            {
+                dragging = true;
+                // Once a drag starts, the gesture can no longer be a tap.
+                lastTapTime = -10f;
+            }
+            if (!dragging) return;
+
+            // Screen pixels to world units. Both axes share the vertical scale because an ortho
+            // camera's size is the half-height.
+            float perPixel = 2f * CurrentSize() / Mathf.Max(1f, Screen.height);
+            Vector3 right = Vector3.Cross(Vector3.up, offsetDir).normalized;
+            Vector3 viewUp = Vector3.Cross(offsetDir, right).normalized;
+
+            // Screen-up is tilted away from vertical, so a drag along it covers more ground than
+            // the pixel scale suggests; dividing by the vertical component cancels that out.
+            Vector3 groundUp = new Vector3(viewUp.x, 0f, viewUp.z);
+            if (groundUp.sqrMagnitude > 0.0001f) groundUp.Normalize();
+
+            userPan += right * (-delta.x * perPixel);
+            userPan += groundUp * (-delta.y * perPixel / Mathf.Max(0.25f, viewUp.y));
+
+            if (userPan.magnitude > panLimit) userPan = userPan.normalized * panLimit;
+            Frame();
+        }
+
+        void EndPress(Vector2 pos)
+        {
+            if (dragging) { Reset(); return; }
+
+            bool isDoubleTap = Time.unscaledTime - lastTapTime < 0.32f
+                               && Vector2.Distance(pos, lastTapPos) < 60f;
+            if (isDoubleTap)
+            {
+                ResetView();
+                lastTapTime = -10f;
+            }
+            else
+            {
+                lastTapTime = Time.unscaledTime;
+                lastTapPos = pos;
+            }
+            Reset();
+        }
+
+        void Reset()
+        {
+            pressed = false;
+            dragging = false;
+            pinchPrev = 0f;
+        }
+
+        void ClampZoom()
+        {
+            userZoom = Mathf.Clamp(userZoom, manualMinSize - autoSize, manualMaxSize - autoSize);
+        }
+
+        /// <summary>Snaps the view back to the auto-framed shot.</summary>
+        public void ResetView()
+        {
+            userPan = Vector3.zero;
+            userZoom = 0f;
+            Frame();
+            AudioManager.Play("pop", 0.03f);
+        }
+
+        float CurrentSize() => cam != null && cam.orthographicSize > 0.01f
+            ? cam.orthographicSize
+            : Mathf.Max(0.01f, size);
 
         /// <summary>Places the camera at its settled position plus the idle sway offset.</summary>
         void ApplySway()
@@ -219,10 +401,17 @@ namespace IdleBlacksmith.Gameplay
 
             float aspect = cam != null && cam.aspect > 0.05f ? cam.aspect : 0.5625f;
             float needed = Mathf.Max(halfUp, halfRight / aspect) + padding;
-            targetSize = Mathf.Clamp(needed, baseSize, maxSize);
+
+            // What the world asks for, before the player's own zoom. Kept separate so the zoom
+            // clamp has a stable reference that does not drift as the player pinches.
+            autoSize = Mathf.Clamp(needed, baseSize, maxSize);
+            targetSize = Mathf.Clamp(autoSize + userZoom, manualMinSize, manualMaxSize);
 
             // Slide the shot up so the yard sits above the bottom bar instead of behind it.
             focus += viewUp * (targetSize * verticalBias);
+
+            // The player's drag is a pure XZ shift, so it slides the view without tilting it.
+            focus += userPan;
 
             // Pull back as the frame widens so nothing clips through the near plane.
             distance = (baseFocus - new Vector3(5.5f, 10.1f, -8.9f)).magnitude + (targetSize - baseSize) * 2.2f;
