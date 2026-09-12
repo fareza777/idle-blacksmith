@@ -29,8 +29,16 @@ namespace IdleBlacksmith.UI
         BuildingDef def;
         ComplexPanel panel;
 
+        public string Id => def != null ? def.id : null;
+
         static readonly Color CostBad = new Color(1f, 0.5f, 0.45f);
         static readonly Color LevelGood = new Color(0.36f, 0.62f, 0.35f);
+
+        /// <summary>Short scale pulse used when the row is opened from a tap on the building itself.</summary>
+        public void FlashHighlight()
+        {
+            Tween.PunchScale(transform, Vector3.one * 0.05f, 0.45f);
+        }
 
         public void Bind(BuildingDef buildingDef, ComplexPanel owner)
         {

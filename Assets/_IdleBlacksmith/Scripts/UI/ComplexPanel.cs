@@ -117,6 +117,22 @@ namespace IdleBlacksmith.UI
 
         public void Toggle() { if (IsOpen) Close(); else Open(); }
 
+        /// <summary>Opens, then flashes the row for <paramref name="buildingId"/> so a world tap lands somewhere obvious.</summary>
+        public void OpenFocused(string buildingId)
+        {
+            bool wasOpen = IsOpen;
+            if (!wasOpen) Open();
+            StartCoroutine(FlashRowNextFrame(buildingId));
+        }
+
+        System.Collections.IEnumerator FlashRowNextFrame(string buildingId)
+        {
+            // Wait one frame so the layout groups have positioned the rows before we look them up.
+            yield return null;
+            foreach (BuildingRow r in rows)
+                if (r != null && r.Id == buildingId) r.FlashHighlight();
+        }
+
         /// <summary>Editor tooling hook: fully-open state without tweens.</summary>
         public void PreviewOpenForScreenshot()
         {

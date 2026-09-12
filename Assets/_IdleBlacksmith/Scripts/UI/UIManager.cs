@@ -32,6 +32,7 @@ namespace IdleBlacksmith.UI
         public BouncyButton menuButton;
         public GameObject dungeonBadge;
         public GameObject questBadge;
+        public PulseLoop complexButtonPulse;
         public BouncyButton upgradesButton;
         public PulseLoop upgradesButtonPulse;
 
@@ -108,7 +109,11 @@ namespace IdleBlacksmith.UI
             if (menuButton != null) menuButton.onClick.AddListener(OpenMenu);
             if (muteButton != null) muteButton.onClick.AddListener(ToggleMute);
             if (complexButton != null && complexPanel != null)
-                complexButton.onClick.AddListener(() => OpenExclusive(complexPanel));
+                complexButton.onClick.AddListener(() =>
+                {
+                    OpenExclusive(complexPanel);
+                    if (complexButtonPulse != null) complexButtonPulse.Stop();
+                });
             if (forgeButton != null && forgePanel != null)
                 forgeButton.onClick.AddListener(() => OpenExclusive(forgePanel));
             if (dungeonButton != null && dungeonPanel != null)
@@ -216,6 +221,14 @@ namespace IdleBlacksmith.UI
 
         public MetaPanel Meta => metaPanel;
         public PrestigePanel Prestige => prestigePanel;
+
+        /// <summary>Opens the complex sheet with one building's row highlighted (world tap).</summary>
+        public void OpenComplexFocused(string buildingId)
+        {
+            if (complexPanel == null) return;
+            OpenExclusive(complexPanel);
+            complexPanel.OpenFocused(buildingId);
+        }
 
         public void OpenMeta(bool stats)
         {

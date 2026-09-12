@@ -67,10 +67,10 @@ namespace IdleBlacksmith.EditorTools
             Vector3 shopCentre = V(0.15f, 0f, -0.55f);
             BuildingVisuals[] plots =
             {
-                MakePlot(plotsRoot, BuildingId.Mine, V(-7.6f, 0, 1.8f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Market, V(7.6f, 0, 1.8f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Gate, V(-4.6f, 0, -6.6f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Sanctum, V(7.0f, 0, 6.4f), shopCentre),
+                MakePlot(plotsRoot, BuildingId.Mine, V(-6.0f, 0, 1.4f), shopCentre),
+                MakePlot(plotsRoot, BuildingId.Market, V(6.0f, 0, 1.4f), shopCentre),
+                MakePlot(plotsRoot, BuildingId.Gate, V(-3.4f, 0, -5.4f), shopCentre),
+                MakePlot(plotsRoot, BuildingId.Sanctum, V(5.4f, 0, 6.6f), shopCentre),
             };
 
             Transform helperSpawn = Marker("HelperSpawn", V(1.3f, 0, 0.85f));
@@ -155,6 +155,11 @@ namespace IdleBlacksmith.EditorTools
 
             var eventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
 
+            // Tapping a building in the world opens its row in the complex sheet.
+            var pickerGo = new GameObject("BuildingPicker");
+            var picker = pickerGo.AddComponent<BuildingPicker>();
+            picker.buildings = plots;
+
             // Camera frames the smithy plus every building that actually exists.
             cameraDirector.staticAnchors = new Transform[0];
             cameraDirector.buildings = plots;
@@ -212,6 +217,18 @@ namespace IdleBlacksmith.EditorTools
             for (int i = 0; i < bv.levelPrefabs.Length; i++)
                 bv.levelPrefabs[i] = AssetDatabase.LoadAssetAtPath<GameObject>(
                     ModelFactory.BuildingPrefabPath(id, i + 1));
+
+            // The Smithy is the one building that always exists, so it gets no "build here" sign.
+            if (id != BuildingId.Smithy)
+            {
+                GameObject marker = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.EmptyPlotPrefab);
+                if (marker != null)
+                {
+                    bv.emptyMarker = (GameObject)PrefabUtility.InstantiatePrefab(marker);
+                    bv.emptyMarker.transform.SetParent(go.transform, false);
+                    bv.emptyMarker.transform.localPosition = Vector3.zero;
+                }
+            }
             return bv;
         }
 

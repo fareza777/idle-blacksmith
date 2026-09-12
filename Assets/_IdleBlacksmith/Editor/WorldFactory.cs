@@ -391,13 +391,14 @@ namespace IdleBlacksmith.EditorTools
 
         public static TierDims EnvironmentDims(int tier)
         {
-            // Width grows slowly and depth grows fast: the camera looks down a portrait screen,
-            // where horizontal spread is what forces it to pull back. Growth along Z is nearly free.
+            // Width is capped hard: the camera frames the forge tightly so it stays the hero of the
+            // shot, and a wide building would force it to pull back. Depth grows freely — on a
+            // portrait screen, extra depth costs almost no framing.
             return new TierDims
             {
-                halfWidth = 2.5f + 0.45f * (tier - 1),
+                halfWidth = 2.5f + 0.28f * (tier - 1),
                 frontZ = -3.5f,
-                backZ = 3.5f + 0.6f * (tier - 1),
+                backZ = 3.5f + 0.55f * (tier - 1),
                 height = 2.4f + 0.3f * (tier - 1),
             };
         }

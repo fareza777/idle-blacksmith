@@ -129,6 +129,8 @@ namespace IdleBlacksmith.EditorTools
 
             // ---------------- bottom bar: Complex / Forge / Dungeon / Quest
             BouncyButton complexBtn = BarButton(hud, "ComplexButton", "complex", Hex(0xF2994A), 0, out _);
+            // Pulses until the player opens it, so a new player is pointed at the build menu.
+            var complexPulse = complexBtn.gameObject.AddComponent<PulseLoop>();
             BouncyButton forgeBtn = BarButton(hud, "ForgeButton", "craft", Hex(0xDF7F47), 1, out _);
             BouncyButton dgBtn = BarButton(hud, "DungeonButton", "dungeon", Teal, 2, out _);
             BouncyButton questBtn = BarButton(hud, "QuestButton", "scroll", Green, 3, out _);
@@ -201,6 +203,7 @@ namespace IdleBlacksmith.EditorTools
             ui.dungeonPanel = dungeonPanel;
             ui.dungeonBadge = badgeGo.gameObject;
             ui.complexButton = complexBtn;
+            ui.complexButtonPulse = complexPulse;
             ui.complexPanel = complexPanel;
             ui.forgeButton = forgeBtn;
             ui.forgePanel = forgePanel;
@@ -461,16 +464,18 @@ namespace IdleBlacksmith.EditorTools
             SoftShadow(sheet.gameObject, -6f, 0.4f);
 
             // header art (masked into the sheet's rounded top)
-            var artMaskGo = Box("ArtMask", sheet, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -12), new Vector2(976, 320));
+            var artMaskGo = Box("ArtMask", sheet, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -12), new Vector2(976, 360));
             var artMaskImg = artMaskGo.gameObject.AddComponent<Image>();
             artMaskImg.sprite = roundedSmall; artMaskImg.type = Image.Type.Sliced; artMaskImg.color = Color.white;
             var artMask = artMaskGo.gameObject.AddComponent<Mask>();
             artMask.showMaskGraphic = true;
             var artGo = StretchBox("Art", artMaskGo);
             var art = artGo.gameObject.AddComponent<Image>();
-            art.sprite = AssetFactory.LoadMenuArt("dungeon_bg");
+            // The wide banner, not the 9:16 corridor: a portrait sprite in this 2.7:1 band would
+            // only ever show a thin horizontal slice of itself, which reads as a squashed image.
+            art.sprite = AssetFactory.LoadMenuArt("dungeon_banner") ?? AssetFactory.LoadMenuArt("dungeon_bg");
             art.raycastTarget = false;
-            CoverFitter(artGo, art, 21f / 9f);
+            CoverFitter(artGo, art, 16f / 9f);
             // dim the bottom of the art so the title reads
             var dimGo = Box("Dim", artMaskGo, new Vector2(0.5f, 0), new Vector2(0.5f, 0), Vector2.zero, new Vector2(976, 120));
             var dimImg = dimGo.gameObject.AddComponent<Image>();
@@ -489,7 +494,7 @@ namespace IdleBlacksmith.EditorTools
             Txt(closeTxtGo, "×", 40, Brown, TextAlignmentOptions.Center, titleFont);
 
             // relic ore status row
-            var oreRow = Box("OreRow", sheet, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -356), new Vector2(940, 84));
+            var oreRow = Box("OreRow", sheet, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -396), new Vector2(940, 84));
             var oreRowImg = oreRow.gameObject.AddComponent<Image>();
             oreRowImg.sprite = roundedSmall; oreRowImg.type = Image.Type.Sliced; oreRowImg.color = new Color(0.18f, 0.32f, 0.36f, 1f);
             var oreIconGo = Box("Icon", oreRow, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(22, 0), new Vector2(56, 56));
@@ -501,10 +506,10 @@ namespace IdleBlacksmith.EditorTools
             var bonusGo = Box("Bonus", oreRow, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-26, 0), new Vector2(380, 48));
             var priceBonusLabel = Txt(bonusGo, "Boosts sword prices", 28, OreText, TextAlignmentOptions.Right, bodyFont);
 
-            var subGo = Box("Subtitle", sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(42, -462), new Vector2(700, 38));
+            var subGo = Box("Subtitle", sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(42, -502), new Vector2(700, 38));
             Txt(subGo, "Adventurers raid while you forge — even while you're away", 26, Secondary, TextAlignmentOptions.Left, bodyFont);
 
-            var rowsArea = Box("RowsArea", sheet, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -512), new Vector2(940, 900));
+            var rowsArea = Box("RowsArea", sheet, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -552), new Vector2(940, 900));
             var vlg = rowsArea.gameObject.AddComponent<VerticalLayoutGroup>();
             vlg.spacing = 14;
             vlg.childAlignment = TextAnchor.UpperCenter;

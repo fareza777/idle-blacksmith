@@ -140,14 +140,14 @@ namespace IdleBlacksmith.EditorTools
             float origAspect = cam.aspect;
             cam.aspect = 810f / 1440f;
 
-            int[] stages = { 1, 3, 5 };
+            int[] stages = { 0, 1, 3, 5 };
             foreach (int level in stages)
             {
-                int smithyLevel = Mathf.Clamp(level, 1, ModelFactory.EnvironmentTierPrefabs.Length);
+                int smithyLevel = Mathf.Clamp(level < 1 ? 1 : level, 1, ModelFactory.EnvironmentTierPrefabs.Length);
                 foreach (BuildingDef def in gm.config.buildings)
                 {
                     if (def == null) continue;
-                    // The Smithy follows the stage too, so the shop and the yard grow together.
+                    // Stage 0 is the true fresh game: only the Smithy, everything else a bare plot.
                     int target = def.id == BuildingId.Smithy ? smithyLevel : level;
                     gm.buildings.ForceLevel(def.id, target);
                     // In edit mode Start() has not run, so the visuals are applied directly.

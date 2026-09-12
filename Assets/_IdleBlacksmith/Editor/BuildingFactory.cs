@@ -19,11 +19,45 @@ namespace IdleBlacksmith.EditorTools
         public static GameObject BuildingPrefab(string id, int level)
             => AssetDatabase.LoadAssetAtPath<GameObject>(BuildingPrefabPath(id, level));
 
+        public const string EmptyPlotPrefab = Paths.Prefabs + "/BuildingPlot_Empty.prefab";
+
+        /// <summary>
+        /// Marker standing on a plot that has not been built yet: a surveyor's stake with a sign,
+        /// plus a chalk ring on the ground, so the yard reads as "buildable land" rather than
+        /// decoration the player cannot touch.
+        /// </summary>
+        static void BuildEmptyPlotMarker()
+        {
+            var b = new MeshBuilder();
+
+            // chalk ring on the ground
+            const int seg = 20;
+            for (int i = 0; i < seg; i++)
+            {
+                float a = Mathf.PI * 2f * i / seg;
+                b.Box(new Vector3(Mathf.Cos(a) * 1.5f, 0.05f, Mathf.Sin(a) * 1.5f),
+                    new Vector3(0.22f, 0.06f, 0.22f), Palette.WoodPale);
+            }
+
+            // surveyor's stake
+            b.Box(new Vector3(0f, 0.65f, 0f), new Vector3(0.12f, 1.30f, 0.12f), Palette.WoodMid);
+            b.Box(new Vector3(0f, 1.42f, 0f), new Vector3(0.95f, 0.62f, 0.08f), Palette.WoodPale);
+            b.Box(new Vector3(0f, 1.42f, 0.05f), new Vector3(0.72f, 0.40f, 0.03f), Palette.ClothCream);
+            // a small hammer mark on the board, matching the build button
+            b.Box(new Vector3(0f, 1.46f, 0.08f), new Vector3(0.34f, 0.09f, 0.02f), Palette.MetalDark);
+            b.Box(new Vector3(0.10f, 1.38f, 0.08f), new Vector3(0.08f, 0.22f, 0.02f), Palette.WoodDark);
+
+            var root = new GameObject("BuildingPlot_Empty");
+            Part("Mesh", root.transform, SaveMesh(b, "BuildingPlot_Empty"), PM, Vector3.zero);
+            SavePrefab(root, EmptyPlotPrefab);
+        }
+
         /// <summary>Highest level that has a prefab, used by the scene builder to populate arrays.</summary>
         public const int BuildingMaxLevel = 5;
 
         static void BuildBuildings()
         {
+            BuildEmptyPlotMarker();
             for (int level = 1; level <= BuildingMaxLevel; level++)
             {
                 BuildMine(level);

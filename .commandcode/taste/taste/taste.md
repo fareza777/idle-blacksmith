@@ -6,3 +6,4 @@
 - Expects verification against the real running artifact rather than reasoning alone — points the agent at the connected device ("cek aja hp tercolok") and expects adb/logcat-style empirical diagnosis. Confidence: 0.7
 - Keeps the project in a GitHub repository and expects the agent to handle git and push commits to the remote. Confidence: 0.6
 - Prefers the agent to leverage the project's existing tooling/scripts (e.g. its asset-generation "game dev tools") as part of the work rather than ignoring them. Confidence: 0.55
+- Holds the visual output to a high standard and treats stretched art, a jittering camera and overlapping UI as defects to be fixed — not cosmetic nitpicks. Confidence: 0.6

@@ -38,8 +38,9 @@ namespace IdleBlacksmith.Gameplay
 
         [Tooltip("Breathing room around the outermost building")]
         public float padding = 0.4f;
-        [Tooltip("Hard limit on how far the camera may pull back, so the yard never shrinks to nothing")]
-        public float maxSize = 30f;
+        [Tooltip("Hard limit on how far the camera may pull back. The forge is the hero of the shot, " +
+                 "so this stays tight and satellite buildings are allowed to sit near the frame edge.")]
+        public float maxSize = 14f;
 
         [Tooltip("Positive values push the complex up the screen, clear of the bottom bar")]
         public float verticalBias = 0.10f;
@@ -274,7 +275,16 @@ namespace IdleBlacksmith.Gameplay
             if (buildings == null) return;
             foreach (BuildingVisuals b in buildings)
             {
-                if (b == null || !b.IsBuilt || b.Current == null) continue;
+                if (b == null) continue;
+
+                if (!b.IsBuilt || b.Current == null)
+                {
+                    // An empty plot still counts: its "build here" sign has to be on screen, otherwise
+                    // a new player sees a single shop and never learns the yard can grow.
+                    points.Add(b.transform.position);
+                    continue;
+                }
+
                 foreach (Renderer r in b.Current.GetComponentsInChildren<Renderer>(true))
                     CollectRenderer(r);
             }
