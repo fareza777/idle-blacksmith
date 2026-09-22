@@ -57,6 +57,26 @@ namespace IdleBlacksmith.EditorTools
             Spawn(ModelFactory.RugPrefab, V(0.1f, 0.005f, 0.55f), 8f);
             Spawn(ModelFactory.SignPostPrefab, V(3.3f, 0, -4.6f), 160f);
 
+            // Drifting clouds and the forge cat — ambient life that survives tier rebuilds.
+            var cloudRng = new System.Random(4242);
+            var clouds = new GameObject("Clouds");
+            for (int c = 0; c < 5; c++)
+            {
+                var cloud = (GameObject)PrefabUtility.InstantiatePrefab(
+                    AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CloudPrefabPath(c % 3)));
+                cloud.transform.SetParent(clouds.transform, false);
+                cloud.transform.position = new Vector3(
+                    Mathf.Lerp(-12f, 12f, (float)cloudRng.NextDouble()),
+                    Mathf.Lerp(9.5f, 13.5f, (float)cloudRng.NextDouble()),
+                    Mathf.Lerp(-6f, 8f, (float)cloudRng.NextDouble()));
+                float cs = Mathf.Lerp(0.85f, 1.5f, (float)cloudRng.NextDouble());
+                cloud.transform.localScale = Vector3.one * cs;
+                cloud.transform.rotation = Quaternion.Euler(0f, (float)cloudRng.NextDouble() * 360f, 0f);
+                var drift = cloud.GetComponent<CloudDrift>();
+                if (drift != null) drift.speed = Mathf.Lerp(0.16f, 0.42f, (float)cloudRng.NextDouble());
+            }
+            Spawn(ModelFactory.CatPrefab, V(-0.95f, 0, 1.95f), 205f);
+
             // ------------------------------------------------ the rest of the complex
             // Each plot faces the forge, so every building reads as part of one yard. The plots sit
             // clear of the Smithy's *widest* growth stage (level 5 reaches x ±5.3, z -3.5..5.9),

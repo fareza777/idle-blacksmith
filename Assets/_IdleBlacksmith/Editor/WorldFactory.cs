@@ -31,6 +31,8 @@ namespace IdleBlacksmith.EditorTools
         public const string BannerPrefab = Paths.Prefabs + "/Banner.prefab";
         public const string RugPrefab = Paths.Prefabs + "/Rug.prefab";
         public const string SignPostPrefab = Paths.Prefabs + "/SignPost.prefab";
+        public const string CatPrefab = Paths.Prefabs + "/Cat.prefab";
+        public static string CloudPrefabPath(int variant) => Paths.Prefabs + "/Cloud_" + variant + ".prefab";
 
         // ------------------------------------------------------------ stations
 
@@ -367,6 +369,49 @@ namespace IdleBlacksmith.EditorTools
                 var root = new GameObject("SignPost");
                 Part("Mesh", root.transform, SaveMesh(b, "SignPost"), PM, Vector3.zero);
                 SavePrefab(root, SignPostPrefab);
+            }
+            // Three cloud lumps for the drifting sky layer.
+            for (int v = 0; v < 3; v++)
+            {
+                var b = new MeshBuilder();
+                b.Rock(new Vector3(0, 0, 0), new Vector3(1.5f, 0.65f, 0.9f), Palette.White, 11f + v * 3.1f);
+                b.Rock(new Vector3(0.9f, -0.08f, 0.15f), new Vector3(0.95f, 0.5f, 0.7f), Palette.White, 5f + v * 7.3f);
+                b.Rock(new Vector3(-0.85f, -0.05f, -0.1f), new Vector3(0.8f, 0.45f, 0.6f), Palette.ClothCream, 3f + v * 5.9f);
+                if (v == 2)
+                    b.Rock(new Vector3(0.2f, 0.3f, -0.2f), new Vector3(0.7f, 0.4f, 0.5f), Palette.White, 9.7f);
+                var root = new GameObject("Cloud_" + v);
+                Part("Mesh", root.transform, SaveMesh(b, "Cloud_" + v), PM, Vector3.zero);
+                root.AddComponent<CloudDrift>();
+                SavePrefab(root, CloudPrefabPath(v));
+            }
+            // The forge cat: orange body, cream muzzle and paws, coal eyes, a tail that
+            // exists as its own part so CatAmbient can flick it while it naps.
+            {
+                var b = new MeshBuilder();
+                b.Box(new Vector3(0, 0.16f, 0), new Vector3(0.44f, 0.18f, 0.20f), Palette.Terracotta);
+                // head with ears and muzzle
+                b.Box(new Vector3(0.26f, 0.25f, 0), new Vector3(0.17f, 0.15f, 0.16f), Palette.Terracotta);
+                b.Box(new Vector3(0.335f, 0.215f, 0), new Vector3(0.05f, 0.05f, 0.08f), Palette.ClothCream);
+                b.Box(new Vector3(0.22f, 0.355f, 0.055f), new Vector3(0.055f, 0.075f, 0.03f), Palette.Terracotta);
+                b.Box(new Vector3(0.22f, 0.355f, -0.055f), new Vector3(0.055f, 0.075f, 0.03f), Palette.Terracotta);
+                // eyes
+                b.Box(new Vector3(0.345f, 0.27f, 0.045f), new Vector3(0.02f, 0.03f, 0.02f), Palette.Coal);
+                b.Box(new Vector3(0.345f, 0.27f, -0.045f), new Vector3(0.02f, 0.03f, 0.02f), Palette.Coal);
+                // stubby legs
+                b.Box(new Vector3(0.14f, 0.05f, 0.06f), new Vector3(0.05f, 0.10f, 0.05f), Palette.ClothCream);
+                b.Box(new Vector3(0.14f, 0.05f, -0.06f), new Vector3(0.05f, 0.10f, 0.05f), Palette.ClothCream);
+                b.Box(new Vector3(-0.14f, 0.05f, 0.06f), new Vector3(0.05f, 0.10f, 0.05f), Palette.Terracotta);
+                b.Box(new Vector3(-0.14f, 0.05f, -0.06f), new Vector3(0.05f, 0.10f, 0.05f), Palette.Terracotta);
+                var root = new GameObject("Cat");
+                Part("Body", root.transform, SaveMesh(b, "Cat_Body"), PM, Vector3.zero);
+                var tail = new MeshBuilder();
+                tail.Box(new Vector3(0, 0.11f, 0), new Vector3(0.05f, 0.22f, 0.05f), Palette.Terracotta);
+                tail.Box(new Vector3(0.015f, 0.245f, 0), new Vector3(0.07f, 0.06f, 0.055f), Palette.ClothCream);
+                GameObject tailGo = Part("Tail", root.transform, SaveMesh(tail, "Cat_Tail"), PM, new Vector3(-0.235f, 0.20f, 0));
+                tailGo.transform.localRotation = Quaternion.Euler(0f, 0f, -18f);
+                var cat = root.AddComponent<CatAmbient>();
+                cat.tail = tailGo.transform;
+                SavePrefab(root, CatPrefab);
             }
         }
 
