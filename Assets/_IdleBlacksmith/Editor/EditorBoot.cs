@@ -271,6 +271,16 @@ namespace IdleBlacksmith.EditorTools
                 if (gmNow != null && gmNow.Data != null && gmNow.Data.stats != null)
                     forgedSeen = gmNow.Data.stats.swordsForged;
 
+                // Exercise the manual anvil tap a few times while a craft runs.
+                if (frames % 480 == 0)
+                {
+                    var anvilNow = Object.FindFirstObjectByType<IdleBlacksmith.Gameplay.AnvilStation>();
+                    if (anvilNow != null) anvilNow.TapBoost();
+                }
+                // Issue a royal order early so delivery + payout paths run in the smoke test.
+                if (frames == 240 && gmNow != null && gmNow.orders != null)
+                    gmNow.orders.ForceIssue();
+
                 if (gameSeconds >= TargetGameSeconds || frames >= FrameSafetyCap)
                 {
                     var gm = IdleBlacksmith.Core.GameManager.Instance;

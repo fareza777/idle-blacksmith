@@ -234,7 +234,7 @@ MonoBehaviour:
     runeCostCut: 0.08
   recipes:
   - id: copper
-    displayName: Copper Blade
+    displayName: Copper Dagger
     description: Cheap, quick and always in demand.
     icon: {fileID: 21300000, guid: 44d7742f8bc450d4a985810f9c04e49d, type: 3}
     oreCost: 1
@@ -267,7 +267,7 @@ MonoBehaviour:
     swordPrefab: {fileID: 325418125089619118, guid: 552ff5c26808b234abca3f255fc20749, type: 3}
     bladeColor: 40
   - id: silver
-    displayName: Silver Edge
+    displayName: Silver Rapier
     description: Bites deep into things that haunt the dark.
     icon: {fileID: 21300000, guid: c468069c2e5b42842ba123963ede3060, type: 3}
     oreCost: 7
@@ -278,7 +278,7 @@ MonoBehaviour:
     swordPrefab: {fileID: 2986372140127373836, guid: ec1749fbdc24daf4a8777b3072f212a7, type: 3}
     bladeColor: 40
   - id: mithril
-    displayName: Mithril Longsword
+    displayName: Mithril Katana
     description: Light as air, hard as dawn.
     icon: {fileID: 21300000, guid: 9b0b7c20713ad234ba91f4ad5d9c4db2, type: 3}
     oreCost: 12

@@ -25,6 +25,13 @@ namespace IdleBlacksmith.Gameplay
         /// <summary>The item produced by the craft that just finished.</summary>
         public SwordItem LastForged { get; private set; }
 
+        [Tooltip("Craft seconds granted by one manual anvil tap")]
+        public float tapBoostSeconds = 0.6f;
+        [Tooltip("Minimum gap between manual taps, so hammer spam stays readable")]
+        public float tapCooldown = 0.12f;
+
+        float nextTapAllowed;
+
         float timer;
         float duration;
         System.Action onComplete;
@@ -92,13 +99,32 @@ namespace IdleBlacksmith.Gameplay
         }
 
         /// <summary>Called by the worker's hammer animation event on each strike.</summary>
-        public void OnHammerStrike()
+        public void OnHammerStrike() => Strike(0.9f);
+
+        void Strike(float volume)
         {
             hammerStrikes++;
             if (sparks != null) sparks.Play();
-            AudioManager.Play("hammer", 0.09f, 0.9f);
+            AudioManager.Play("hammer", 0.09f, volume);
             if (hotSwordVisual != null)
                 Tween.PunchScale(hotSwordVisual.transform, hotSwordBaseScale * 0.18f, 0.25f);
+        }
+
+        /// <summary>
+        /// Manual hammer blow from the player tapping the anvil: knocks a slice of craft time
+        /// off the current sword. Ignored while the anvil is idle so it never fights the loop.
+        /// </summary>
+        public void TapBoost()
+        {
+            if (!IsCrafting || Time.time < nextTapAllowed) return;
+            nextTapAllowed = Time.time + tapCooldown;
+            timer = Mathf.Min(timer + tapBoostSeconds, duration);
+            float p = Mathf.Clamp01(timer / duration);
+            if (progressBar != null) progressBar.SetProgress(p);
+            Strike(0.55f);
+            Tween.PunchScale(transform, Vector3.one * 0.04f, 0.2f);
+            Vector3 where = craftPoint != null ? craftPoint.position : transform.position + Vector3.up;
+            UIManager.Instance?.SpawnFloatingText(where, "CLANG!", new Color(1f, 0.76f, 0.32f));
         }
 
         /// <summary>Number of hammer blows landed on the current/last craft — drives the smoke test.</summary>

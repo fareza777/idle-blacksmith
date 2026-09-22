@@ -96,6 +96,7 @@ namespace IdleBlacksmith.EditorTools
             var prestige = gameGo.AddComponent<PrestigeManager>();
             var questManager = gameGo.AddComponent<QuestManager>();
             var achievements = gameGo.AddComponent<AchievementManager>();
+            var orders = gameGo.AddComponent<OrderManager>();
             var gm = gameGo.AddComponent<GameManager>();
 
             var audioGo = new GameObject("Audio");
@@ -150,6 +151,7 @@ namespace IdleBlacksmith.EditorTools
             gm.prestige = prestige;
             gm.quests = questManager;
             gm.achievements = achievements;
+            gm.orders = orders;
             production.config = config;
             gm.orePile = ore.GetComponent<OrePile>();
             gm.anvil = anvil.GetComponent<AnvilStation>();
@@ -178,6 +180,7 @@ namespace IdleBlacksmith.EditorTools
             var pickerGo = new GameObject("BuildingPicker");
             var picker = pickerGo.AddComponent<BuildingPicker>();
             picker.buildings = plots;
+            picker.anvil = anvil.GetComponent<AnvilStation>();
 
             // Camera frames the smithy plus every building that actually exists.
             cameraDirector.staticAnchors = new Transform[0];
@@ -660,7 +663,7 @@ namespace IdleBlacksmith.EditorTools
             {
                 new RecipeDef
                 {
-                    id = RecipeId.Copper, displayName = "Copper Blade", oreCost = 1, baseValue = 10,
+                    id = RecipeId.Copper, displayName = "Copper Dagger", oreCost = 1, baseValue = 10,
                     craftDuration = 3.2f, requiredSmithyLevel = 1, requiredMineLevel = 0,
                     description = "Cheap, quick and always in demand.",
                     icon = AssetFactory.LoadIcon("copper"),
@@ -684,7 +687,7 @@ namespace IdleBlacksmith.EditorTools
                 },
                 new RecipeDef
                 {
-                    id = RecipeId.Silver, displayName = "Silver Edge", oreCost = 7, baseValue = 190,
+                    id = RecipeId.Silver, displayName = "Silver Rapier", oreCost = 7, baseValue = 190,
                     craftDuration = 6.0f, requiredSmithyLevel = 3, requiredMineLevel = 2,
                     description = "Bites deep into things that haunt the dark.",
                     icon = AssetFactory.LoadIcon("silver"),
@@ -692,7 +695,7 @@ namespace IdleBlacksmith.EditorTools
                 },
                 new RecipeDef
                 {
-                    id = RecipeId.Mithril, displayName = "Mithril Longsword", oreCost = 12, baseValue = 520,
+                    id = RecipeId.Mithril, displayName = "Mithril Katana", oreCost = 12, baseValue = 520,
                     craftDuration = 7.5f, requiredSmithyLevel = 4, requiredMineLevel = 3,
                     description = "Light as air, hard as dawn.",
                     icon = AssetFactory.LoadIcon("mithril"),

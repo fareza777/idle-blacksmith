@@ -39,6 +39,7 @@ namespace IdleBlacksmith.UI
         [Header("Panels")]
         public ComplexPanel complexPanel;
         public ForgePanel forgePanel;
+        public OrderTicker orderTicker;
         public DungeonPanel dungeonPanel;
         public QuestPanel questPanel;
         public UpgradePanel upgradePanel;
@@ -169,6 +170,7 @@ namespace IdleBlacksmith.UI
             if (dungeonPanel != null) dungeonPanel.Init();
             if (complexPanel != null) complexPanel.Init();
             if (forgePanel != null) forgePanel.Init();
+            if (orderTicker != null) orderTicker.Init();
             if (questPanel != null) questPanel.Init();
             if (metaPanel != null) metaPanel.Init();
             if (prestigePanel != null) prestigePanel.Init();
@@ -263,6 +265,12 @@ namespace IdleBlacksmith.UI
 
         public MetaPanel Meta => metaPanel;
         public PrestigePanel Prestige => prestigePanel;
+
+        /// <summary>Opens the forge sheet — used by the order banner's "switch recipe" tap.</summary>
+        public void OpenForge()
+        {
+            OpenExclusive(forgePanel);
+        }
 
         /// <summary>Opens the complex sheet with one building's row highlighted (world tap).</summary>
         public void OpenComplexFocused(string buildingId)

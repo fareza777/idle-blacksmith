@@ -807,6 +807,46 @@ namespace IdleBlacksmith.EditorTools
             return ticker;
         }
 
+        /// <summary>Contract banner parked just under the quest ticker; hidden until an order lands.</summary>
+        static OrderTicker BuildOrderTicker(RectTransform hud)
+        {
+            var go = Box("OrderTicker", hud, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -420), new Vector2(700, 64));
+            var cg = go.gameObject.AddComponent<CanvasGroup>();
+            cg.alpha = 0f; cg.interactable = false; cg.blocksRaycasts = false;
+            var bg = go.gameObject.AddComponent<Image>();
+            bg.sprite = pill; bg.type = Image.Type.Sliced; bg.color = new Color(0.30f, 0.20f, 0.10f, 0.9f);
+            SoftShadow(go.gameObject, -3f, 0.3f);
+
+            var btn = go.gameObject.AddComponent<BouncyButton>();
+            btn.targetGraphic = bg;
+            SetButtonColors(btn);
+
+            var iconGo = Box("Icon", go, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(12, 0), new Vector2(44, 44));
+            Img(iconGo.gameObject, AssetFactory.LoadIcon("coin"), Color.white).raycastTarget = false;
+
+            var textGo = Box("Line", go, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(66, 0), new Vector2(470, 38));
+            var line = Txt(textGo, "", 24, Cream, TextAlignmentOptions.Left, bodyFont);
+
+            var timerGo = Box("Timer", go, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-14, 0), new Vector2(110, 38));
+            var timer = Txt(timerGo, "", 26, new Color(1f, 0.82f, 0.42f), TextAlignmentOptions.Right, titleFont);
+
+            var barBg = Box("BarBg", go, new Vector2(0, 0), new Vector2(0, 0), new Vector2(66, 7), new Vector2(470, 8));
+            var barBgImg = barBg.gameObject.AddComponent<Image>();
+            barBgImg.sprite = bar; barBgImg.type = Image.Type.Sliced; barBgImg.color = new Color(0f, 0f, 0f, 0.35f);
+            var fillGo = StretchBox("Fill", barBg);
+            var fillImg = fillGo.gameObject.AddComponent<Image>();
+            fillImg.sprite = bar; fillImg.type = Image.Type.Filled; fillImg.fillMethod = Image.FillMethod.Horizontal;
+            fillImg.color = new Color(0.62f, 0.9f, 1f); fillImg.fillAmount = 0f; fillImg.raycastTarget = false;
+
+            var t = go.gameObject.AddComponent<OrderTicker>();
+            t.line = line;
+            t.timer = timer;
+            t.fill = fillImg;
+            t.openButton = btn;
+            t.group = cg;
+            return t;
+        }
+
         // ------------------------------------------------------------ story dialogue
 
         /// <summary>Full-width bar pinned to an edge, height driven by the cinematic script.</summary>

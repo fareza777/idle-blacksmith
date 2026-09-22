@@ -25,6 +25,7 @@ namespace IdleBlacksmith.EditorTools
         static Material hotSwordMat;
         static Material blobMat;
         static Material sparkMat;
+        static Material smokeMat;
 
         static Material[] PM => new[] { paletteMat };
         static Material[] PME => new[] { paletteMat, emissiveMat };
@@ -38,6 +39,7 @@ namespace IdleBlacksmith.EditorTools
             hotSwordMat = AssetDatabase.LoadAssetAtPath<Material>(AssetFactory.MatHotSword);
             blobMat = AssetDatabase.LoadAssetAtPath<Material>(AssetFactory.MatBlob);
             sparkMat = AssetDatabase.LoadAssetAtPath<Material>(AssetFactory.MatParticle);
+            smokeMat = AssetDatabase.LoadAssetAtPath<Material>(AssetFactory.MatSmoke);
         }
 
         public static void BuildAll()

@@ -16,6 +16,12 @@ namespace IdleBlacksmith.Gameplay
         [Tooltip("All complex buildings; a tap opens whichever is nearest")]
         public BuildingVisuals[] buildings;
 
+        [Tooltip("The anvil — while a craft is running, taps near it hammer the sword faster")]
+        public AnvilStation anvil;
+
+        [Tooltip("Tap tolerance for the anvil, tighter than buildings so it doesn't steal building taps")]
+        public float anvilTapRadiusNormalized = 0.085f;
+
         [Tooltip("Tap tolerance as a fraction of screen height, so it feels the same on any device")]
         public float tapRadiusNormalized = 0.12f;
 
@@ -77,6 +83,18 @@ namespace IdleBlacksmith.Gameplay
 
                 float d = Vector2.Distance(sp, screenPos);
                 if (d < bestDist) { bestDist = d; best = b; }
+            }
+
+            // While a sword is on the anvil, a tap on the anvil is a hammer blow, not a menu
+            // open — the active-craft read matters more than opening the smithy row.
+            if (anvil != null && anvil.IsCrafting)
+            {
+                Vector3 ap = cam.WorldToScreenPoint(anvil.transform.position + Vector3.up * 0.55f);
+                if (ap.z > 0f && Vector2.Distance(ap, screenPos) <= anvilTapRadiusNormalized * Screen.height)
+                {
+                    anvil.TapBoost();
+                    return;
+                }
             }
 
             if (best == null) return;

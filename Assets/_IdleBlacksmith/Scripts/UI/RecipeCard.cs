@@ -62,9 +62,12 @@ namespace IdleBlacksmith.UI
 
             if (selectButton != null)
             {
+                // The "Needs …" badge owns the slot while locked — the button under it reads
+                // as ghosted text, so hide the whole button rather than just the label.
+                selectButton.gameObject.SetActive(unlocked);
                 selectButton.interactable = unlocked && !active;
                 if (selectLabel != null)
-                    selectLabel.text = !unlocked ? "LOCKED" : active ? "FORGING" : "SELECT";
+                    selectLabel.text = active ? "FORGING" : "SELECT";
             }
 
             if (frame != null) frame.color = active ? Active : unlocked ? Color.white : LockedTint;

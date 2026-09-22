@@ -90,6 +90,7 @@ namespace IdleBlacksmith.EditorTools
         public const string MatHotSword = Paths.Materials + "/M_HotSword.mat";
         public const string MatBlob = Paths.Materials + "/M_BlobShadow.mat";
         public const string MatParticle = Paths.Materials + "/M_Spark.mat";
+        public const string MatSmoke = Paths.Materials + "/M_Smoke.mat";
 
         public static void EnsureMaterials()
         {
@@ -100,6 +101,7 @@ namespace IdleBlacksmith.EditorTools
             CreateEmissive(MatHotSword, new Color(1f, 0.36f, 0.08f), 3.2f);   // sword on anvil
             CreateBlobShadow();
             CreateSpark();
+            CreateSmoke();
         }
 
         static Material BaseLit(string path, float smooth)
@@ -176,6 +178,29 @@ namespace IdleBlacksmith.EditorTools
             mat.SetInt("_ZWrite", 0);
             mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
             mat.EnableKeyword("_BLENDMODE_ADDITIVE");
+            mat.renderQueue = (int)RenderQueue.Transparent;
+            EditorUtility.SetDirty(mat);
+        }
+
+        /// <summary>Soft alpha-blended puffs for chimney smoke — shares the blob falloff texture.</summary>
+        static void CreateSmoke()
+        {
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(MatSmoke);
+            if (mat == null)
+            {
+                mat = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit"));
+                AssetDatabase.CreateAsset(mat, MatSmoke);
+            }
+            var blob = AssetDatabase.LoadAssetAtPath<Texture2D>(BlobTexPath);
+            if (blob != null) mat.SetTexture("_BaseMap", blob);
+            mat.SetColor("_BaseColor", new Color(0.82f, 0.84f, 0.9f, 0.5f));
+            mat.SetFloat("_Surface", 1f);
+            mat.SetFloat("_Blend", 0f); // alpha
+            mat.SetOverrideTag("RenderType", "Transparent");
+            mat.SetInt("_SrcBlend", (int)BlendMode.SrcAlpha);
+            mat.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+            mat.SetInt("_ZWrite", 0);
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
             mat.renderQueue = (int)RenderQueue.Transparent;
             EditorUtility.SetDirty(mat);
         }

@@ -160,7 +160,9 @@ namespace IdleBlacksmith.Gameplay
                 yield return new WaitForSeconds(config.depositDuration);
 
                 if (carriedSword != null) { Destroy(carriedSword); carriedSword = null; }
-                rack.DepositSword(carriedItem);
+                var orders = GameManager.Instance != null ? GameManager.Instance.orders : null;
+                if (orders == null || !orders.TryDeliver(carriedItem, transform.position))
+                    rack.DepositSword(carriedItem);
                 carriedItem = null;
                 anim.SetBool(CarryHash, false);
             }

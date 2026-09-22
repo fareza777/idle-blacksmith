@@ -119,6 +119,8 @@ MonoBehaviour:
   hotSwordVisual: {fileID: 3332859037610278125}
   sparks: {fileID: 2476150635041907064}
   progressBar: {fileID: 0}
+  tapBoostSeconds: 0.6
+  tapCooldown: 0.12
 --- !u!1 &3332859037610278125
 GameObject:
   m_ObjectHideFlags: 0

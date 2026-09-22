@@ -42,6 +42,7 @@ namespace IdleBlacksmith.Core
         public PrestigeManager prestige;
         public QuestManager quests;
         public AchievementManager achievements;
+        public OrderManager orders;
 
         [Header("Scene stations")]
         public OrePile orePile;

@@ -590,6 +590,8 @@ namespace IdleBlacksmith.EditorTools
 
             var root = new GameObject("Environment_T" + tier);
             Part("Mesh", root.transform, SaveMesh(b, "Environment_T" + tier), PME, Vector3.zero);
+            if (tier >= 2)
+                CreateChimneySmoke(root.transform, new Vector3(-1.9f, tallH + 1.22f, backZ - 0.35f));
             SavePrefab(root, EnvironmentTierPrefabs[tier - 1]);
         }
 
@@ -747,6 +749,59 @@ namespace IdleBlacksmith.EditorTools
             psr.renderMode = ParticleSystemRenderMode.Billboard;
             psr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             return ps;
+        }
+
+        /// <summary>Looping grey puffs drifting up from the smithy chimney.</summary>
+        static void CreateChimneySmoke(Transform parent, Vector3 localPos)
+        {
+            var go = new GameObject("ChimneySmoke");
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = localPos;
+            go.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f); // cone points up
+
+            var ps = go.AddComponent<ParticleSystem>();
+            ParticleSystem.MainModule main = ps.main;
+            main.playOnAwake = true;
+            main.loop = true;
+            main.duration = 5f;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(1.8f, 3.0f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(0.35f, 0.6f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.22f, 0.5f);
+            main.startRotation = new ParticleSystem.MinMaxCurve(0f, 6.28f);
+            main.maxParticles = 24;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+
+            ParticleSystem.EmissionModule em = ps.emission;
+            em.rateOverTime = 3.2f;
+
+            ParticleSystem.ShapeModule shape = ps.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Cone;
+            shape.angle = 9f;
+            shape.radius = 0.10f;
+
+            ParticleSystem.ColorOverLifetimeModule col = ps.colorOverLifetime;
+            col.enabled = true;
+            var gradient = new Gradient();
+            gradient.SetKeys(
+                new[] { new GradientColorKey(new Color(0.85f, 0.86f, 0.9f), 0f), new GradientColorKey(new Color(0.62f, 0.64f, 0.72f), 1f) },
+                new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(0.38f, 0.18f), new GradientAlphaKey(0.30f, 0.6f), new GradientAlphaKey(0f, 1f) });
+            col.color = gradient;
+
+            ParticleSystem.SizeOverLifetimeModule sol = ps.sizeOverLifetime;
+            sol.enabled = true;
+            sol.size = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(
+                new Keyframe(0f, 0.5f), new Keyframe(0.4f, 0.95f), new Keyframe(1f, 1.6f)));
+
+            ParticleSystem.RotationOverLifetimeModule rol = ps.rotationOverLifetime;
+            rol.enabled = true;
+            rol.z = new ParticleSystem.MinMaxCurve(-0.35f, 0.35f);
+
+            var psr = go.GetComponent<ParticleSystemRenderer>();
+            psr.sharedMaterial = smokeMat;
+            psr.renderMode = ParticleSystemRenderMode.Billboard;
+            psr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            psr.sortMode = ParticleSystemSortMode.Distance;
         }
     }
 }
