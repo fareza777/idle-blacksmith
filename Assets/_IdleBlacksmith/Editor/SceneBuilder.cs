@@ -108,6 +108,21 @@ namespace IdleBlacksmith.EditorTools
                 Clip("mine_pick", 0.8f), Clip("market_chime", 0.9f), Clip("enchant", 0.9f),
                 Clip("quest_done", 0.9f), Clip("achievement", 0.9f), Clip("prestige", 1f),
                 Clip("unlock", 0.9f), Clip("levelup", 0.9f), Clip("whoosh", 0.7f),
+                Clip("blip", 0.9f), Clip("ember_whoosh", 0.9f),
+            };
+            audio.musicClips = new[]
+            {
+                Clip("music_forge", 1f), Clip("music_intro", 1f),
+            };
+
+            var dialogue = gameGo.AddComponent<DialogueManager>();
+            dialogue.portraits = new[]
+            {
+                new DialogueManager.NamedSprite { key = "bram", sprite = AssetFactory.LoadMenuArt("portrait_bram") },
+                new DialogueManager.NamedSprite { key = "petra", sprite = AssetFactory.LoadMenuArt("portrait_petra") },
+                new DialogueManager.NamedSprite { key = "sable", sprite = AssetFactory.LoadMenuArt("portrait_sable") },
+                new DialogueManager.NamedSprite { key = "aldric", sprite = AssetFactory.LoadMenuArt("portrait_aldric") },
+                new DialogueManager.NamedSprite { key = "nyx", sprite = AssetFactory.LoadMenuArt("portrait_nyx") },
             };
 
             var spawnerGo = new GameObject("CustomerSpawner");
@@ -151,6 +166,8 @@ namespace IdleBlacksmith.EditorTools
             var apprenticeStation = apprentice.GetComponent<AnvilStation>();
             apprenticeStation.progressBar = ui.apprenticeBar;
             rack.GetComponent<SwordRack>().stockBar = ui.rackBar;
+
+            dialogue.ui = ui.uiManager;
 
             AudioSource fireAudio = forge.GetComponentInChildren<AudioSource>(true);
             if (fireAudio != null) fireAudio.clip = LoadClip("crackle");

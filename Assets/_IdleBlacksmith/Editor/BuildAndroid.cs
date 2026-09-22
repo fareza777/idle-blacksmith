@@ -36,8 +36,8 @@ namespace IdleBlacksmith.EditorTools
 
             // ------------------------------------------------ player settings
             PlayerSettings.companyName = "CozyForge";
-            PlayerSettings.productName = "Idle Blacksmith RPG";
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.cozyforge.idleblacksmith");
+            PlayerSettings.productName = "Emberforge: Idle Blacksmith";
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.cozyforge.emberforge");
             // IL2CPP + ARM64: the reliably supported Android config on Unity 6
             // (Mono reported "target architecture not specified" from BuildPlayer despite PlayerSettings).
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
@@ -46,8 +46,8 @@ namespace IdleBlacksmith.EditorTools
             Debug.Log($"[Android] arch readback={PlayerSettings.Android.targetArchitectures}, backend={PlayerSettings.GetScriptingBackend(NamedBuildTarget.Android)}, activeTarget={EditorUserBuildSettings.activeBuildTarget}");
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
-            PlayerSettings.bundleVersion = "2.0";
-            PlayerSettings.Android.bundleVersionCode = 2;
+            PlayerSettings.bundleVersion = "3.0";
+            PlayerSettings.Android.bundleVersionCode = 3;
             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToLandscapeLeft = false;

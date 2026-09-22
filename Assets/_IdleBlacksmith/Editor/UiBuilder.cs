@@ -159,7 +159,7 @@ namespace IdleBlacksmith.EditorTools
             var logoGo = Box("Logo", titleBadge, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(10, 0), new Vector2(48, 48));
             Img(logoGo.gameObject, AssetFactory.LoadMenuArt("emblem"), Color.white).raycastTarget = false;
             var titleTextGo = Box("Text", titleBadge, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-10, 0), new Vector2(352, 46));
-            Txt(titleTextGo, "Idle Blacksmith RPG", 34, Brown, TextAlignmentOptions.Right, titleFont);
+            Txt(titleTextGo, "EMBERFORGE", 30, Brown, TextAlignmentOptions.Right, titleFont);
 
             // Floating text layer
             var ftLayer = StretchBox("FloatingTextLayer", safeArea);
@@ -177,8 +177,10 @@ namespace IdleBlacksmith.EditorTools
             var prestigePanel = BuildPrestigePanel(canvasGo.transform, talentRowPrefab);
             var settingsPanel = BuildSettingsPanel(canvasGo.transform);
             var welcomeBack = BuildWelcomeBack(canvasGo.transform);
+            var dialogue = BuildDialogue(canvasGo.transform);
             var mainMenu = BuildMainMenu(canvasGo.transform);
             var onboarding = BuildOnboarding(canvasGo.transform);
+            var intro = BuildIntro(canvasGo.transform);
             var splash = BuildSplash(canvasGo.transform);
             var ticker = BuildTicker(hud, questPanel);
 
@@ -220,6 +222,8 @@ namespace IdleBlacksmith.EditorTools
             ui.hudGroup = hud.gameObject.AddComponent<CanvasGroup>();
             ui.splashScreen = splash;
             ui.onboardingPanel = onboarding;
+            ui.introCinematic = intro;
+            ui.dialoguePanel = dialogue;
             ui.floatingTextLayer = ftLayer;
             ui.floatingTextPrefab = floatingTextPrefab.GetComponent<FloatingText>();
 
@@ -565,9 +569,9 @@ namespace IdleBlacksmith.EditorTools
             emblemImg.preserveAspect = true;
             emblemImg.raycastTarget = false;
             var titleGo = Box("Title", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -330), new Vector2(960, 90));
-            Txt(titleGo, "IDLE BLACKSMITH", 74, GoldText, TextAlignmentOptions.Center, titleFont);
+            Txt(titleGo, "EMBERFORGE", 88, GoldText, TextAlignmentOptions.Center, titleFont);
             var subGo = Box("Sub", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -412), new Vector2(960, 56));
-            Txt(subGo, "R  P  G", 44, Cream, TextAlignmentOptions.Center, titleFont);
+            Txt(subGo, "I D L E   B L A C K S M I T H", 40, Cream, TextAlignmentOptions.Center, titleFont);
             var tagGo = Box("Tagline", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -478), new Vector2(960, 44));
             Txt(tagGo, "a cozy forge adventure", 30, new Color(1f, 0.93f, 0.80f, 0.9f), TextAlignmentOptions.Center, bodyFont);
 

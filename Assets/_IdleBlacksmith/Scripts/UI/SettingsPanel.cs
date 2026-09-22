@@ -23,6 +23,8 @@ namespace IdleBlacksmith.UI
         [Header("Rows")]
         public BouncyButton muteButton;
         public TMP_Text muteLabel;
+        public BouncyButton musicButton;
+        public TMP_Text musicLabel;
         public Slider volumeSlider;
         public TMP_Text volumeLabel;
         public BouncyButton hapticButton;
@@ -77,6 +79,7 @@ namespace IdleBlacksmith.UI
             if (closeButton != null) closeButton.onClick.AddListener(Close);
             if (backdropButton != null) backdropButton.onClick.AddListener(Close);
             if (muteButton != null) muteButton.onClick.AddListener(ToggleMute);
+            if (musicButton != null) musicButton.onClick.AddListener(ToggleMusic);
             if (hapticButton != null) hapticButton.onClick.AddListener(ToggleHaptics);
             if (menuButton != null) menuButton.onClick.AddListener(() => MenuRequested?.Invoke());
             if (resetButton != null) resetButton.onClick.AddListener(OnReset);
@@ -115,6 +118,13 @@ namespace IdleBlacksmith.UI
             Refresh();
         }
 
+        void ToggleMusic()
+        {
+            AudioManager.MusicMuted = !AudioManager.MusicMuted;
+            if (!AudioManager.MusicMuted) AudioManager.Play("pop", 0.03f);
+            Refresh();
+        }
+
         void ToggleHaptics()
         {
             HapticsEnabled = !HapticsEnabled;
@@ -142,6 +152,7 @@ namespace IdleBlacksmith.UI
         public void Refresh()
         {
             if (muteLabel != null) muteLabel.text = AudioManager.Muted ? "OFF" : "ON";
+            if (musicLabel != null) musicLabel.text = AudioManager.MusicMuted ? "OFF" : "ON";
             if (volumeLabel != null) volumeLabel.text = Mathf.RoundToInt(Volume * 100f) + "%";
             if (hapticLabel != null) hapticLabel.text = HapticsEnabled ? "ON" : "OFF";
             if (resetLabel != null)

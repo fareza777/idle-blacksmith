@@ -257,6 +257,36 @@ namespace IdleBlacksmith.EditorTools
                 Render(cam, w, h, "_Screenshots/15_welcome.png");
                 ui.welcomeBackPanel.PreviewClose();
             }
+
+            var dialogueMgr = Object.FindFirstObjectByType<IdleBlacksmith.Core.DialogueManager>();
+            if (ui.dialoguePanel != null && dialogueMgr != null)
+            {
+                var seq = new DialogueSequence
+                {
+                    id = "preview",
+                    lines = new[]
+                    {
+                        new DialogueLine
+                        {
+                            speaker = "Petra Flint",
+                            portrait = AssetFactory.LoadMenuArt("portrait_petra"),
+                            text = "Ore while you sleep, ore while you eat. Just keep my lanterns lit, smith.",
+                        },
+                    },
+                };
+                ui.dialoguePanel.PreviewShow(seq);
+                Canvas.ForceUpdateCanvases();
+                Render(cam, w, h, "_Screenshots/16_dialogue.png");
+                ui.dialoguePanel.PreviewHide();
+            }
+
+            if (ui.introCinematic != null)
+            {
+                ui.introCinematic.PreviewShow(0);
+                Canvas.ForceUpdateCanvases();
+                Render(cam, w, h, "_Screenshots/17_intro.png");
+                ui.introCinematic.PreviewHide();
+            }
         }
 
         static void Render(Camera cam, int w, int h, string path)

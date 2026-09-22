@@ -1,10 +1,15 @@
-# Idle Blacksmith RPG — Unity URP Mobile Idle Game
+# Emberforge — Idle Blacksmith · Unity URP Mobile Idle Game
 
 A polished casual **portrait** mobile idle-RPG. You run a blacksmith **complex**: miners dig ore,
 smiths hammer it into swords whose quality is rolled per blade, customers buy the best sword on
 your rack, and adventurers raid dungeons while the app is closed. Spend the takings on five
 upgradable buildings, permanent runes, and — when the forge is running at full tilt — burn the
 whole run for ember shards and start again, permanently stronger.
+
+The game opens with a four-card cinematic (the Ember choosing its new smith), a six-page
+onboarding, and a title menu with Continue / New Game / Settings / About / Share / Rate.
+Story dialogue between Bram, Petra, Sable, Sir Aldric and Nyx unfolds as the complex grows —
+each beat plays exactly once and is saved, so the cast remembers where you are.
 
 **Target:** Unity **6000.3.20f1**, URP 17, portrait mobile (Android APK included, works standalone too).
 

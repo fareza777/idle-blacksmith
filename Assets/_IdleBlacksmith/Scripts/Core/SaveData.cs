@@ -103,6 +103,11 @@ namespace IdleBlacksmith.Core
         public List<string> questsClaimed = new List<string>();
         public List<string> achievementsUnlocked = new List<string>();
 
+        /// <summary>The cinematic intro has played — it only shows for a fresh forge.</summary>
+        public bool introSeen;
+        /// <summary>Story dialogue ids already watched, so each beat fires exactly once.</summary>
+        public List<string> seenDialogues = new List<string>();
+
         public StatBlock stats = new StatBlock();
 
         /// <summary>Guarantees no list is left null after a JsonUtility round-trip or a fresh load.</summary>
@@ -117,6 +122,7 @@ namespace IdleBlacksmith.Core
             if (expeditions == null) expeditions = new List<ExpeditionState>();
             if (questsClaimed == null) questsClaimed = new List<string>();
             if (achievementsUnlocked == null) achievementsUnlocked = new List<string>();
+            if (seenDialogues == null) seenDialogues = new List<string>();
             if (stats == null) stats = new StatBlock();
             if (string.IsNullOrEmpty(activeRecipeId)) activeRecipeId = RecipeId.Copper;
             if (unlockedRecipes.Count == 0) unlockedRecipes.Add(RecipeId.Copper);

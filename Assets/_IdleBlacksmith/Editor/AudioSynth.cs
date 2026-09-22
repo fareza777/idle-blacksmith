@@ -32,6 +32,8 @@ namespace IdleBlacksmith.EditorTools
             Try("unlock", Unlock());
             Try("levelup", LevelUp());
             Try("whoosh", Whoosh());
+            Try("blip", Blip());
+            Try("ember_whoosh", EmberWhoosh());
         }
 
         static void Try(string name, float[] samples)
@@ -263,6 +265,25 @@ namespace IdleBlacksmith.EditorTools
             float body = Mathf.PerlinNoise(t * (400f + 2600f * p), 3.7f) - 0.5f;
             // a little low-end so it reads as movement rather than hiss
             return body * 2f * env * 0.55f + Sin(Mathf.Lerp(320f, 90f, p), t) * env * 0.16f;
+        });
+
+        static float[] Blip() => Render(0.07f, t =>
+        {
+            // a short rounded tick — the typewriter's voice
+            float f = Mathf.Lerp(760f, 540f, Mathf.Clamp01(t / 0.07f));
+            float env = Mathf.Exp(-t * 55f);
+            return Sin(f, t) * env * 0.5f + Sin(f * 2f, t) * env * 0.14f;
+        });
+
+        static float[] EmberWhoosh() => Render(1.4f, t =>
+        {
+            // opening-cinematic sweep: rising warm rush with a soft crackle tail
+            float p = Mathf.Clamp01(t / 1.4f);
+            float env = Mathf.Sin(Mathf.PI * p);
+            float rush = (Mathf.PerlinNoise(t * (300f + 2400f * p), 5.1f) - 0.5f) * 2f;
+            float low = Sin(Mathf.Lerp(140f, 520f, p * p), t) * 0.3f;
+            float spark = (Mathf.PerlinNoise(t * 7000f, 8.3f) - 0.5f) * 2f * Mathf.Exp(-t * 8f);
+            return (rush * 0.5f + low) * env * 0.8f + spark * 0.4f;
         });
 
         // ------------------------------------------------------------ WAV IO

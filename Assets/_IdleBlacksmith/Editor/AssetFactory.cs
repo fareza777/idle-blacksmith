@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -330,6 +331,45 @@ namespace IdleBlacksmith.EditorTools
         public static Sprite LoadMenuArt(string name)
         {
             return AssetDatabase.LoadAssetAtPath<Sprite>($"{MenuArtDir}/{name}.png");
+        }
+
+        // ------------------------------------------------------------ app icon
+
+        public const string AppIconPath = Paths.Art + "/App/app_icon.png";
+
+        /// <summary>
+        /// Imports Art/App/app_icon.png as a plain texture and registers it as the app icon
+        /// (legacy + Android round/adaptive slots). Missing file → icon stays as-is.
+        /// </summary>
+        public static void ApplyAppIcon()
+        {
+            if (!File.Exists(AppIconPath))
+            {
+                Debug.LogWarning($"[AssetFactory] {AppIconPath} missing — app icon unchanged");
+                return;
+            }
+            AssetDatabase.ImportAsset(AppIconPath, ImportAssetOptions.ForceSynchronousImport);
+            var imp = AssetImporter.GetAtPath(AppIconPath) as TextureImporter;
+            if (imp != null)
+            {
+                imp.textureType = TextureImporterType.Default;
+                imp.alphaIsTransparency = false;
+                imp.mipmapEnabled = false;
+                imp.filterMode = FilterMode.Bilinear;
+                imp.maxTextureSize = 1024;
+                imp.SaveAndReimport();
+            }
+            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(AppIconPath);
+            if (tex == null)
+            {
+                Debug.LogWarning("[AssetFactory] app icon failed to import — app icon unchanged");
+                return;
+            }
+            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.BuiltIn, new[] { tex });
+            PlayerSettings.SetIcons(NamedBuildTarget.Android, new[] { tex }, IconKind.Any);
+            PlayerSettings.SetIcons(NamedBuildTarget.Android, new[] { tex }, IconKind.Round);
+            PlayerSettings.SetIcons(NamedBuildTarget.Android, new[] { tex }, IconKind.Adaptive);
+            Debug.Log("[AssetFactory] app icon applied from " + AppIconPath);
         }
 
         // ------------------------------------------------------------ fonts / TMP

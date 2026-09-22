@@ -14,7 +14,7 @@ namespace IdleBlacksmith.EditorTools
         public static void Apply()
         {
             PlayerSettings.colorSpace = ColorSpace.Linear;
-            PlayerSettings.productName = "Idle Blacksmith RPG";
+            PlayerSettings.productName = "Emberforge";
             PlayerSettings.companyName = "CozyForge";
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToLandscapeLeft = false;
@@ -152,6 +152,7 @@ namespace IdleBlacksmith.EditorTools
                 Log("fallback icons", () => IconFallback.Ensure());
                 Log("icon import", () => AssetFactory.ProcessIcons());
                 Log("menu art import", () => AssetFactory.ProcessMenuArt());
+                Log("app icon", () => AssetFactory.ApplyAppIcon());
                 Log("palette", () => AssetFactory.EnsurePalette());
                 Log("ui sprites", () => AssetFactory.EnsureUiSprites());
                 Log("materials", () => AssetFactory.EnsureMaterials());
@@ -169,7 +170,7 @@ namespace IdleBlacksmith.EditorTools
                 Log("scene", () => SceneBuilder.Build());
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
-                Debug.Log($"[IdleBlacksmith] BUILD OK in {sw.ElapsedMilliseconds / 1000f:0.0}s");
+                Debug.Log($"[Emberforge] BUILD OK in {sw.ElapsedMilliseconds / 1000f:0.0}s");
                 Directory.CreateDirectory("UserSettings");
                 File.WriteAllText(Marker, System.DateTime.Now.ToString("s"));
             }

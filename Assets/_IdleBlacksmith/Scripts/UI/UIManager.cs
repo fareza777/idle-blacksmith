@@ -51,6 +51,23 @@ namespace IdleBlacksmith.UI
         public MainMenuPanel mainMenuPanel;
         public OnboardingPanel onboardingPanel;
         public WelcomeBackPanel welcomeBackPanel;
+        public IntroCinematic introCinematic;
+        public DialoguePanel dialoguePanel;
+
+        /// <summary>Set before a scene reload so the next boot skips the menu and lands in the intro.</summary>
+        static bool pendingNewGame;
+
+        /// <summary>Wipes the save and reboots the scene so every system starts cold.</summary>
+        public static void RequestNewGame()
+        {
+            pendingNewGame = true;
+            SaveSystem.DeleteSave();
+            PlayerPrefs.Save();
+            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            UnityEngine.SceneManagement.SceneManager.LoadScene(scene.buildIndex >= 0 ? scene.buildIndex : 0);
+        }
+
+        public bool IntroPlaying => introCinematic != null && introCinematic.IsPlaying;
 
         [Header("HUD chrome")]
         public HudTicker ticker;
@@ -97,11 +114,25 @@ namespace IdleBlacksmith.UI
 
             if (hudGroup != null) hudGroup.alpha = 0f;
 
-            // Launch flow: splash, then the title screen, then onboarding once.
+            // Music starts under the splash so the menu already has its theme.
+            AudioManager.PlayMusic("music_forge", 2f);
+
+            // Launch flow: splash, then the title screen, then the intro once, then onboarding.
             if (splashScreen != null)
-                splashScreen.Play(() => ShowMenu(gm));
+                splashScreen.Play(() => BootAfterSplash(gm));
             else
-                ShowMenu(gm);
+                BootAfterSplash(gm);
+        }
+
+        void BootAfterSplash(GameManager gm)
+        {
+            if (pendingNewGame)
+            {
+                pendingNewGame = false;
+                AfterMenu(gm, true);
+                return;
+            }
+            ShowMenu(gm);
         }
 
         void WireButtons()
@@ -158,18 +189,29 @@ namespace IdleBlacksmith.UI
         void ShowMenu(GameManager gm)
         {
             if (mainMenuPanel != null)
-                mainMenuPanel.Show(() => AfterMenu(gm));
+                mainMenuPanel.Show(newGame => AfterMenu(gm, newGame));
             else
-                AfterMenu(gm);
+                AfterMenu(gm, false);
         }
 
-        void AfterMenu(GameManager gm)
+        void AfterMenu(GameManager gm, bool newGame)
         {
             if (launched) return;
             launched = true;
 
             if (hudGroup != null) hudGroup.alpha = 1f;
 
+            // The cinematic belongs to a fresh forge; returning players never see it twice.
+            if (introCinematic != null && gm != null && gm.Data != null && !gm.Data.introSeen)
+            {
+                introCinematic.Play(() => AfterIntro(gm));
+                return;
+            }
+            AfterIntro(gm);
+        }
+
+        void AfterIntro(GameManager gm)
+        {
             if (gm != null && !gm.HasSeenOnboarding && onboardingPanel != null)
             {
                 onboardingPanel.Show();
@@ -189,7 +231,7 @@ namespace IdleBlacksmith.UI
         {
             if (mainMenuPanel == null) return;
             CloseAllPanels();
-            mainMenuPanel.Show(() => { if (hudGroup != null) hudGroup.alpha = 1f; });
+            mainMenuPanel.Show(_ => { if (hudGroup != null) hudGroup.alpha = 1f; });
         }
 
         void OpenSettings()
@@ -258,7 +300,8 @@ namespace IdleBlacksmith.UI
                     || (prestigePanel != null && prestigePanel.IsOpen)
                     || (settingsPanel != null && settingsPanel.IsOpen)
                     || (welcomeBackPanel != null && welcomeBackPanel.IsOpen)
-                    || (mainMenuPanel != null && mainMenuPanel.IsOpen);
+                    || (mainMenuPanel != null && mainMenuPanel.IsOpen)
+                    || (onboardingPanel != null && onboardingPanel.gameObject.activeSelf);
             }
         }
 
@@ -276,10 +319,11 @@ namespace IdleBlacksmith.UI
 
         void Update()
         {
-            // Android back closes the top sheet; only an empty screen quits the app.
+            // Android back: skip the cinematic, close the top sheet, quit on an empty screen.
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                if (AnyPanelOpen) CloseAllPanels();
+                if (IntroPlaying) introCinematic.SkipIntro();
+                else if (AnyPanelOpen) CloseAllPanels();
                 else Application.Quit();
             }
 

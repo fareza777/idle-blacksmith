@@ -54,11 +54,11 @@ namespace IdleBlacksmith.Gameplay
 
         [Header("Player pan and zoom")]
         [Tooltip("How far the player may drag the view away from the auto-framed centre, in world units")]
-        public float panLimit = 7f;
+        public float panLimit = 9f;
         [Tooltip("Closest the player may zoom in, as an orthographic size")]
         public float manualMinSize = 3.4f;
         [Tooltip("Furthest the player may zoom out, as an orthographic size")]
-        public float manualMaxSize = 19f;
+        public float manualMaxSize = 21f;
         [Tooltip("Drag distance in pixels before a press counts as a pan rather than a tap")]
         public float dragThreshold = 22f;
 
