@@ -48,6 +48,7 @@ namespace IdleBlacksmith.UI
 
         int index;
         float shownChars;
+        int captionLength;
         bool typing;
         float frameTimer;
         bool finishing;
@@ -137,6 +138,7 @@ namespace IdleBlacksmith.UI
             artImage.transform.localScale = Vector3.one * zoomFrom;
             Tween.Scale(artImage.transform, Vector3.one * zoomTo, secondsPerFrame + 1f, Ease.Linear);
 
+            captionLength = f.caption?.Length ?? 0;
             if (captionLabel != null)
             {
                 captionLabel.text = f.caption;
@@ -164,10 +166,10 @@ namespace IdleBlacksmith.UI
             if (typing && captionLabel != null)
             {
                 shownChars += charsPerSecond * Time.unscaledDeltaTime;
-                int want = Mathf.Min(captionLabel.textInfo.characterCount, Mathf.FloorToInt(shownChars));
+                int want = Mathf.Min(captionLength, Mathf.FloorToInt(shownChars));
                 captionLabel.maxVisibleCharacters = want;
                 if (want % 9 == 4) AudioManager.Play("blip", 0.06f, 0.16f);
-                if (want >= captionLabel.textInfo.characterCount)
+                if (want >= captionLength)
                 {
                     typing = false;
                     if (tapHint != null) Tween.Alpha(tapHint, 1f, 0.4f, Ease.OutQuad);

@@ -54,6 +54,7 @@ namespace IdleBlacksmith.UI
 
         DialogueSequence sequence;
         int lineIndex;
+        int lineLength;
         float shownChars;
         bool typing;
         System.Action onComplete;
@@ -99,6 +100,7 @@ namespace IdleBlacksmith.UI
             }
             shownChars = 0f;
             typing = true;
+            lineLength = line.text?.Length ?? 0;
             if (bodyLabel != null)
             {
                 bodyLabel.text = line.text;
@@ -113,11 +115,11 @@ namespace IdleBlacksmith.UI
         {
             if (!typing || bodyLabel == null) return;
             shownChars += charsPerSecond * Time.unscaledDeltaTime;
-            int want = Mathf.Min(bodyLabel.textInfo.characterCount, Mathf.FloorToInt(shownChars));
+            int want = Mathf.Min(lineLength, Mathf.FloorToInt(shownChars));
             bodyLabel.maxVisibleCharacters = want;
             // a soft tick every few letters sells the typewriter without machine-gun blips
             if (want > 0 && want % 7 == 3) AudioManager.Play("blip", 0.05f, 0.22f);
-            if (want >= bodyLabel.textInfo.characterCount)
+            if (want >= lineLength)
             {
                 typing = false;
                 if (nextHint != null)
