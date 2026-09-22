@@ -109,7 +109,7 @@ namespace IdleBlacksmith.EditorTools
                 Clip("mine_pick", 0.8f), Clip("market_chime", 0.9f), Clip("enchant", 0.9f),
                 Clip("quest_done", 0.9f), Clip("achievement", 0.9f), Clip("prestige", 1f),
                 Clip("unlock", 0.9f), Clip("levelup", 0.9f), Clip("whoosh", 0.7f),
-                Clip("blip", 0.9f), Clip("ember_whoosh", 0.9f),
+                Clip("blip", 0.9f), Clip("ember_whoosh", 0.9f), Clip("amb_fire", 0.4f),
             };
             audio.musicClips = new[]
             {
@@ -157,6 +157,7 @@ namespace IdleBlacksmith.EditorTools
             gm.anvil = anvil.GetComponent<AnvilStation>();
             gm.rack = rack.GetComponent<SwordRack>();
             gm.customerSpawner = spawner;
+            orders.customerSpawner = spawner;
             gm.helperSpawnPoint = helperSpawn;
             gm.apprenticeAnvilRoot = apprentice;
             gm.environmentRoot = envRoot.transform;

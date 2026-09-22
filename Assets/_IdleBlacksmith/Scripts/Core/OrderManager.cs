@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using IdleBlacksmith.Gameplay;
 using IdleBlacksmith.UI;
 using UnityEngine;
 
@@ -40,6 +41,12 @@ namespace IdleBlacksmith.Core
         [Tooltip("First order arrives this many seconds into the session")]
         public float firstOrderDelay = 45f;
 
+        [Header("Patron visit")]
+        [Tooltip("Reuses the customer spawn point and door waypoints for the patron's walk")]
+        public CustomerSpawner customerSpawner;
+        [Tooltip("Override body for the patron; falls back to the second customer prefab")]
+        public GameObject patronPrefab;
+
         public Order Active { get; private set; }
         public event System.Action OnChanged;
 
@@ -50,6 +57,7 @@ namespace IdleBlacksmith.Core
         };
 
         float nextOrderAt = -1f;
+        PatronController patron;
 
         void Start()
         {
@@ -109,6 +117,38 @@ namespace IdleBlacksmith.Core
             };
             OnChanged?.Invoke();
             AudioManager.Play("quest_done", 0.05f, 0.55f);
+            SpawnPatron();
+        }
+
+        /// <summary>Brings the patron in person: they walk to the counter and wait out the contract.</summary>
+        void SpawnPatron()
+        {
+            if (customerSpawner == null || patron != null || Active == null) return;
+            GameObject prefab = patronPrefab != null ? patronPrefab
+                : (GameManager.Instance.config != null ? GameManager.Instance.config.customerPrefabB : null);
+            if (prefab == null || customerSpawner.spawnPoint == null) return;
+
+            GameObject go = Instantiate(
+                prefab, customerSpawner.spawnPoint.position, customerSpawner.spawnPoint.rotation);
+            // Neutralize the shopper routine on the cloned prefab — the patron takes orders instead.
+            var shopper = go.GetComponent<CustomerController>();
+            if (shopper != null) Destroy(shopper);
+            patron = go.AddComponent<PatronController>();
+
+            var enter = new List<Vector3>();
+            if (customerSpawner.enterWaypoints != null)
+                foreach (Transform t in customerSpawner.enterWaypoints)
+                    if (t != null) enter.Add(t.position);
+            // Stand a step aside of the counter so shoppers can still reach it.
+            if (enter.Count > 0) enter[enter.Count - 1] += Vector3.right * 0.85f;
+
+            var leave = new List<Vector3>();
+            if (customerSpawner.exitWaypoints != null)
+                foreach (Transform t in customerSpawner.exitWaypoints)
+                    if (t != null) leave.Add(t.position);
+            leave.Add(customerSpawner.spawnPoint.position);
+
+            patron.Init(this, Active, enter.ToArray(), leave.ToArray());
         }
 
         /// <summary>

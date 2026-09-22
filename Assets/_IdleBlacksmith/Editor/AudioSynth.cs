@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -34,6 +35,7 @@ namespace IdleBlacksmith.EditorTools
             Try("whoosh", Whoosh());
             Try("blip", Blip());
             Try("ember_whoosh", EmberWhoosh());
+            Try("amb_fire", AmbFire());
         }
 
         static void Try(string name, float[] samples)
@@ -285,6 +287,44 @@ namespace IdleBlacksmith.EditorTools
             float spark = (Mathf.PerlinNoise(t * 7000f, 8.3f) - 0.5f) * 2f * Mathf.Exp(-t * 8f);
             return (rush * 0.5f + low) * env * 0.8f + spark * 0.4f;
         });
+
+        /// <summary>Seamless forge-bed loop: warm rumble under sparse wrap-around pops.</summary>
+        static float[] AmbFire()
+        {
+            const float seconds = 3.2f;
+            var rng = new System.Random(777);
+            var pops = new List<(float at, float amp, float decay)>();
+            float pt = 0.05f;
+            while (pt < seconds)
+            {
+                pops.Add((pt, 0.10f + (float)rng.NextDouble() * 0.32f, 60f + (float)rng.NextDouble() * 90f));
+                pt += 0.05f + (float)rng.NextDouble() * 0.18f;
+            }
+
+            int n = (int)(SR * seconds);
+            var s = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float x = i / (float)SR;
+                float v = (Mathf.PerlinNoise(x * 11f, 5.1f) - 0.5f) * 0.22f
+                        + (Mathf.PerlinNoise(x * 3.1f, 2.3f) - 0.5f) * 0.18f;
+                foreach (var p in pops)
+                {
+                    float d = x - p.at;
+                    if (d < 0f) d += seconds;   // tail pops ring into the head
+                    if (d < 0.25f)
+                        v += p.amp * Mathf.Exp(-d * p.decay)
+                           * (Mathf.PerlinNoise(d * 1000f, p.at * 7.3f) - 0.5f) * 2.4f;
+                }
+                s[i] = Mathf.Clamp(v, -1f, 1f) * 0.8f;
+            }
+
+            // Fold the last quarter second into the first so AudioSource.loop wraps clean.
+            int xn = (int)(SR * 0.25f);
+            for (int i = 0; i < xn; i++)
+                s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
+            return s;
+        }
 
         // ------------------------------------------------------------ WAV IO
 

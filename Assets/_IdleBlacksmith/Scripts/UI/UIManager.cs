@@ -117,6 +117,7 @@ namespace IdleBlacksmith.UI
 
             // Music starts under the splash so the menu already has its theme.
             AudioManager.PlayMusic("music_forge", 2f);
+            AudioManager.PlayAmbience("amb_fire", 3f);
 
             // Launch flow: splash, then the title screen, then the intro once, then onboarding.
             if (splashScreen != null)

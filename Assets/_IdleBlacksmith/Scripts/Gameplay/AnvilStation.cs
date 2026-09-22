@@ -66,10 +66,26 @@ namespace IdleBlacksmith.Gameplay
 
             if (hotSwordVisual != null)
             {
+                SwapHotSwordMesh(recipe);
                 hotSwordVisual.SetActive(true);
                 hotSwordVisual.transform.localScale = Vector3.zero;
                 Tween.Scale(hotSwordVisual.transform, hotSwordBaseScale, 0.3f, Ease.OutBack);
             }
+        }
+
+        /// <summary>The glowing blank on the anvil takes the active recipe's blade shape.</summary>
+        void SwapHotSwordMesh(RecipeDef recipe)
+        {
+            GameConfig config = GameManager.Instance != null ? GameManager.Instance.config : null;
+            GameObject prefab = recipe != null && recipe.swordPrefab != null
+                ? recipe.swordPrefab
+                : (config != null ? config.swordPrefab : null);
+            if (prefab == null) return;
+            var blade = prefab.transform.Find("Blade");
+            var src = blade != null ? blade.GetComponent<MeshFilter>() : null;
+            var dst = hotSwordVisual.GetComponent<MeshFilter>();
+            if (src != null && dst != null && src.sharedMesh != null)
+                dst.sharedMesh = src.sharedMesh;
         }
 
         RecipeDef pendingRecipe;

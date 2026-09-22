@@ -23,13 +23,16 @@ namespace IdleBlacksmith.Core
         public NamedClip[] musicClips;
         public AudioSource sfxSource;
         public AudioSource musicSource;
+        public AudioSource ambSource;
         public float musicVolume = 0.55f;
 
         const string MuteKey = "IB_Muted";
         const string MusicMuteKey = "IB_MusicMuted";
         readonly Dictionary<string, NamedClip> map = new Dictionary<string, NamedClip>();
         string currentMusicId = "";
+        string currentAmbId = "";
         Coroutine fader;
+        Coroutine ambFader;
 
         public static bool Muted
         {
@@ -82,6 +85,13 @@ namespace IdleBlacksmith.Core
                 musicSource.loop = true;
             }
             musicSource.mute = MusicMuted;
+            if (ambSource == null)
+            {
+                ambSource = gameObject.AddComponent<AudioSource>();
+                ambSource.playOnAwake = false;
+                ambSource.spatialBlend = 0f;
+                ambSource.loop = true;
+            }
         }
 
         public static void Play(string id, float pitchJitter = 0.06f, float volumeScale = 1f)
@@ -105,6 +115,16 @@ namespace IdleBlacksmith.Core
             Instance.currentMusicId = id;
             if (Instance.fader != null) Instance.StopCoroutine(Instance.fader);
             Instance.fader = Instance.StartCoroutine(Instance.FadeTo(c, fadeSeconds));
+        }
+
+        /// <summary>Loops an ambience bed (fire crackle etc.) under everything else.</summary>
+        public static void PlayAmbience(string id, float fadeSeconds = 1.5f)
+        {
+            if (Instance == null || string.IsNullOrEmpty(id) || id == Instance.currentAmbId) return;
+            if (!Instance.map.TryGetValue(id, out NamedClip c) || c.clip == null) return;
+            Instance.currentAmbId = id;
+            if (Instance.ambFader != null) Instance.StopCoroutine(Instance.ambFader);
+            Instance.ambFader = Instance.StartCoroutine(Instance.FadeAmbTo(c, fadeSeconds));
         }
 
         public static void StopMusic(float fadeSeconds = 0.8f)
@@ -163,6 +183,24 @@ namespace IdleBlacksmith.Core
             src.Stop();
             src.volume = musicVolume;
             fader = null;
+        }
+
+        System.Collections.IEnumerator FadeAmbTo(NamedClip target, float seconds)
+        {
+            AudioSource src = ambSource;
+            src.clip = target.clip;
+            src.volume = 0f;
+            src.Play();
+            float t = 0f;
+            float vol = target.volume;
+            while (t < seconds)
+            {
+                t += Time.unscaledDeltaTime;
+                src.volume = Mathf.Lerp(0f, vol, t / seconds);
+                yield return null;
+            }
+            src.volume = vol;
+            ambFader = null;
         }
     }
 }
