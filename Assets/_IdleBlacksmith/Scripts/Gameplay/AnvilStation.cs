@@ -152,6 +152,7 @@ namespace IdleBlacksmith.Gameplay
             float p = Mathf.Clamp01(timer / duration);
             if (progressBar != null) progressBar.SetProgress(p);
             Strike(0.55f);
+            UI.SettingsPanel.Buzz();
             Tween.PunchScale(transform, Vector3.one * 0.04f, 0.2f);
             Vector3 where = craftPoint != null ? craftPoint.position : transform.position + Vector3.up;
             bool hot = tapCombo >= 3;

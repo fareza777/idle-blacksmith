@@ -63,6 +63,7 @@ namespace IdleBlacksmith.Gameplay
 
             res.Add(tapOre);
             AudioManager.Play("mine_pick", 0.1f, 0.7f);
+            UI.SettingsPanel.Buzz();
             Tween.PunchScale(transform, Vector3.one * 0.04f, 0.2f);
             if (rockVisuals != null && rockVisuals.Length > 0)
             {

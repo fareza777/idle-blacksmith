@@ -37,6 +37,7 @@ namespace IdleBlacksmith.Gameplay
             Tween.PunchScale(transform, Vector3.one * 0.18f, 0.45f);
             if (tail != null) Tween.PunchScale(tail, Vector3.one * 0.35f, 0.5f);
             AudioManager.Play("pop", 0.12f, 0.4f);
+            UI.SettingsPanel.Buzz();
             Vector3 up = transform.position + Vector3.up * 0.6f;
             UI.UIManager.Instance?.SpawnFloatingText(up, "\u2665", new Color(1f, 0.45f, 0.55f));
             UI.UIManager.Instance?.SpawnFloatingText(up + new Vector3(0.25f, 0.15f, 0f), "purr", new Color(1f, 0.7f, 0.75f));
