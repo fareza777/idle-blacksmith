@@ -30,6 +30,9 @@ namespace IdleBlacksmith.Core
                 case QuestGoal.BuildRunes: return gm.runes != null ? gm.runes.TotalLevels : 0;
                 case QuestGoal.OwnRarity: return st != null ? st.bestRarity : 0;
                 case QuestGoal.PlayMinutes: return st != null ? (long)(st.playSeconds / 60f) : 0;
+                case QuestGoal.ServeOrders: return st != null ? st.ordersServed : 0;
+                case QuestGoal.RushOrders: return st != null ? st.rushOrdersDone : 0;
+                case QuestGoal.ClaimDailies: return st != null ? st.dailyClaims : 0;
             }
             return 0;
         }
@@ -52,6 +55,9 @@ namespace IdleBlacksmith.Core
                 case QuestGoal.BuildRunes: return $"Raise {target} rune levels";
                 case QuestGoal.OwnRarity: return $"Forge a {RarityInfo.NameOf((Rarity)target)} sword";
                 case QuestGoal.PlayMinutes: return $"Play for {target} minutes";
+                case QuestGoal.ServeOrders: return $"Complete {target} merchant orders";
+                case QuestGoal.RushOrders: return $"Complete {target} orders during Rush Hour";
+                case QuestGoal.ClaimDailies: return $"Claim {target} daily embers";
             }
             return "Progress";
         }

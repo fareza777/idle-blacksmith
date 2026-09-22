@@ -54,6 +54,9 @@ namespace IdleBlacksmith.Core
         public int recipesUnlocked = 1;
         public int relicsEarned;
         public int bestRarity;
+        public int ordersServed;
+        public int rushOrdersDone;
+        public int dailyClaims;
         public float playSeconds;
     }
 

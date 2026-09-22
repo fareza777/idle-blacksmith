@@ -553,6 +553,17 @@ MonoBehaviour:
     oreReward: 0
     relicReward: 0
     shardReward: 0
+  - id: q_order1
+    title: A Patron's Request
+    body: "Merchants post orders at the gate arch \u2014 deliver the swords they
+      ask for and they pay over the counter price."
+    goal: 13
+    targetId: 
+    target: 1
+    goldReward: 250
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
   - id: q_gate1
     title: The Way Down
     body: Build the Dungeon Gate. Expeditions pay out even while the app is closed.
@@ -603,6 +614,17 @@ MonoBehaviour:
     oreReward: 0
     relicReward: 0
     shardReward: 0
+  - id: q_rush1
+    title: Rush Hour
+    body: "When the forge bell rings, customers flood in \u2014 finish an order while
+      the rush lasts."
+    goal: 14
+    targetId: 
+    target: 1
+    goldReward: 900
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
   - id: q_mine2
     title: Timbered Shaft
     body: Take the mine to level 2 for more ore and more storage.
@@ -644,6 +666,17 @@ MonoBehaviour:
     oreReward: 0
     relicReward: 15
     shardReward: 0
+  - id: q_daily3
+    title: The Ember Tithe
+    body: "The forge pays out once a day \u2014 claim the daily ember three days
+      running."
+    goal: 15
+    targetId: 
+    target: 3
+    goldReward: 1600
+    oreReward: 0
+    relicReward: 10
+    shardReward: 0
   - id: q_forge250
     title: Master Smith
     body: Forge two hundred and fifty swords.
@@ -663,6 +696,16 @@ MonoBehaviour:
     goldReward: 5000
     oreReward: 0
     relicReward: 25
+    shardReward: 0
+  - id: q_furnace1
+    title: Brick and Blast
+    body: "Raise the Blast Furnace \u2014 forced air means faster forging."
+    goal: 5
+    targetId: furnace
+    target: 1
+    goldReward: 6000
+    oreReward: 0
+    relicReward: 0
     shardReward: 0
   - id: q_smithy4
     title: Mithril Works
@@ -691,6 +734,16 @@ MonoBehaviour:
     targetId: 
     target: 500
     goldReward: 12000
+    oreReward: 0
+    relicReward: 0
+    shardReward: 2
+  - id: q_orders10
+    title: The Guild Ledger
+    body: "Ten merchant orders fulfilled \u2014 patrons remember a smith who delivers."
+    goal: 13
+    targetId: 
+    target: 10
+    goldReward: 9000
     oreReward: 0
     relicReward: 0
     shardReward: 2
@@ -951,6 +1004,60 @@ MonoBehaviour:
     target: 600
     bonusKind: 0
     bonus: 0.04
+  - id: a_orders10
+    displayName: Guild Contractor
+    description: Complete 10 merchant orders
+    icon: {fileID: 21300000, guid: 38878cb8f1a3ba244a5fa8ee3ec80914, type: 3}
+    goal: 13
+    targetId: 
+    target: 10
+    bonusKind: 2
+    bonus: 0.03
+  - id: a_orders50
+    displayName: Quartermaster
+    description: Complete 50 merchant orders
+    icon: {fileID: 21300000, guid: 38878cb8f1a3ba244a5fa8ee3ec80914, type: 3}
+    goal: 13
+    targetId: 
+    target: 50
+    bonusKind: 0
+    bonus: 0.05
+  - id: a_rush10
+    displayName: Rush Master
+    description: Complete 10 orders during Rush Hour
+    icon: {fileID: 21300000, guid: b2f6a7c67844c79449db6e1197b31e44, type: 3}
+    goal: 14
+    targetId: 
+    target: 10
+    bonusKind: 3
+    bonus: 0.04
+  - id: a_daily7
+    displayName: Faithful
+    description: Claim the daily ember 7 times
+    icon: {fileID: 21300000, guid: b2f6a7c67844c79449db6e1197b31e44, type: 3}
+    goal: 15
+    targetId: 
+    target: 7
+    bonusKind: 5
+    bonus: 0.03
+  - id: a_daily30
+    displayName: Ember Devout
+    description: Claim the daily ember 30 times
+    icon: {fileID: 21300000, guid: b51935894df4bdd48a41f46b40830b25, type: 3}
+    goal: 15
+    targetId: 
+    target: 30
+    bonusKind: 0
+    bonus: 0.05
+  - id: a_furnace5
+    displayName: Volcanic Heart
+    description: Raise the Blast Furnace to level 5
+    icon: {fileID: 21300000, guid: 8b7cd0b02fd91af08954560c223c8c2b, type: 3}
+    goal: 5
+    targetId: furnace
+    target: 5
+    bonusKind: 3
+    bonus: 0.05
   workerPrefab: {fileID: 1208270762283020123, guid: 25182fd6a6fc62348aa8bb3ada4eda28, type: 3}
   helperPrefab: {fileID: 5151690350410580974, guid: 083b0901ccd174747a41c075f0565afa, type: 3}
   customerPrefabA: {fileID: 6717537910521031009, guid: 1d08f49f91edf184283cde0f1e58c8bc, type: 3}

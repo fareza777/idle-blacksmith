@@ -181,6 +181,11 @@ namespace IdleBlacksmith.Core
             GameManager gm = GameManager.Instance;
             int relic = Active != null ? Active.bonusRelic : 0;
             string patron = Active != null ? Active.patron : "Order";
+            if (gm != null && gm.Data != null && gm.Data.stats != null)
+            {
+                gm.Data.stats.ordersServed++;
+                if (gm.rush != null && gm.rush.Active) gm.Data.stats.rushOrdersDone++;
+            }
             if (gm != null && relic > 0) gm.AddRelicOre(relic);
             UIManager.Instance?.SpawnFloatingText(
                 new Vector3(0f, 2.1f, 0f),

@@ -286,6 +286,9 @@ namespace IdleBlacksmith.Core
         BuildRunes,
         OwnRarity,
         PlayMinutes,
+        ServeOrders,
+        RushOrders,
+        ClaimDailies,
     }
 
     [System.Serializable]

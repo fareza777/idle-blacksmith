@@ -59,6 +59,7 @@ namespace IdleBlacksmith.Core
 
             gm.economy.AddGold(gold);
             if (relic > 0) gm.AddRelicOre(relic);
+            if (data.stats != null) data.stats.dailyClaims++;
             gm.Save();
             OnChanged?.Invoke();
             return true;
