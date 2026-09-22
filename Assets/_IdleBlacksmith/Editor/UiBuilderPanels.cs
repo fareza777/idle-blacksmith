@@ -425,7 +425,7 @@ namespace IdleBlacksmith.EditorTools
 
         static SettingsPanel BuildSettingsPanel(Transform parent)
         {
-            SheetRefs s = Sheet(parent, "SettingsPanel", 1340, new Color(0.12f, 0.09f, 0.07f, 0.72f));
+            SheetRefs s = Sheet(parent, "SettingsPanel", 1450, new Color(0.12f, 0.09f, 0.07f, 0.72f));
             var panel = s.root.gameObject.AddComponent<SettingsPanel>();
 
             SheetTitle(s.sheet, "Settings", "Sound, music, haptics and your save", out _);
@@ -464,6 +464,9 @@ namespace IdleBlacksmith.EditorTools
             y -= 104f;
 
             BouncyButton hapticBtn = SettingsRow(s.sheet, "Haptics", y, out TMP_Text hapticLabel);
+            y -= 104f;
+
+            BouncyButton fxBtn = SettingsRow(s.sheet, "Effects", y, out TMP_Text fxLabel);
             y -= 104f;
 
             var saveGo = Box("SavePath", s.sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, y), new Vector2(920, 76));
@@ -523,6 +526,8 @@ namespace IdleBlacksmith.EditorTools
             panel.volumeLabel = volumeLabel;
             panel.hapticButton = hapticBtn;
             panel.hapticLabel = hapticLabel;
+            panel.fxButton = fxBtn;
+            panel.fxLabel = fxLabel;
             panel.menuButton = menuBtn;
             panel.resetButton = resetBtn;
             panel.resetLabel = resetLabel;
@@ -845,6 +850,33 @@ namespace IdleBlacksmith.EditorTools
             t.openButton = btn;
             t.group = cg;
             return t;
+        }
+
+        /// <summary>Hot pulsing pill that slams in while rush hour runs.</summary>
+        static RushBanner BuildRushBanner(RectTransform hud)
+        {
+            var go = Box("RushBanner", hud, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -510), new Vector2(560, 56));
+            var cg = go.gameObject.AddComponent<CanvasGroup>();
+            cg.alpha = 0f; cg.interactable = false; cg.blocksRaycasts = false;
+            var bg = go.gameObject.AddComponent<Image>();
+            bg.sprite = pill; bg.type = Image.Type.Sliced; bg.color = new Color(1f, 0.45f, 0.16f);
+            bg.raycastTarget = false;
+            SoftShadow(go.gameObject, -4f, 0.4f);
+
+            var labelGo = Box("Label", go, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(18, 0), new Vector2(430, 40));
+            var label = Txt(labelGo, "RUSH HOUR", 26, Color.white, TextAlignmentOptions.Left, titleFont);
+            label.raycastTarget = false;
+
+            var timerGo = Box("Timer", go, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-16, 0), new Vector2(90, 40));
+            var timer = Txt(timerGo, "", 28, Color.white, TextAlignmentOptions.Right, titleFont);
+            timer.raycastTarget = false;
+
+            var rb = go.gameObject.AddComponent<RushBanner>();
+            rb.label = label;
+            rb.timer = timer;
+            rb.group = cg;
+            rb.bg = bg;
+            return rb;
         }
 
         // ------------------------------------------------------------ story dialogue

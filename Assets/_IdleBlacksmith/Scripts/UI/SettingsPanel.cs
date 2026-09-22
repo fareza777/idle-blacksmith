@@ -29,6 +29,8 @@ namespace IdleBlacksmith.UI
         public TMP_Text volumeLabel;
         public BouncyButton hapticButton;
         public TMP_Text hapticLabel;
+        public BouncyButton fxButton;
+        public TMP_Text fxLabel;
         public BouncyButton menuButton;
         public BouncyButton resetButton;
         public TMP_Text resetLabel;
@@ -49,6 +51,7 @@ namespace IdleBlacksmith.UI
 
         const string HapticKey = "IB_Haptics";
         const string VolumeKey = "IB_Volume";
+        const string ReduceFxKey = "IB_ReduceFX";
 
         public static bool HapticsEnabled
         {
@@ -60,6 +63,29 @@ namespace IdleBlacksmith.UI
         {
             get => PlayerPrefs.GetFloat(VolumeKey, 0.8f);
             set => PlayerPrefs.SetFloat(VolumeKey, Mathf.Clamp01(value));
+        }
+
+        /// <summary>Lite mode for lower-end devices: decorative particles and sparkles off.</summary>
+        public static bool ReduceFX
+        {
+            get => PlayerPrefs.GetInt(ReduceFxKey, 0) == 1;
+            set
+            {
+                PlayerPrefs.SetInt(ReduceFxKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+                ApplyFxSetting(value);
+            }
+        }
+
+        /// <summary>Stops/starts the decorative emitters that exist right now.</summary>
+        static void ApplyFxSetting(bool reduced)
+        {
+            foreach (ParticleSystem ps in Object.FindObjectsByType<ParticleSystem>(FindObjectsSortMode.None))
+            {
+                if (ps == null || ps.gameObject.name != "ChimneySmoke") continue;
+                if (reduced) ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                else ps.Play();
+            }
         }
 
         /// <summary>Short buzz on supported devices; a no-op everywhere else.</summary>
@@ -81,6 +107,7 @@ namespace IdleBlacksmith.UI
             if (muteButton != null) muteButton.onClick.AddListener(ToggleMute);
             if (musicButton != null) musicButton.onClick.AddListener(ToggleMusic);
             if (hapticButton != null) hapticButton.onClick.AddListener(ToggleHaptics);
+            if (fxButton != null) fxButton.onClick.AddListener(ToggleFx);
             if (menuButton != null) menuButton.onClick.AddListener(() => MenuRequested?.Invoke());
             if (resetButton != null) resetButton.onClick.AddListener(OnReset);
             if (creditsButton != null) creditsButton.onClick.AddListener(() => { if (creditsRoot != null) creditsRoot.SetActive(!creditsRoot.activeSelf); });
@@ -132,6 +159,13 @@ namespace IdleBlacksmith.UI
             Refresh();
         }
 
+        void ToggleFx()
+        {
+            ReduceFX = !ReduceFX;
+            AudioManager.Play("pop", 0.03f);
+            Refresh();
+        }
+
         void OnReset()
         {
             if (!resetArmed)
@@ -155,6 +189,7 @@ namespace IdleBlacksmith.UI
             if (musicLabel != null) musicLabel.text = AudioManager.MusicMuted ? "OFF" : "ON";
             if (volumeLabel != null) volumeLabel.text = Mathf.RoundToInt(Volume * 100f) + "%";
             if (hapticLabel != null) hapticLabel.text = HapticsEnabled ? "ON" : "OFF";
+            if (fxLabel != null) fxLabel.text = ReduceFX ? "LITE" : "FULL";
             if (resetLabel != null)
                 resetLabel.text = resetArmed ? "TAP AGAIN TO ERASE" : "RESET SAVE";
             if (resetButton != null)

@@ -36,6 +36,7 @@ namespace IdleBlacksmith.Gameplay
         public static void PlaySparkle(GameObject sword, Rarity rarity, GameConfig config)
         {
             if (sword == null || config == null || config.raritySparklePrefab == null) return;
+            if (IdleBlacksmith.UI.SettingsPanel.ReduceFX) return;
             if (rarity < Rarity.Epic) return;
             ParticleSystem ps = Object.Instantiate(
                 config.raritySparklePrefab, sword.transform.position, Quaternion.identity, sword.transform);

@@ -19,6 +19,9 @@ namespace IdleBlacksmith.Gameplay
         CustomerController current;
         float timer = 2.5f;
 
+        /// <summary>The shopper currently in the shop, if any — read by the chatter system.</summary>
+        public CustomerController Current => current;
+
         void Update()
         {
             if (current != null || GameManager.Instance == null) return;
@@ -33,6 +36,8 @@ namespace IdleBlacksmith.Gameplay
             float pace = Production.CustomerIntervalMult;
             if (GameManager.Instance.upgrades != null)
                 pace *= GameManager.Instance.upgrades.CustomerIntervalMult;
+            if (GameManager.Instance.rush != null)
+                pace *= GameManager.Instance.rush.PaceMult;
             timer = Random.Range(config.minCustomerInterval, config.maxCustomerInterval) * Mathf.Max(0.15f, pace);
 
             if (rack.Stock <= 0) return;

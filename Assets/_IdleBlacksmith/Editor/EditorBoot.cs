@@ -280,6 +280,9 @@ namespace IdleBlacksmith.EditorTools
                 // Issue a royal order early so delivery + payout paths run in the smoke test.
                 if (frames == 240 && gmNow != null && gmNow.orders != null)
                     gmNow.orders.ForceIssue();
+                // Kick a rush mid-run so the event multipliers get exercised too.
+                if (frames == 600 && gmNow != null && gmNow.rush != null)
+                    gmNow.rush.ForceStart();
 
                 if (gameSeconds >= TargetGameSeconds || frames >= FrameSafetyCap)
                 {

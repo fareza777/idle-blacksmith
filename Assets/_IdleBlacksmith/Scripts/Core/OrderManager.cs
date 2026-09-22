@@ -59,6 +59,9 @@ namespace IdleBlacksmith.Core
         float nextOrderAt = -1f;
         PatronController patron;
 
+        /// <summary>The patron NPC currently waiting on the contract, if one walked in.</summary>
+        public PatronController Patron => patron;
+
         void Start()
         {
             nextOrderAt = Time.time + firstOrderDelay;

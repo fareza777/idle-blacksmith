@@ -184,6 +184,7 @@ namespace IdleBlacksmith.EditorTools
             var splash = BuildSplash(canvasGo.transform);
             var ticker = BuildTicker(hud, questPanel);
             var orderTicker = BuildOrderTicker(hud);
+            var rushBanner = BuildRushBanner(hud);
 
             // ------------------------------------------------ world bars
             refs.anvilBar = BuildAnvilBar(anvilStation, new Vector3(0, 1.55f, 0), "AnvilBar");
@@ -221,6 +222,7 @@ namespace IdleBlacksmith.EditorTools
             ui.mainMenuPanel = mainMenu;
             ui.ticker = ticker;
             ui.orderTicker = orderTicker;
+            ui.rushBanner = rushBanner;
             ui.hudGroup = hud.gameObject.AddComponent<CanvasGroup>();
             ui.splashScreen = splash;
             ui.onboardingPanel = onboarding;

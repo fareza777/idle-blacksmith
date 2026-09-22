@@ -97,6 +97,8 @@ namespace IdleBlacksmith.EditorTools
             var questManager = gameGo.AddComponent<QuestManager>();
             var achievements = gameGo.AddComponent<AchievementManager>();
             var orders = gameGo.AddComponent<OrderManager>();
+            var rush = gameGo.AddComponent<RushHourManager>();
+            gameGo.AddComponent<ChatterManager>();
             var gm = gameGo.AddComponent<GameManager>();
 
             var audioGo = new GameObject("Audio");
@@ -152,6 +154,7 @@ namespace IdleBlacksmith.EditorTools
             gm.quests = questManager;
             gm.achievements = achievements;
             gm.orders = orders;
+            gm.rush = rush;
             production.config = config;
             gm.orePile = ore.GetComponent<OrePile>();
             gm.anvil = anvil.GetComponent<AnvilStation>();

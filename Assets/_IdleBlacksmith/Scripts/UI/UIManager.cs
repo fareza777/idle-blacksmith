@@ -40,6 +40,7 @@ namespace IdleBlacksmith.UI
         public ComplexPanel complexPanel;
         public ForgePanel forgePanel;
         public OrderTicker orderTicker;
+        public RushBanner rushBanner;
         public DungeonPanel dungeonPanel;
         public QuestPanel questPanel;
         public UpgradePanel upgradePanel;
@@ -172,6 +173,7 @@ namespace IdleBlacksmith.UI
             if (complexPanel != null) complexPanel.Init();
             if (forgePanel != null) forgePanel.Init();
             if (orderTicker != null) orderTicker.Init();
+            if (rushBanner != null) rushBanner.Init();
             if (questPanel != null) questPanel.Init();
             if (metaPanel != null) metaPanel.Init();
             if (prestigePanel != null) prestigePanel.Init();

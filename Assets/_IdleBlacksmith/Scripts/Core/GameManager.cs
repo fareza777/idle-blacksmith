@@ -43,6 +43,7 @@ namespace IdleBlacksmith.Core
         public QuestManager quests;
         public AchievementManager achievements;
         public OrderManager orders;
+        public RushHourManager rush;
 
         [Header("Scene stations")]
         public OrePile orePile;
@@ -81,7 +82,8 @@ namespace IdleBlacksmith.Core
             int baseValue = recipe != null ? recipe.baseValue : config.swordPrice;
             float oreMult = 1f + config.relicOrePriceBonus * Mathf.Min(RelicOre, config.relicOreMaxBonusCount);
             float mult = RarityInfo.MultiplierOf(item != null ? item.rarity : Rarity.Common)
-                       * oreMult * Production.PriceMult * Production.GoldMult;
+                       * oreMult * Production.PriceMult * Production.GoldMult
+                       * (rush != null ? rush.PriceMult : 1f);
             return Mathf.Max(1, Mathf.RoundToInt(baseValue * mult));
         }
 
