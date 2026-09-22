@@ -275,6 +275,14 @@ namespace IdleBlacksmith.UI
             OpenExclusive(forgePanel);
         }
 
+        /// <summary>Replays the opening cinematic on demand (from Settings).</summary>
+        public void ReplayIntro()
+        {
+            if (introCinematic == null || introCinematic.IsPlaying) return;
+            AudioManager.PlayMusic("music_intro", 0.6f);
+            introCinematic.Play(() => AudioManager.PlayMusic("music_forge", 1.5f));
+        }
+
         /// <summary>Opens the complex sheet with one building's row highlighted (world tap).</summary>
         public void OpenComplexFocused(string buildingId)
         {

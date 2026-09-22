@@ -239,6 +239,8 @@ namespace IdleBlacksmith.EditorTools
             src.volume = 0.45f;
             src.dopplerLevel = 0f;
 
+            CreateEmberMotes(root.transform, new Vector3(0f, 0.95f, 0.42f));
+
             SavePrefab(root, ForgePrefab);
         }
 
@@ -749,6 +751,54 @@ namespace IdleBlacksmith.EditorTools
             psr.renderMode = ParticleSystemRenderMode.Billboard;
             psr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             return ps;
+        }
+
+        /// <summary>Glowing motes lazily rising out of the forge mouth — the ambient magic.</summary>
+        static void CreateEmberMotes(Transform parent, Vector3 localPos)
+        {
+            var go = new GameObject("EmberMotes");
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = localPos;
+            go.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+
+            var ps = go.AddComponent<ParticleSystem>();
+            ParticleSystem.MainModule main = ps.main;
+            main.playOnAwake = true;
+            main.loop = true;
+            main.duration = 4f;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.9f, 1.8f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(0.25f, 0.55f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.012f, 0.034f);
+            main.gravityModifier = -0.25f;   // sparks rise
+            main.maxParticles = 30;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+
+            ParticleSystem.EmissionModule em = ps.emission;
+            em.rateOverTime = 6.5f;
+
+            ParticleSystem.ShapeModule shape = ps.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Cone;
+            shape.angle = 16f;
+            shape.radius = 0.22f;
+
+            ParticleSystem.ColorOverLifetimeModule col = ps.colorOverLifetime;
+            col.enabled = true;
+            var gradient = new Gradient();
+            gradient.SetKeys(
+                new[] { new GradientColorKey(new Color(1f, 0.78f, 0.35f), 0f), new GradientColorKey(new Color(1f, 0.35f, 0.08f), 1f) },
+                new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(1f, 0.15f), new GradientAlphaKey(0.85f, 0.6f), new GradientAlphaKey(0f, 1f) });
+            col.color = gradient;
+
+            ParticleSystem.VelocityOverLifetimeModule vol = ps.velocityOverLifetime;
+            vol.enabled = true;
+            vol.x = new ParticleSystem.MinMaxCurve(-0.05f, 0.05f);
+            vol.z = new ParticleSystem.MinMaxCurve(-0.05f, 0.05f);
+
+            var psr = go.GetComponent<ParticleSystemRenderer>();
+            psr.sharedMaterial = sparkMat;
+            psr.renderMode = ParticleSystemRenderMode.Billboard;
+            psr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         }
 
         /// <summary>Looping grey puffs drifting up from the smithy chimney.</summary>

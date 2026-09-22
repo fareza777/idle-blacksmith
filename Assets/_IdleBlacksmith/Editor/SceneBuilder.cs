@@ -176,7 +176,7 @@ namespace IdleBlacksmith.EditorTools
             dialogue.ui = ui.uiManager;
 
             AudioSource fireAudio = forge.GetComponentInChildren<AudioSource>(true);
-            if (fireAudio != null) fireAudio.clip = LoadClip("crackle");
+            if (fireAudio != null) fireAudio.clip = LoadClip("amb_fire");
 
             var eventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
 

@@ -425,7 +425,7 @@ namespace IdleBlacksmith.EditorTools
 
         static SettingsPanel BuildSettingsPanel(Transform parent)
         {
-            SheetRefs s = Sheet(parent, "SettingsPanel", 1450, new Color(0.12f, 0.09f, 0.07f, 0.72f));
+            SheetRefs s = Sheet(parent, "SettingsPanel", 1560, new Color(0.12f, 0.09f, 0.07f, 0.72f));
             var panel = s.root.gameObject.AddComponent<SettingsPanel>();
 
             SheetTitle(s.sheet, "Settings", "Sound, music, haptics and your save", out _);
@@ -467,6 +467,10 @@ namespace IdleBlacksmith.EditorTools
             y -= 104f;
 
             BouncyButton fxBtn = SettingsRow(s.sheet, "Effects", y, out TMP_Text fxLabel);
+            y -= 104f;
+
+            BouncyButton introBtn = SettingsRow(s.sheet, "Replay Intro", y, out TMP_Text introLabel);
+            if (introLabel != null) introLabel.text = ">";
             y -= 104f;
 
             var saveGo = Box("SavePath", s.sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, y), new Vector2(920, 76));
@@ -528,6 +532,8 @@ namespace IdleBlacksmith.EditorTools
             panel.hapticLabel = hapticLabel;
             panel.fxButton = fxBtn;
             panel.fxLabel = fxLabel;
+            panel.introButton = introBtn;
+            panel.introLabel = introLabel;
             panel.menuButton = menuBtn;
             panel.resetButton = resetBtn;
             panel.resetLabel = resetLabel;

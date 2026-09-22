@@ -31,6 +31,8 @@ namespace IdleBlacksmith.UI
         public TMP_Text hapticLabel;
         public BouncyButton fxButton;
         public TMP_Text fxLabel;
+        public BouncyButton introButton;
+        public TMP_Text introLabel;
         public BouncyButton menuButton;
         public BouncyButton resetButton;
         public TMP_Text resetLabel;
@@ -78,11 +80,13 @@ namespace IdleBlacksmith.UI
         }
 
         /// <summary>Stops/starts the decorative emitters that exist right now.</summary>
-        static void ApplyFxSetting(bool reduced)
+        public static void ApplyFxSetting(bool reduced)
         {
             foreach (ParticleSystem ps in Object.FindObjectsByType<ParticleSystem>(FindObjectsSortMode.None))
             {
-                if (ps == null || ps.gameObject.name != "ChimneySmoke") continue;
+                if (ps == null) continue;
+                string n = ps.gameObject.name;
+                if (n != "ChimneySmoke" && n != "EmberMotes") continue;
                 if (reduced) ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                 else ps.Play();
             }
@@ -108,6 +112,7 @@ namespace IdleBlacksmith.UI
             if (musicButton != null) musicButton.onClick.AddListener(ToggleMusic);
             if (hapticButton != null) hapticButton.onClick.AddListener(ToggleHaptics);
             if (fxButton != null) fxButton.onClick.AddListener(ToggleFx);
+            if (introButton != null) introButton.onClick.AddListener(ReplayIntro);
             if (menuButton != null) menuButton.onClick.AddListener(() => MenuRequested?.Invoke());
             if (resetButton != null) resetButton.onClick.AddListener(OnReset);
             if (creditsButton != null) creditsButton.onClick.AddListener(() => { if (creditsRoot != null) creditsRoot.SetActive(!creditsRoot.activeSelf); });
@@ -164,6 +169,12 @@ namespace IdleBlacksmith.UI
             ReduceFX = !ReduceFX;
             AudioManager.Play("pop", 0.03f);
             Refresh();
+        }
+
+        void ReplayIntro()
+        {
+            Close();
+            UIManager.Instance?.ReplayIntro();
         }
 
         void OnReset()

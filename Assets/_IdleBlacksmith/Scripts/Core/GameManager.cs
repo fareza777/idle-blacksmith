@@ -306,6 +306,11 @@ namespace IdleBlacksmith.Core
             {
                 OnShopTierChanged?.Invoke(ShopTier);
                 SpawnEnvironment(ShopTier);
+                // The rebuilt environment brings fresh decorative emitters.
+                UI.SettingsPanel.ApplyFxSetting(UI.SettingsPanel.ReduceFX);
+                UI.UIManager.Instance?.SpawnFloatingText(
+                    new Vector3(0f, 2.8f, 0f), "SMITHY LEVEL " + ShopTier + "!", new Color(1f, 0.72f, 0.3f));
+                AudioManager.Play("fanfare", 0.04f, 0.85f);
             }
             if (production != null) production.Recalculate();
             if (rack != null) rack.SetCapacity(RackCapacityTotal);
