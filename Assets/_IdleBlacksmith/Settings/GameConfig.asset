@@ -266,6 +266,17 @@ MonoBehaviour:
     requiredMineLevel: 0
     swordPrefab: {fileID: 325418125089619118, guid: 552ff5c26808b234abca3f255fc20749, type: 3}
     bladeColor: 40
+  - id: emberaxe
+    displayName: Ember Waraxe
+    description: An ember-forged crescent that never cools.
+    icon: {fileID: 21300000, guid: 4cb0262401b6301c7ad10ec16f278890, type: 3}
+    oreCost: 6
+    baseValue: 120
+    craftDuration: 5.8
+    requiredSmithyLevel: 3
+    requiredMineLevel: 1
+    swordPrefab: {fileID: 6778798160140310329, guid: ce0e3cb90ea6306e58694b5466824c2c, type: 3}
+    bladeColor: 40
   - id: silver
     displayName: Silver Rapier
     description: Bites deep into things that haunt the dark.

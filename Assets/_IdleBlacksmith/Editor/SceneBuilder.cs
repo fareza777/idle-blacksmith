@@ -694,6 +694,14 @@ namespace IdleBlacksmith.EditorTools
                 },
                 new RecipeDef
                 {
+                    id = RecipeId.EmberAxe, displayName = "Ember Waraxe", oreCost = 6, baseValue = 120,
+                    craftDuration = 5.8f, requiredSmithyLevel = 3, requiredMineLevel = 1,
+                    description = "An ember-forged crescent that never cools.",
+                    icon = AssetFactory.LoadIcon("emberaxe"),
+                    swordPrefab = ModelFactory.SwordPrefabFor(RecipeId.EmberAxe),
+                },
+                new RecipeDef
+                {
                     id = RecipeId.Silver, displayName = "Silver Rapier", oreCost = 7, baseValue = 190,
                     craftDuration = 6.0f, requiredSmithyLevel = 3, requiredMineLevel = 2,
                     description = "Bites deep into things that haunt the dark.",

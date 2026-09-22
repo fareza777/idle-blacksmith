@@ -26,6 +26,7 @@ namespace IdleBlacksmith.EditorTools
             { RecipeId.Copper,      new[] { Palette.Terracotta,  Palette.MetalDark,  Palette.Grip } },
             { RecipeId.Iron,        new[] { Palette.MetalDark,   Palette.MetalDark,  Palette.Grip } },
             { RecipeId.Steel,       new[] { Palette.MetalLight,  Palette.SwordGuard, Palette.Grip } },
+            { RecipeId.EmberAxe,    new[] { Palette.Ember,       Palette.SwordGuard, Palette.Grip } },
             { RecipeId.Silver,      new[] { Palette.SwordBlade,  Palette.Straw,      Palette.Grip } },
             { RecipeId.Mithril,     new[] { Palette.OreCrystal,  Palette.Teal,       Palette.Grip } },
             { RecipeId.Dragonsteel, new[] { Palette.RugRed,      Palette.Ember,      Palette.Grip } },
@@ -122,6 +123,14 @@ namespace IdleBlacksmith.EditorTools
                     b.Box(new Vector3(0, 0.005f, -0.05f), new Vector3(0.11f, 0.020f, 0.05f), Quaternion.Euler(-20f, 0f, 0f), guard); // knuckle bow stub
                     b.Box(new Vector3(0, 0, -0.075f), new Vector3(0.040f, 0.040f, 0.12f), grip);
                     b.Box(new Vector3(0, 0, -0.15f), new Vector3(0.058f, 0.058f, 0.038f), guard);
+                    break;
+                case RecipeId.EmberAxe: // war axe: long haft, crescent head, back spike
+                    b.Box(new Vector3(0, 0, 0.06f), new Vector3(0.042f, 0.042f, 0.52f), grip);   // haft
+                    b.Box(new Vector3(0.085f, 0, 0.30f), new Vector3(0.16f, 0.016f, 0.11f), blade); // crescent, wide
+                    b.Box(new Vector3(0.165f, 0, 0.335f), new Vector3(0.085f, 0.016f, 0.065f), Quaternion.Euler(0f, -18f, 0f), blade); // swept edge
+                    b.Box(new Vector3(-0.075f, 0, 0.30f), new Vector3(0.10f, 0.014f, 0.035f), blade); // back spike
+                    b.Box(new Vector3(0, 0, 0.30f), new Vector3(0.06f, 0.05f, 0.05f), guard);       // collar
+                    b.Box(new Vector3(0, 0, -0.215f), new Vector3(0.05f, 0.05f, 0.045f), guard);    // butt cap
                     break;
                 case RecipeId.Silver: // slim rapier with ring guard
                     b.Box(new Vector3(0, 0, 0.28f), new Vector3(0.028f, 0.012f, 0.50f), blade);
