@@ -321,6 +321,9 @@ namespace IdleBlacksmith.EditorTools
             var statGo = Box("Stats", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(430, 30));
             var statLabel = Txt(statGo, "1 ore · 10 gold · 3.2s", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
 
+            var forgedGo = Box("Forged", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -92), new Vector2(430, 30));
+            var forgedLabel = Txt(forgedGo, "", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
+
             BouncyButton selectBtn = RowAction(rt, "SELECT", Orange, out TMP_Text selectLabel);
 
             var activeBadge = Chip("ActiveBadge", rt, new Vector2(1, 1), new Vector2(-18, -58), new Vector2(190, 54), Hex(0x5BA86B));
@@ -338,6 +341,7 @@ namespace IdleBlacksmith.EditorTools
             card.frame = frameImg;
             card.nameLabel = nameLabel;
             card.statLabel = statLabel;
+            card.forgedLabel = forgedLabel;
             card.descLabel = null;
             card.selectButton = selectBtn;
             card.selectLabel = selectLabel;

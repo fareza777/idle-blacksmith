@@ -94,6 +94,7 @@ namespace IdleBlacksmith.Core
             if (item == null || Data == null || Data.stats == null) return;
             Data.stats.swordsForged++;
             Data.stats.bestRarity = Mathf.Max(Data.stats.bestRarity, (int)item.rarity);
+            Data.stats.NoteForged(item.recipeId, item.rarity);
         }
 
         /// <summary>Records a sale and adds the takings to the prestige run total.</summary>

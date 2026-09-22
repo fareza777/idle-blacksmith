@@ -14,6 +14,7 @@ namespace IdleBlacksmith.UI
         public Image frame;
         public TMP_Text nameLabel;
         public TMP_Text statLabel;
+        public TMP_Text forgedLabel;
         public TMP_Text descLabel;
         public BouncyButton selectButton;
         public TMP_Text selectLabel;
@@ -68,6 +69,22 @@ namespace IdleBlacksmith.UI
                 selectButton.interactable = unlocked && !active;
                 if (selectLabel != null)
                     selectLabel.text = active ? "FORGING" : "SELECT";
+            }
+
+            if (forgedLabel != null)
+            {
+                StatBlock st = gm.Data != null ? gm.Data.stats : null;
+                int forged = st != null ? st.ForgedCount(def.id) : 0;
+                int best = st != null ? st.BestRarityOf(def.id) : -1;
+                if (forged > 0 && best >= 0)
+                {
+                    forgedLabel.text = forged + " forged  ·  best " + RarityInfo.NameOf((Rarity)best);
+                    forgedLabel.color = RarityInfo.TextColor((Rarity)best);
+                }
+                else
+                {
+                    forgedLabel.text = "";
+                }
             }
 
             if (frame != null) frame.color = active ? Active : unlocked ? Color.white : LockedTint;

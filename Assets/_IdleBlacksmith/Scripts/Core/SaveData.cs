@@ -42,6 +42,14 @@ namespace IdleBlacksmith.Core
 
     /// <summary>Lifetime counters, kept across prestige. Drives achievements and the stats panel.</summary>
     [Serializable]
+    public class RecipeRarityCount
+    {
+        public string recipeId;
+        public int rarity;
+        public int count;
+    }
+
+    [Serializable]
     public class StatBlock
     {
         public int swordsForged;
@@ -58,6 +66,34 @@ namespace IdleBlacksmith.Core
         public int rushOrdersDone;
         public int dailyClaims;
         public float playSeconds;
+        public System.Collections.Generic.List<RecipeRarityCount> forgedLog = new System.Collections.Generic.List<RecipeRarityCount>();
+
+        /// <summary>Counts one forged sword under its recipe and final rarity.</summary>
+        public void NoteForged(string recipeId, Rarity rarity)
+        {
+            if (string.IsNullOrEmpty(recipeId)) return;
+            RecipeRarityCount e = forgedLog.Find(x => x.recipeId == recipeId && x.rarity == (int)rarity);
+            if (e == null) forgedLog.Add(new RecipeRarityCount { recipeId = recipeId, rarity = (int)rarity, count = 1 });
+            else e.count++;
+        }
+
+        /// <summary>Total swords forged of one recipe, any rarity.</summary>
+        public int ForgedCount(string recipeId)
+        {
+            int n = 0;
+            foreach (RecipeRarityCount e in forgedLog)
+                if (e.recipeId == recipeId) n += e.count;
+            return n;
+        }
+
+        /// <summary>Highest rarity forged of one recipe, or -1 when none yet.</summary>
+        public int BestRarityOf(string recipeId)
+        {
+            int best = -1;
+            foreach (RecipeRarityCount e in forgedLog)
+                if (e.recipeId == recipeId && e.count > 0 && e.rarity > best) best = e.rarity;
+            return best;
+        }
     }
 
     [Serializable]
