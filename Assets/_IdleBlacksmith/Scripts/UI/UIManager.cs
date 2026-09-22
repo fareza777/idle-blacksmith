@@ -117,8 +117,9 @@ namespace IdleBlacksmith.UI
 
             if (hudGroup != null) hudGroup.alpha = 0f;
 
-            // Music starts under the splash so the menu already has its theme.
-            AudioManager.PlayMusic("music_forge", 2f);
+            // Music starts under the splash so the menu already has its theme — deep once
+            // the smithy has reached the third tier.
+            AudioManager.PlayMusic(gm != null && gm.ShopTier >= 3 ? "music_deep" : "music_forge", 2f);
             AudioManager.PlayAmbience("amb_fire", 3f);
 
             // Launch flow: splash, then the title screen, then the intro once, then onboarding.
@@ -283,7 +284,14 @@ namespace IdleBlacksmith.UI
         {
             if (introCinematic == null || introCinematic.IsPlaying) return;
             AudioManager.PlayMusic("music_intro", 0.6f);
-            introCinematic.Play(() => AudioManager.PlayMusic("music_forge", 1.5f));
+            introCinematic.Play(() => AudioManager.PlayMusic(ThemeId(), 1.5f));
+        }
+
+        /// <summary>The workshop theme this save should hear — deep-forge from smithy tier three.</summary>
+        public static string ThemeId()
+        {
+            var gm = GameManager.Instance;
+            return gm != null && gm.ShopTier >= 3 ? "music_deep" : "music_forge";
         }
 
         /// <summary>Opens the complex sheet with one building's row highlighted (world tap).</summary>

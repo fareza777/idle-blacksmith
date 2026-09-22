@@ -22,6 +22,12 @@ namespace IdleBlacksmith.Gameplay
         [Tooltip("Tap tolerance for the anvil, tighter than buildings so it doesn't steal building taps")]
         public float anvilTapRadiusNormalized = 0.085f;
 
+        [Tooltip("The ore pile — taps grab a chunk straight off the stock")]
+        public OrePile orePile;
+
+        [Tooltip("Tap tolerance for the ore pile")]
+        public float oreTapRadiusNormalized = 0.09f;
+
         [Tooltip("Tap tolerance as a fraction of screen height, so it feels the same on any device")]
         public float tapRadiusNormalized = 0.12f;
 
@@ -93,6 +99,17 @@ namespace IdleBlacksmith.Gameplay
                 if (ap.z > 0f && Vector2.Distance(ap, screenPos) <= anvilTapRadiusNormalized * Screen.height)
                 {
                     anvil.TapBoost();
+                    return;
+                }
+            }
+
+            // A tap on the ore pile chips a chunk straight into the stock.
+            if (orePile != null)
+            {
+                Vector3 op = cam.WorldToScreenPoint(orePile.transform.position + Vector3.up * 0.5f);
+                if (op.z > 0f && Vector2.Distance(op, screenPos) <= oreTapRadiusNormalized * Screen.height)
+                {
+                    orePile.ManualMine();
                     return;
                 }
             }

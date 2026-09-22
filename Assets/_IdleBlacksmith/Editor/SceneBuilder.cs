@@ -116,7 +116,7 @@ namespace IdleBlacksmith.EditorTools
             };
             audio.musicClips = new[]
             {
-                Clip("music_forge", 1f), Clip("music_intro", 1f),
+                Clip("music_forge", 1f), Clip("music_intro", 1f), Clip("music_deep", 1f),
             };
 
             var dialogue = gameGo.AddComponent<DialogueManager>();
@@ -187,6 +187,7 @@ namespace IdleBlacksmith.EditorTools
             var picker = pickerGo.AddComponent<BuildingPicker>();
             picker.buildings = plots;
             picker.anvil = anvil.GetComponent<AnvilStation>();
+            picker.orePile = ore.GetComponent<OrePile>();
 
             // Camera frames the smithy plus every building that actually exists.
             cameraDirector.staticAnchors = new Transform[0];

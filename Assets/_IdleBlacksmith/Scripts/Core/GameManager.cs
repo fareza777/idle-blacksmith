@@ -312,6 +312,8 @@ namespace IdleBlacksmith.Core
                 UI.UIManager.Instance?.SpawnFloatingText(
                     new Vector3(0f, 2.8f, 0f), "SMITHY LEVEL " + ShopTier + "!", new Color(1f, 0.72f, 0.3f));
                 AudioManager.Play("fanfare", 0.04f, 0.85f);
+                // From tier three the workshop theme gives way to the deep-forge drone.
+                AudioManager.PlayMusic(ShopTier >= 3 ? "music_deep" : "music_forge", 3f);
             }
             if (production != null) production.Recalculate();
             if (rack != null) rack.SetCapacity(RackCapacityTotal);

@@ -36,6 +36,7 @@ namespace IdleBlacksmith.EditorTools
             Try("blip", Blip());
             Try("ember_whoosh", EmberWhoosh());
             Try("amb_fire", AmbFire());
+            Try("music_deep", MusicDeep());
         }
 
         static void Try(string name, float[] samples)
@@ -321,6 +322,41 @@ namespace IdleBlacksmith.EditorTools
 
             // Fold the last quarter second into the first so AudioSource.loop wraps clean.
             int xn = (int)(SR * 0.25f);
+            for (int i = 0; i < xn; i++)
+                s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
+            return s;
+        }
+
+        /// <summary>
+        /// Deep-forge theme for high smithy tiers: a slow drone under a sparse bell phrase
+        /// over a heartbeat pulse. Written as a seamless 16s loop.
+        /// </summary>
+        static float[] MusicDeep()
+        {
+            const float seconds = 16f;
+            float[] bells = { 220f, 261.63f, 329.63f, 293.66f, 261.63f, 220f, 196f, 164.81f }; // A C E D C A G E
+            int n = (int)(SR * seconds);
+            var s = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float x = i / (float)SR;
+                // Drone: root + fifth, breathing on a 16s swell so the loop turns imperceptibly.
+                float swell = 0.6f + 0.4f * Mathf.Sin(2f * Mathf.PI * x / seconds);
+                float v = Sin(110f, x) * 0.14f + Sin(164.81f, x) * 0.10f + Sin(220f, x) * 0.05f;
+                v *= swell;
+                // Sparse bells, one every two seconds.
+                int note = (int)(x / 2f) % bells.Length;
+                float lt = x % 2f;
+                v += (Sin(bells[note], lt) + Sin(bells[note] * 2f, lt) * 0.35f)
+                     * 0.12f * Mathf.Exp(-lt * 2.2f);
+                // Heartbeat thump on each second.
+                float ht = x % 1f;
+                v += Sin(55f + 18f * Mathf.Exp(-ht * 30f), ht) * 0.22f * Mathf.Exp(-ht * 14f);
+                s[i] = Mathf.Clamp(v * 0.85f, -1f, 1f);
+            }
+
+            // Fold the tail into the head so the loop wraps without a click.
+            int xn = (int)(SR * 0.4f);
             for (int i = 0; i < xn; i++)
                 s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
             return s;
