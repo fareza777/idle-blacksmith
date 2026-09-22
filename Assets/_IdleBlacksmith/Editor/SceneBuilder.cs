@@ -71,6 +71,7 @@ namespace IdleBlacksmith.EditorTools
                 MakePlot(plotsRoot, BuildingId.Market, V(6.0f, 0, 1.4f), shopCentre),
                 MakePlot(plotsRoot, BuildingId.Gate, V(-3.4f, 0, -5.4f), shopCentre),
                 MakePlot(plotsRoot, BuildingId.Sanctum, V(5.4f, 0, 6.6f), shopCentre),
+                MakePlot(plotsRoot, BuildingId.Furnace, V(-5.6f, 0, 6.4f), shopCentre),
             };
 
             Transform helperSpawn = Marker("HelperSpawn", V(1.3f, 0, 0.85f));
@@ -663,6 +664,22 @@ namespace IdleBlacksmith.EditorTools
                         "Worldheart — runes up to level 20, costs -32%",
                     },
                     runeLevelsPerTier = 4, runeCostCut = 0.08f,
+                },
+                new BuildingDef
+                {
+                    id = BuildingId.Furnace, displayName = "Blast Furnace", startLevel = 0, maxLevel = 5,
+                    description = "Roaring forced-draft heat. Every level hammers craft time down.",
+                    icon = AssetFactory.LoadIcon("furnace"),
+                    levelCosts = new[] { 300, 1600, 7000, 32000, 140000 },
+                    levelPerks = new[]
+                    {
+                        "Brick Stack — forging 8% faster",
+                        "Twin Bellows — forging 16% faster",
+                        "Coke Furnace — forging 24% faster",
+                        "Blast Chamber — forging 32% faster",
+                        "Volcanic Heart — forging 40% faster",
+                    },
+                    craftSpeedCut = 0.08f,
                 },
             };
 

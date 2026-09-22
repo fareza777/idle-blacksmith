@@ -64,6 +64,7 @@ namespace IdleBlacksmith.EditorTools
                 BuildMarket(level);
                 BuildGate(level);
                 BuildSanctum(level);
+                BuildFurnace(level);
             }
         }
 
@@ -468,6 +469,55 @@ namespace IdleBlacksmith.EditorTools
             flourish.floaters = new Transform[0];
 
             SavePrefab(root, BuildingPrefabPath(BuildingId.Sanctum, level));
+        }
+
+        // ------------------------------------------------------------ blast furnace
+
+        /// <summary>
+        /// Brick furnace with an arched glowing mouth: bellows appear at level 2, a coal
+        /// heap at 3, and one more ember seam climbs the stack per level.
+        /// </summary>
+        static void BuildFurnace(int level)
+        {
+            var b = new MeshBuilder();
+            float s = 1f + 0.07f * (level - 1);
+
+            // stone footing
+            b.Box(new Vector3(0f, 0.14f * s, 0f), new Vector3(2.2f, 0.28f, 1.9f) * s, Palette.Stone);
+
+            // tapered brick body and the chimney behind it
+            float bodyH = (1.5f + 0.35f * level) * s;
+            b.Box(new Vector3(0f, 0.28f * s + bodyH * 0.5f, 0.15f * s), new Vector3(1.7f, bodyH, 1.5f) * s, Palette.Terracotta);
+            b.Box(new Vector3(0f, 0.28f * s + bodyH + 0.05f, 0.15f * s), new Vector3(1.85f, 0.10f, 1.65f) * s, Palette.StoneDark);
+            float chimH = (0.9f + 0.30f * level) * s;
+            b.Box(new Vector3(0.4f * s, 0.28f * s + bodyH + chimH * 0.5f, 0.4f * s), new Vector3(0.55f, chimH, 0.55f), Palette.Terracotta);
+            b.Box(new Vector3(0.4f * s, 0.28f * s + bodyH + chimH + 0.07f, 0.4f * s), new Vector3(0.75f, 0.14f, 0.75f), Palette.StoneDark);
+
+            // arched mouth: dark archway around a hot glowing throat
+            b.Box(new Vector3(0f, 0.82f * s, -0.62f * s), new Vector3(0.95f, 1.15f, 0.12f), Palette.Coal);
+            b.Box(new Vector3(0f, 0.68f * s, -0.635f * s), new Vector3(0.55f, 0.52f, 0.13f), Palette.Ember, 1);
+            b.Box(new Vector3(0f, 1.46f * s, -0.62f * s), new Vector3(1.15f, 0.22f, 0.2f), Palette.StoneDark);
+
+            // bellows bolted to the flank once the furnace is serious
+            if (level >= 2)
+            {
+                b.Box(new Vector3(-1.15f * s, 0.55f * s, -0.2f), new Vector3(0.70f, 0.50f, 0.55f), Palette.WoodDark);
+                b.Box(new Vector3(-1.15f * s, 0.88f * s, -0.2f), new Vector3(0.50f, 0.18f, 0.40f), Palette.Grip);
+                b.Box(new Vector3(-0.82f * s, 0.55f * s, -0.35f), new Vector3(0.28f, 0.12f, 0.12f), Palette.MetalDark);
+            }
+
+            // coal heap beside the mouth
+            if (level >= 3)
+                b.Rock(new Vector3(1.05f * s, 0.28f * s, -0.55f), new Vector3(0.70f, 0.48f, 0.60f), Palette.Coal, 5.2f);
+
+            // ember seams climbing the facade, one per level
+            for (int i = 0; i < level; i++)
+                b.Box(new Vector3(-0.80f * s + i * (0.40f * s), 0.35f * s + 0.20f * i, -0.615f * s),
+                      new Vector3(0.07f, 0.45f + 0.18f * i, 0.05f), Palette.Ember, 1);
+
+            var root = new GameObject("Building_" + BuildingId.Furnace + "_L" + level);
+            Part("Mesh", root.transform, SaveMesh(b, "Building_Furnace_L" + level), PME, Vector3.zero);
+            SavePrefab(root, BuildingPrefabPath(BuildingId.Furnace, level));
         }
 
         // ------------------------------------------------------------ helpers

@@ -201,6 +201,8 @@ namespace IdleBlacksmith.Core
         public int runeLevelsPerTier;
         [Tooltip("Sanctum: fraction shaved off rune costs per level above 1")]
         public float runeCostCut;
+        [Tooltip("Blast Furnace: fraction off craft duration per level")]
+        public float craftSpeedCut;
 
         public int MaxBuyableLevel => Mathf.Min(maxLevel, (levelCosts != null ? levelCosts.Length : 0) + 1);
     }

@@ -144,6 +144,7 @@ MonoBehaviour:
     dungeonRewardBonus: 0
     runeLevelsPerTier: 0
     runeCostCut: 0
+    craftSpeedCut: 0
   - id: mine
     displayName: Ore Mine
     description: Miners feed the forge while you are away. No ore, no swords.
@@ -166,6 +167,7 @@ MonoBehaviour:
     dungeonRewardBonus: 0
     runeLevelsPerTier: 0
     runeCostCut: 0
+    craftSpeedCut: 0
   - id: market
     displayName: Trading Post
     description: A busy storefront pulls in more customers and better offers.
@@ -188,6 +190,7 @@ MonoBehaviour:
     dungeonRewardBonus: 0
     runeLevelsPerTier: 0
     runeCostCut: 0
+    craftSpeedCut: 0
   - id: gate
     displayName: Dungeon Gate
     description: Opens the way below. Higher levels send more parties and pay better.
@@ -210,6 +213,7 @@ MonoBehaviour:
     dungeonRewardBonus: 0.15
     runeLevelsPerTier: 0
     runeCostCut: 0
+    craftSpeedCut: 0
   - id: sanctum
     displayName: Enchanter's Sanctum
     description: Spend relic ore on runes that sharpen every part of the forge.
@@ -232,6 +236,30 @@ MonoBehaviour:
     dungeonRewardBonus: 0
     runeLevelsPerTier: 4
     runeCostCut: 0.08
+    craftSpeedCut: 0
+  - id: furnace
+    displayName: Blast Furnace
+    description: Roaring forced-draft heat. Every level hammers craft time down.
+    icon: {fileID: 21300000, guid: 8b7cd0b02fd91af08954560c223c8c2b, type: 3}
+    startLevel: 0
+    maxLevel: 5
+    levelCosts: 2c01000040060000581b0000007d0000e0220200
+    levelPerks:
+    - "Brick Stack \u2014 forging 8% faster"
+    - "Twin Bellows \u2014 forging 16% faster"
+    - "Coke Furnace \u2014 forging 24% faster"
+    - "Blast Chamber \u2014 forging 32% faster"
+    - "Volcanic Heart \u2014 forging 40% faster"
+    priceBonus: 0
+    rackBonus: 0
+    orePerSecond: 0
+    oreCapacity: 0
+    customerIntervalCut: 0
+    expeditionSlots: 0
+    dungeonRewardBonus: 0
+    runeLevelsPerTier: 0
+    runeCostCut: 0
+    craftSpeedCut: 0.08
   recipes:
   - id: copper
     displayName: Copper Dagger

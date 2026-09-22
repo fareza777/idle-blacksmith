@@ -170,6 +170,18 @@ namespace IdleBlacksmith.Core
             }
         }
 
+        /// <summary>Multiplier on craft duration contributed by the Blast Furnace.</summary>
+        public float CraftSpeedMult
+        {
+            get
+            {
+                BuildingDef def = Def(BuildingId.Furnace);
+                if (def == null || def.craftSpeedCut == 0f) return 1f;
+                int tiers = Mathf.Max(0, GetLevel(BuildingId.Furnace) - Mathf.Max(1, def.startLevel));
+                return Mathf.Max(0.4f, 1f - def.craftSpeedCut * tiers);
+            }
+        }
+
         public int ExpeditionSlots
         {
             get
@@ -223,6 +235,7 @@ namespace IdleBlacksmith.Core
             Production.DungeonRewardMult *= DungeonRewardMult;
             Production.RuneMaxLevel = Mathf.Max(Production.RuneMaxLevel, RuneMaxLevel);
             Production.RuneCostMult *= RuneCostMult;
+            Production.CraftSpeedMult *= CraftSpeedMult;
         }
 
         public void WriteTo(SaveData d)
