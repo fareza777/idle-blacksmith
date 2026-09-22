@@ -365,10 +365,17 @@ namespace IdleBlacksmith.EditorTools
                 Debug.LogWarning("[AssetFactory] app icon failed to import — app icon unchanged");
                 return;
             }
-            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.BuiltIn, new[] { tex });
-            PlayerSettings.SetIcons(NamedBuildTarget.Android, new[] { tex }, IconKind.Any);
-            PlayerSettings.SetIcons(NamedBuildTarget.Android, new[] { tex }, IconKind.Round);
-            PlayerSettings.SetIcons(NamedBuildTarget.Android, new[] { tex }, IconKind.Adaptive);
+            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown, new[] { tex }, IconKind.Any);
+            // Android-specific kinds (Round/Adaptive) need the Android build module;
+            // the default icon above covers standalone + web builds.
+            try
+            {
+                PlayerSettings.SetIcons(NamedBuildTarget.Android, new[] { tex }, IconKind.Any);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("[AssetFactory] android icon kind unavailable (module not installed): " + e.Message);
+            }
             Debug.Log("[AssetFactory] app icon applied from " + AppIconPath);
         }
 

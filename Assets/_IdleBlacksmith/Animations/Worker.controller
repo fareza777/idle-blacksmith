@@ -171,7 +171,7 @@ AnimatorController:
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer
-    m_StateMachine: {fileID: -5356431205287540574, guid: ba1b0e779b400b541bd14dc88017b247, type: 2}
+    m_StateMachine: {fileID: 9163483512532220394, guid: c3beb1ca0d0b77ebdb0a1d56a062ac49, type: 2}
     m_Mask: {fileID: 0}
     m_Motions: []
     m_Behaviours: []
