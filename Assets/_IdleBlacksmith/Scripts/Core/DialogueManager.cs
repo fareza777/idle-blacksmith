@@ -108,6 +108,10 @@ namespace IdleBlacksmith.Core
                 case "gate": return gm.buildings.GetLevel(BuildingId.Gate) >= 1;
                 case "expedition": return s != null && s.expeditionsClaimed >= 1;
                 case "sanctum": return gm.buildings.GetLevel(BuildingId.Sanctum) >= 1;
+                case "furnace": return gm.buildings.GetLevel(BuildingId.Furnace) >= 1;
+                case "order": return s != null && s.ordersServed >= 1;
+                case "rush": return s != null && s.rushOrdersDone >= 1;
+                case "daily": return s != null && s.dailyClaims >= 2;
                 case "rare": return s != null && s.bestRarity >= (int)Rarity.Epic;
                 case "smithy5": return gm.buildings.GetLevel(BuildingId.Smithy) >= 5;
                 case "rekindle": return gm.prestige != null && gm.prestige.Count >= 1;
@@ -191,6 +195,22 @@ namespace IdleBlacksmith.Core
             Seq("rekindle",
                 Line("Nyx", "nyx", "You fed a whole legend to the Ember and it gave you shards. Beautiful."),
                 Line("Bram Ironroot", "bram", "Every rekindle the fire burns brighter. We'll build it back — taller this time.")),
+
+            Seq("furnace",
+                Line("Bram Ironroot", "bram", "Brick, clay and a hungry mouth of fire. The old furnace breathes again."),
+                Line("Petra Flint", "petra", "Forced air, smith! Steel in half the time — the old miners called that a dragon's lung.")),
+
+            Seq("order",
+                Line("Sir Aldric", "aldric", "First order filled and the patron paid smiling. Reputation travels faster than any cart."),
+                Line("Sable", "sable", "Bulk buyers, premium prices. I taught you well — don't forget my ten percent. (I jest. Mostly.)")),
+
+            Seq("rush",
+                Line("Sable", "sable", "Rush hour and you kept up! Half the village left carrying steel."),
+                Line("Bram Ironroot", "bram", "When the bell rings, we strike faster. That's the forge's heartbeat, lad.")),
+
+            Seq("daily",
+                Line("Nyx", "nyx", "The Ember remembers every day you return to it. Faithfulness has a flavor, smith — it tastes like relics."),
+                Line("Bram Ironroot", "bram", "A forge feeds the hand that feeds it. Come back tomorrow; she'll keep the ember warm.")),
         };
     }
 }
