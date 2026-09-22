@@ -15,6 +15,10 @@ namespace IdleBlacksmith.Gameplay
         [Tooltip("Path back out after the purchase")]
         public Transform[] exitWaypoints;
         public Transform spawnPoint;
+        [Tooltip("Chance a shopper is a VIP paying five times the price")]
+        [Range(0f, 0.4f)] public float vipChance = 0.08f;
+        [Tooltip("Price multiplier a VIP pays")]
+        public float vipPriceMult = 5f;
 
         CustomerController current;
         float timer = 2.5f;
@@ -53,6 +57,19 @@ namespace IdleBlacksmith.Gameplay
             current = go.GetComponent<CustomerController>();
             if (current == null) return;
 
+            // Rare golden visitor: the whole figure turns gilded and pays a fat premium.
+            bool vip = Random.value < vipChance;
+            if (vip)
+            {
+                var block = new MaterialPropertyBlock();
+                foreach (Renderer r in go.GetComponentsInChildren<Renderer>())
+                {
+                    block.SetColor("_BaseColor", new Color(1f, 0.80f, 0.32f));
+                    block.SetColor("_Color", new Color(1f, 0.80f, 0.32f));
+                    r.SetPropertyBlock(block);
+                }
+            }
+
             var enter = new List<Vector3>();
             if (enterWaypoints != null)
                 foreach (Transform t in enterWaypoints)
@@ -69,7 +86,8 @@ namespace IdleBlacksmith.Gameplay
                     if (t != null) leave.Add(t.position);
             leave.Add(spawnPoint.position);
 
-            current.Init(rack, enter.ToArray(), leave.ToArray(), _ => current = null);
+            current.Init(rack, enter.ToArray(), leave.ToArray(), _ => current = null,
+                vip ? vipPriceMult : 1f, vip);
         }
     }
 }

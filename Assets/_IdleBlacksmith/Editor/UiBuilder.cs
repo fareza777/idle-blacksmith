@@ -177,6 +177,7 @@ namespace IdleBlacksmith.EditorTools
             var prestigePanel = BuildPrestigePanel(canvasGo.transform, talentRowPrefab);
             var settingsPanel = BuildSettingsPanel(canvasGo.transform);
             var welcomeBack = BuildWelcomeBack(canvasGo.transform);
+            var dailyClaim = BuildDailyClaim(canvasGo.transform);
             var dialogue = BuildDialogue(canvasGo.transform);
             var mainMenu = BuildMainMenu(canvasGo.transform);
             var onboarding = BuildOnboarding(canvasGo.transform);
@@ -219,6 +220,7 @@ namespace IdleBlacksmith.EditorTools
             ui.prestigePanel = prestigePanel;
             ui.settingsPanel = settingsPanel;
             ui.welcomeBackPanel = welcomeBack;
+            ui.dailyPanel = dailyClaim;
             ui.mainMenuPanel = mainMenu;
             ui.ticker = ticker;
             ui.orderTicker = orderTicker;

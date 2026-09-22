@@ -99,6 +99,7 @@ namespace IdleBlacksmith.EditorTools
             var orders = gameGo.AddComponent<OrderManager>();
             var rush = gameGo.AddComponent<RushHourManager>();
             gameGo.AddComponent<ChatterManager>();
+            var daily = gameGo.AddComponent<DailyRewardManager>();
             var gm = gameGo.AddComponent<GameManager>();
 
             var audioGo = new GameObject("Audio");
@@ -155,6 +156,7 @@ namespace IdleBlacksmith.EditorTools
             gm.achievements = achievements;
             gm.orders = orders;
             gm.rush = rush;
+            gm.daily = daily;
             production.config = config;
             gm.orePile = ore.GetComponent<OrePile>();
             gm.anvil = anvil.GetComponent<AnvilStation>();

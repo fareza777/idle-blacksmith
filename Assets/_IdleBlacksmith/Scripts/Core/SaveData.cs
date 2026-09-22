@@ -105,6 +105,10 @@ namespace IdleBlacksmith.Core
 
         /// <summary>The cinematic intro has played — it only shows for a fresh forge.</summary>
         public bool introSeen;
+        /// <summary>UTC day index of the last Daily Ember claim.</summary>
+        public int lastDailyClaimDay;
+        /// <summary>Consecutive days claimed — grows the reward, resets after a missed day.</summary>
+        public int dailyStreak;
         /// <summary>Story dialogue ids already watched, so each beat fires exactly once.</summary>
         public List<string> seenDialogues = new List<string>();
 

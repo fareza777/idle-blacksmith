@@ -242,6 +242,9 @@ MonoBehaviour:
   progressBar: {fileID: 0}
   tapBoostSeconds: 0.6
   tapCooldown: 0.12
+  comboWindow: 1.5
+  comboMax: 5
+  comboBonusPerLevel: 0.15
 --- !u!1 &7709006956473753108
 GameObject:
   m_ObjectHideFlags: 0

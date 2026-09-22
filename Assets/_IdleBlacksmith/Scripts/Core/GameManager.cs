@@ -44,6 +44,7 @@ namespace IdleBlacksmith.Core
         public AchievementManager achievements;
         public OrderManager orders;
         public RushHourManager rush;
+        public DailyRewardManager daily;
 
         [Header("Scene stations")]
         public OrePile orePile;

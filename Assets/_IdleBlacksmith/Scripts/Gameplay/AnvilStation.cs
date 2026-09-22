@@ -30,7 +30,17 @@ namespace IdleBlacksmith.Gameplay
         [Tooltip("Minimum gap between manual taps, so hammer spam stays readable")]
         public float tapCooldown = 0.12f;
 
+        [Header("Tap combo")]
+        [Tooltip("Seconds allowed between taps before the streak resets")]
+        public float comboWindow = 1.5f;
+        [Tooltip("Maximum tempo level reached by chained taps")]
+        public int comboMax = 5;
+        [Tooltip("Extra craft seconds granted per tempo level")]
+        public float comboBonusPerLevel = 0.15f;
+
         float nextTapAllowed;
+        int tapCombo;
+        float comboEndsAt;
 
         float timer;
         float duration;
@@ -134,13 +144,20 @@ namespace IdleBlacksmith.Gameplay
         {
             if (!IsCrafting || Time.time < nextTapAllowed) return;
             nextTapAllowed = Time.time + tapCooldown;
-            timer = Mathf.Min(timer + tapBoostSeconds, duration);
+            if (Time.time > comboEndsAt) tapCombo = 0;
+            tapCombo = Mathf.Min(tapCombo + 1, comboMax);
+            comboEndsAt = Time.time + comboWindow;
+            float boost = tapBoostSeconds + comboBonusPerLevel * (tapCombo - 1);
+            timer = Mathf.Min(timer + boost, duration);
             float p = Mathf.Clamp01(timer / duration);
             if (progressBar != null) progressBar.SetProgress(p);
             Strike(0.55f);
             Tween.PunchScale(transform, Vector3.one * 0.04f, 0.2f);
             Vector3 where = craftPoint != null ? craftPoint.position : transform.position + Vector3.up;
-            UIManager.Instance?.SpawnFloatingText(where, "CLANG!", new Color(1f, 0.76f, 0.32f));
+            bool hot = tapCombo >= 3;
+            UIManager.Instance?.SpawnFloatingText(
+                where, hot ? "CLANG! x" + tapCombo : "CLANG!",
+                hot ? new Color(1f, 0.52f, 0.18f) : new Color(1f, 0.76f, 0.32f));
         }
 
         /// <summary>Number of hammer blows landed on the current/last craft — drives the smoke test.</summary>

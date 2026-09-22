@@ -635,6 +635,77 @@ namespace IdleBlacksmith.EditorTools
             return panel;
         }
 
+        // ------------------------------------------------------------ daily ember
+
+        static DailyClaimPanel BuildDailyClaim(Transform parent)
+        {
+            var root = StretchBox("DailyClaim", parent);
+            var cg = root.gameObject.AddComponent<CanvasGroup>();
+            cg.blocksRaycasts = true;
+            cg.interactable = true;
+
+            var dim = StretchBox("Dim", root);
+            var dimImg = dim.gameObject.AddComponent<Image>();
+            dimImg.color = new Color(0.10f, 0.07f, 0.04f, 0.78f);
+            dimImg.raycastTarget = true;
+
+            var card = Box("Card", root, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(760, 640));
+            var cardImg = card.gameObject.AddComponent<Image>();
+            cardImg.sprite = rounded; cardImg.type = Image.Type.Sliced; cardImg.color = Cream;
+            SoftShadow(card.gameObject, -8f, 0.45f);
+
+            var emblem = Box("Emblem", card, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -24), new Vector2(148, 148));
+            var emblemImg = emblem.gameObject.AddComponent<Image>();
+            emblemImg.sprite = circle; emblemImg.type = Image.Type.Sliced; emblemImg.color = Orange;
+            var emblemTxt = Box("Mark", emblem, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(120, 110));
+            Txt(emblemTxt, "*", 92, Color.white, TextAlignmentOptions.Center, titleFont);
+
+            var titleGo = Box("Title", card, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -190), new Vector2(700, 56));
+            var titleLabel = Txt(titleGo, "DAILY EMBER", 46, Brown, TextAlignmentOptions.Center, titleFont);
+            var streakGo = Box("Streak", card, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -248), new Vector2(700, 40));
+            var streakLabel = Txt(streakGo, "", 28, Secondary, TextAlignmentOptions.Center, bodyFont);
+
+            var goldGo = Box("Gold", card, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -310), new Vector2(700, 48));
+            var goldLabel = Txt(goldGo, "", 36, Hex(0xC99638), TextAlignmentOptions.Center, titleFont);
+            var relicGo = Box("Relic", card, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -366), new Vector2(700, 46));
+            var relicLabel = Txt(relicGo, "", 32, new Color(0.30f, 0.55f, 0.62f), TextAlignmentOptions.Center, titleFont);
+            var relicUnit = Box("RelicUnit", card, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -412), new Vector2(700, 34));
+            Txt(relicUnit, "relic ore", 24, Secondary, TextAlignmentOptions.Center, bodyFont);
+
+            var claimGo = Box("Claim", card, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(-116, 42), new Vector2(330, 96));
+            var claimBtn = claimGo.gameObject.AddComponent<BouncyButton>();
+            var claimImg = claimGo.gameObject.AddComponent<Image>();
+            claimImg.sprite = pill; claimImg.type = Image.Type.Sliced; claimImg.color = Orange;
+            claimBtn.targetGraphic = claimImg;
+            SetButtonColors(claimBtn);
+            SoftShadow(claimGo.gameObject, -5f, 0.35f);
+            var claimTxtGo = Box("Label", claimGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(310, 70));
+            Txt(claimTxtGo, "CLAIM", 36, Color.white, TextAlignmentOptions.Center, titleFont);
+
+            var laterGo = Box("Later", card, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(232, 42), new Vector2(190, 96));
+            var laterBtn = laterGo.gameObject.AddComponent<BouncyButton>();
+            var laterImg = laterGo.gameObject.AddComponent<Image>();
+            laterImg.sprite = pill; laterImg.type = Image.Type.Sliced; laterImg.color = new Color(1f, 1f, 1f, 0.55f);
+            laterBtn.targetGraphic = laterImg;
+            SetButtonColors(laterBtn);
+            var laterTxtGo = Box("Label", laterGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(170, 70));
+            Txt(laterTxtGo, "LATER", 30, Brown, TextAlignmentOptions.Center, titleFont);
+
+            var panel = root.gameObject.AddComponent<DailyClaimPanel>();
+            panel.group = cg;
+            panel.card = card;
+            panel.titleLabel = titleLabel;
+            panel.streakLabel = streakLabel;
+            panel.goldLabel = goldLabel;
+            panel.relicLabel = relicLabel;
+            panel.claimButton = claimBtn;
+            panel.laterButton = laterBtn;
+            // Stays active: the panel polls quietly and only shows itself when today's ember is unclaimed.
+            cg.alpha = 0f;
+            cg.blocksRaycasts = false;
+            return panel;
+        }
+
         // ------------------------------------------------------------ main menu
 
         /// <summary>Small pill button on the menu: label centred, caller picks the tint.</summary>

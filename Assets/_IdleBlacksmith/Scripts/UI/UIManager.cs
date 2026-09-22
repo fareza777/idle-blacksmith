@@ -41,6 +41,7 @@ namespace IdleBlacksmith.UI
         public ForgePanel forgePanel;
         public OrderTicker orderTicker;
         public RushBanner rushBanner;
+        public DailyClaimPanel dailyPanel;
         public DungeonPanel dungeonPanel;
         public QuestPanel questPanel;
         public UpgradePanel upgradePanel;
@@ -179,6 +180,8 @@ namespace IdleBlacksmith.UI
             if (prestigePanel != null) prestigePanel.Init();
             if (settingsPanel != null) settingsPanel.Init();
             if (welcomeBackPanel != null) welcomeBackPanel.Init();
+            if (dailyPanel != null && GameManager.Instance != null)
+                dailyPanel.Init(GameManager.Instance.daily);
             if (mainMenuPanel != null)
             {
                 mainMenuPanel.Init();
@@ -319,6 +322,7 @@ namespace IdleBlacksmith.UI
                     || (prestigePanel != null && prestigePanel.IsOpen)
                     || (settingsPanel != null && settingsPanel.IsOpen)
                     || (welcomeBackPanel != null && welcomeBackPanel.IsOpen)
+                    || (dailyPanel != null && dailyPanel.IsOpen)
                     || (mainMenuPanel != null && mainMenuPanel.IsOpen)
                     || (onboardingPanel != null && onboardingPanel.gameObject.activeSelf);
             }
