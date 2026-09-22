@@ -25,6 +25,12 @@ namespace IdleBlacksmith.Gameplay
         [Tooltip("The ore pile — taps grab a chunk straight off the stock")]
         public OrePile orePile;
 
+        [Tooltip("The forge cat — tapping it earns a purr, nothing more")]
+        public CatAmbient cat;
+
+        [Tooltip("Tap tolerance for the cat, the tightest hitbox in the shop")]
+        public float catTapRadiusNormalized = 0.05f;
+
         [Tooltip("Tap tolerance for the ore pile")]
         public float oreTapRadiusNormalized = 0.09f;
 
@@ -110,6 +116,17 @@ namespace IdleBlacksmith.Gameplay
                 if (op.z > 0f && Vector2.Distance(op, screenPos) <= oreTapRadiusNormalized * Screen.height)
                 {
                     orePile.ManualMine();
+                    return;
+                }
+            }
+
+            // The cat wins no menus — only a purr.
+            if (cat != null)
+            {
+                Vector3 cp = cam.WorldToScreenPoint(cat.transform.position + Vector3.up * 0.25f);
+                if (cp.z > 0f && Vector2.Distance(cp, screenPos) <= catTapRadiusNormalized * Screen.height)
+                {
+                    cat.Pet();
                     return;
                 }
             }

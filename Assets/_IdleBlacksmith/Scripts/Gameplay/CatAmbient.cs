@@ -1,3 +1,4 @@
+using IdleBlacksmith.Core;
 using PrimeTween;
 using UnityEngine;
 
@@ -27,6 +28,20 @@ namespace IdleBlacksmith.Gameplay
         void Start()
         {
             homePos = transform.position;
+            timer = Random.Range(restTime.x, restTime.y);
+        }
+
+        /// <summary>Tap the cat: a happy bounce, hearts, and a purr. No gameplay effect — only joy.</summary>
+        public void Pet()
+        {
+            Tween.PunchScale(transform, Vector3.one * 0.18f, 0.45f);
+            if (tail != null) Tween.PunchScale(tail, Vector3.one * 0.35f, 0.5f);
+            AudioManager.Play("pop", 0.12f, 0.4f);
+            Vector3 up = transform.position + Vector3.up * 0.6f;
+            UI.UIManager.Instance?.SpawnFloatingText(up, "\u2665", new Color(1f, 0.45f, 0.55f));
+            UI.UIManager.Instance?.SpawnFloatingText(up + new Vector3(0.25f, 0.15f, 0f), "purr", new Color(1f, 0.7f, 0.75f));
+            // a petted cat purrs a while longer where it lies
+            state = CatState.Rest;
             timer = Random.Range(restTime.x, restTime.y);
         }
 

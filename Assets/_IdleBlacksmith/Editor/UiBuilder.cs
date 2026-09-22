@@ -187,6 +187,16 @@ namespace IdleBlacksmith.EditorTools
             var orderTicker = BuildOrderTicker(hud);
             var rushBanner = BuildRushBanner(hud);
 
+            // Full-screen flash overlay — last sibling so nothing draws above it.
+            var flashGo = StretchBox("FlashOverlay", canvasGo.transform);
+            var flashImg = flashGo.gameObject.AddComponent<Image>();
+            flashImg.color = new Color(1f, 0.9f, 0.7f, 1f);
+            flashImg.raycastTarget = false;
+            var flashCg = flashGo.gameObject.AddComponent<CanvasGroup>();
+            flashCg.alpha = 0f;
+            flashCg.blocksRaycasts = false;
+            flashCg.interactable = false;
+
             // ------------------------------------------------ world bars
             refs.anvilBar = BuildAnvilBar(anvilStation, new Vector3(0, 1.55f, 0), "AnvilBar");
             refs.apprenticeBar = BuildAnvilBar(apprenticeStation, new Vector3(0, 1.35f, 0), "ApprenticeBar");
@@ -226,6 +236,8 @@ namespace IdleBlacksmith.EditorTools
             ui.orderTicker = orderTicker;
             ui.rushBanner = rushBanner;
             ui.hudGroup = hud.gameObject.AddComponent<CanvasGroup>();
+            ui.flashOverlay = flashCg;
+            ui.flashTint = flashImg;
             ui.splashScreen = splash;
             ui.onboardingPanel = onboarding;
             ui.introCinematic = intro;

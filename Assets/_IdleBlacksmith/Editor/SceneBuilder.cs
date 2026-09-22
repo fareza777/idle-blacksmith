@@ -75,7 +75,7 @@ namespace IdleBlacksmith.EditorTools
                 var drift = cloud.GetComponent<CloudDrift>();
                 if (drift != null) drift.speed = Mathf.Lerp(0.16f, 0.42f, (float)cloudRng.NextDouble());
             }
-            Spawn(ModelFactory.CatPrefab, V(-0.95f, 0, 1.95f), 205f);
+            GameObject cat = Spawn(ModelFactory.CatPrefab, V(-0.95f, 0, 1.95f), 205f);
 
             // ------------------------------------------------ the rest of the complex
             // Each plot faces the forge, so every building reads as part of one yard. The plots sit
@@ -209,6 +209,7 @@ namespace IdleBlacksmith.EditorTools
             picker.buildings = plots;
             picker.anvil = anvil.GetComponent<AnvilStation>();
             picker.orePile = ore.GetComponent<OrePile>();
+            picker.cat = cat.GetComponent<CatAmbient>();
 
             // Camera frames the smithy plus every building that actually exists.
             cameraDirector.staticAnchors = new Transform[0];

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using IdleBlacksmith.Core;
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,6 +22,8 @@ namespace IdleBlacksmith.UI
         public TMPro.TMP_Text metalOreRateLabel;
         public Button muteButton;
         public Image muteIcon;
+        public CanvasGroup flashOverlay;
+        public Image flashTint;
         public Sprite soundOnSprite;
         public Sprite soundOffSprite;
 
@@ -427,6 +430,16 @@ namespace IdleBlacksmith.UI
                 ft.gameObject.SetActive(false);
                 pool.Enqueue(ft);
             }
+        }
+
+        /// <summary>Full-screen color pulse — the rekindle flash, a soft daily-claim glow.</summary>
+        public void FlashScreen(Color color, float peak = 0.8f, float duration = 0.9f)
+        {
+            if (flashOverlay == null) return;
+            if (flashTint != null) flashTint.color = color;
+            flashOverlay.alpha = 0f;
+            Tween.Alpha(flashOverlay, peak, duration * 0.3f, Ease.OutQuad)
+                .OnComplete(() => Tween.Alpha(flashOverlay, 0f, duration * 0.7f, Ease.InQuad));
         }
 
         public void SpawnFloatingText(Vector3 worldPos, string text) =>
