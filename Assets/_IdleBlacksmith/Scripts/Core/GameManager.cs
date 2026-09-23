@@ -314,6 +314,24 @@ namespace IdleBlacksmith.Core
             var adv = delverGo.AddComponent<AdventurerController>();
             adv.characterPrefab = config != null ? config.customerPrefabB : null;
             adv.armSword = true;
+
+            // The stall keeper paces her counter once the Trading Post stands.
+            var vendorGo = new GameObject("Vendor");
+            vendorGo.transform.position = new Vector3(6f, 0f, 3.0f);
+            var vendor = vendorGo.AddComponent<AmbientHand>();
+            vendor.characterPrefab = config != null ? config.vendorPrefab : null;
+            vendor.requiresBuilding = BuildingId.Market;
+            vendor.patrolOffset = 1.4f;
+
+            // The hooded mystic stands vigil in front of the Sanctum.
+            var mysticGo = new GameObject("Mystic");
+            mysticGo.transform.position = new Vector3(5.4f, 0f, 5.0f);
+            var mystic = mysticGo.AddComponent<AmbientHand>();
+            mystic.characterPrefab = config != null ? config.mysticPrefab : null;
+            mystic.requiresBuilding = BuildingId.Sanctum;
+            mystic.patrolOffset = 0f;
+            mystic.idleMin = 6f;
+            mystic.idleMax = 12f;
         }
 
         // ------------------------------------------------------------ shop expansion

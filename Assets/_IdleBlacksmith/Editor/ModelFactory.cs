@@ -17,6 +17,8 @@ namespace IdleBlacksmith.EditorTools
         public const string CustomerAPrefab = Paths.Prefabs + "/CustomerA.prefab";
         public const string CustomerBPrefab = Paths.Prefabs + "/CustomerB.prefab";
         public const string CustomerCPrefab = Paths.Prefabs + "/CustomerC.prefab";
+        public const string VendorPrefab = Paths.Prefabs + "/Vendor.prefab";
+        public const string MysticPrefab = Paths.Prefabs + "/Mystic.prefab";
         public const string SwordPrefab = Paths.Prefabs + "/Sword.prefab";
         public const string OreChunkPrefab = Paths.Prefabs + "/OreChunk.prefab";
 
@@ -140,9 +142,11 @@ namespace IdleBlacksmith.EditorTools
             BuildCharacter("CustomerA", Palette.ShirtOrange, Palette.HairBrown, false, Hat.Straw, Palette.PlumDark);
             BuildCharacter("CustomerB", Palette.Teal, Palette.HairBlack, false, Hat.Buns, Palette.PlumDark);
             BuildCharacter("CustomerC", Palette.ShirtPurple, Palette.HairBlond, false, Hat.Feather, Palette.PlumDark);
+            BuildCharacter("Vendor", Palette.ClothCream, Palette.HairBrown, true, Hat.Cap, Palette.Pants);
+            BuildCharacter("Mystic", Palette.PlumDark, Palette.HairBlack, false, Hat.Hood, Palette.PlumDark);
         }
 
-        enum Hat { Cap, Straw, Buns, Headband, Feather }
+        enum Hat { Cap, Straw, Buns, Headband, Feather, Hood }
 
         static void BuildCharacter(string name, int shirt, int hair, bool apron, Hat hat, int pants)
         {
@@ -196,6 +200,14 @@ namespace IdleBlacksmith.EditorTools
                     b.Cylinder(new Vector3(0, 0.45f, -0.02f), 0.27f, 0.09f, 10, Palette.PlumDark);
                     b.Box(new Vector3(0.13f, 0.53f, -0.08f), new Vector3(0.05f, 0.15f, 0.03f), Palette.Gold);
                     b.Box(new Vector3(0, 0.30f, -0.20f), new Vector3(0.46f, 0.18f, 0.05f), hair);
+                    break;
+                case Hat.Hood:
+                    // deep hood framing the face: peak, brow ridge, back drape, side flaps
+                    b.Box(new Vector3(0, 0.46f, -0.02f), new Vector3(0.52f, 0.14f, 0.48f), Palette.PlumDark);
+                    b.Box(new Vector3(0, 0.42f, 0.20f), new Vector3(0.50f, 0.09f, 0.10f), Palette.PlumDark);
+                    b.Box(new Vector3(0, 0.30f, -0.225f), new Vector3(0.52f, 0.36f, 0.07f), Palette.PlumDark);
+                    b.Box(new Vector3(-0.25f, 0.36f, -0.02f), new Vector3(0.07f, 0.30f, 0.46f), Palette.PlumDark);
+                    b.Box(new Vector3(0.25f, 0.36f, -0.02f), new Vector3(0.07f, 0.30f, 0.46f), Palette.PlumDark);
                     break;
             }
             Mesh headMesh = SaveMesh(b, name + "_Head");
