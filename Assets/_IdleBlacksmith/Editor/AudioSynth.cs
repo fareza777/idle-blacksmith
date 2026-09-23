@@ -36,6 +36,7 @@ namespace IdleBlacksmith.EditorTools
             Try("blip", Blip());
             Try("ember_whoosh", EmberWhoosh());
             Try("amb_fire", AmbFire());
+            Try("amb_night", AmbNight());
             Try("music_deep", MusicDeep());
         }
 
@@ -321,6 +322,66 @@ namespace IdleBlacksmith.EditorTools
             }
 
             // Fold the last quarter second into the first so AudioSource.loop wraps clean.
+            int xn = (int)(SR * 0.25f);
+            for (int i = 0; i < xn; i++)
+                s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
+            return s;
+        }
+
+        /// <summary>
+        /// Night bed: steady cricket chirps, a low wind wash, and a soft two-note owl hoot
+        /// twice per loop. 12s, folded at the wrap like AmbFire.
+        /// </summary>
+        static float[] AmbNight()
+        {
+            const float seconds = 12f;
+            var rng = new System.Random(913);
+
+            // Cricket chirp trains: short 4kHz pulses, a few per second, phase even across
+            // the wrap so the loop seam never hears a chopped chirp.
+            var chirps = new List<(float at, float freq, float amp)>();
+            float ct = 0.12f;
+            while (ct < seconds)
+            {
+                float freq = 3900f + (float)rng.NextDouble() * 700f;
+                int pulses = 2 + rng.Next(3);
+                for (int p = 0; p < pulses; p++)
+                    chirps.Add((ct + p * 0.042f, freq, 0.05f + (float)rng.NextDouble() * 0.05f));
+                ct += 0.55f + (float)rng.NextDouble() * 0.9f;
+            }
+
+            // The owl speaks twice — a paired hoot at 2.4s and a lone one at 8.7s.
+            var hoots = new List<(float at, float len)> { (2.4f, 0.42f), (2.95f, 0.55f), (8.7f, 0.5f) };
+
+            int n = (int)(SR * seconds);
+            var s = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float x = i / (float)SR;
+                // Wind wash — slow, quiet, brown-ish noise.
+                float v = (Mathf.PerlinNoise(x * 1.7f, 9.4f) - 0.5f) * 0.13f
+                        + (Mathf.PerlinNoise(x * 5.3f, 3.7f) - 0.5f) * 0.06f;
+                foreach (var c in chirps)
+                {
+                    float d = x - c.at;
+                    if (d < 0f) d += seconds;
+                    if (d < 0.035f)
+                        v += c.amp * Sin(c.freq, d) * Mathf.Sin(d / 0.035f * Mathf.PI);
+                }
+                foreach (var h in hoots)
+                {
+                    float d = x - h.at;
+                    if (d >= 0f && d < h.len)
+                    {
+                        float env = Mathf.Sin(d / h.len * Mathf.PI);
+                        float hoot = Sin(352f + 6f * Mathf.Sin(d * 19f), d) * 0.28f
+                                   + Sin(704f, d) * 0.05f;
+                        v += hoot * env * env;
+                    }
+                }
+                s[i] = Mathf.Clamp(v, -1f, 1f) * 0.8f;
+            }
+
             int xn = (int)(SR * 0.25f);
             for (int i = 0; i < xn; i++)
                 s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);

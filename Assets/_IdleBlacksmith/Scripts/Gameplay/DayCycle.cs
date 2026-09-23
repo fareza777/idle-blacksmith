@@ -1,3 +1,4 @@
+using IdleBlacksmith.Core;
 using UnityEngine;
 
 namespace IdleBlacksmith.Gameplay
@@ -53,10 +54,21 @@ namespace IdleBlacksmith.Gameplay
             Apply(phase);
         }
 
+        bool nightAmb;
+
         void Update()
         {
             phase = Mathf.Repeat(phase + Time.deltaTime / cycleSeconds, 1f);
             Apply(phase);
+
+            // Ambience bed follows the sun — forge crackle by day, crickets and the
+            // village owl once the dark settles in.
+            bool wantNight = Night > 0.55f;
+            if (wantNight != nightAmb)
+            {
+                nightAmb = wantNight;
+                AudioManager.PlayAmbience(wantNight ? "amb_night" : "amb_fire", 4f);
+            }
         }
 
         void Apply(float t)
