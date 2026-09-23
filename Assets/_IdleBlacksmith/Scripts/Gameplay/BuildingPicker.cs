@@ -28,6 +28,12 @@ namespace IdleBlacksmith.Gameplay
         [Tooltip("The forge cat — tapping it earns a purr, nothing more")]
         public CatAmbient cat;
 
+        [Tooltip("Workbench tools — bellows, grindstone, quench trough — each with its own tap effect")]
+        public ToolStation[] tools;
+
+        [Tooltip("Tap tolerance for workbench tools")]
+        public float toolTapRadiusNormalized = 0.075f;
+
         [Tooltip("Tap tolerance for the cat, the tightest hitbox in the shop")]
         public float catTapRadiusNormalized = 0.05f;
 
@@ -117,6 +123,21 @@ namespace IdleBlacksmith.Gameplay
                 {
                     orePile.ManualMine();
                     return;
+                }
+            }
+
+            // Workbench tools each carry their own function.
+            if (tools != null)
+            {
+                foreach (ToolStation t in tools)
+                {
+                    if (t == null) continue;
+                    Vector3 tp = cam.WorldToScreenPoint(t.AnchorWorld);
+                    if (tp.z > 0f && Vector2.Distance(tp, screenPos) <= toolTapRadiusNormalized * Screen.height)
+                    {
+                        t.Use();
+                        return;
+                    }
                 }
             }
 

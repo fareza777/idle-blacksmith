@@ -54,6 +54,10 @@ namespace IdleBlacksmith.EditorTools
             Spawn(ModelFactory.CratePrefab, V(2.05f, 0, 1.95f), -8f);
             Spawn(ModelFactory.StoolPrefab, V(-1.35f, 0, 0.5f), 30f);
             Spawn(ModelFactory.PlantPrefab, V(-2.0f, 0, -2.75f), 0f);
+            // Tappable workbench tools: grindstone sharpens the next blade, the quench
+            // trough finishes the current craft, and the bellows on the hearth stokes it.
+            Spawn(ModelFactory.GrindstonePrefab, V(1.95f, 0, 0.55f), 100f);
+            Spawn(ModelFactory.QuenchTroughPrefab, V(-0.55f, 0, -0.85f), 8f);
             Spawn(ModelFactory.RugPrefab, V(0.1f, 0.005f, 0.55f), 8f);
             Spawn(ModelFactory.SignPostPrefab, V(3.3f, 0, -4.6f), 160f);
 
@@ -210,6 +214,17 @@ namespace IdleBlacksmith.EditorTools
             picker.anvil = anvil.GetComponent<AnvilStation>();
             picker.orePile = ore.GetComponent<OrePile>();
             picker.cat = cat.GetComponent<CatAmbient>();
+
+            // The bellows is baked into the hearth mesh, so its ToolStation lives on the
+            // forge root with an anchor over the bellows — every tool drives the main anvil.
+            var bellows = forge.AddComponent<ToolStation>();
+            bellows.kind = ToolStation.Kind.Bellows;
+            bellows.cooldown = 45f;
+            bellows.anchorLocal = new Vector3(-0.85f, 0.45f, 0.25f);
+            bellows.scaleOnUse = false;
+            var stations = Object.FindObjectsByType<ToolStation>(FindObjectsSortMode.None);
+            foreach (ToolStation t in stations) t.anvil = picker.anvil;
+            picker.tools = stations;
 
             // Camera frames the smithy plus every building that actually exists.
             cameraDirector.staticAnchors = new Transform[0];

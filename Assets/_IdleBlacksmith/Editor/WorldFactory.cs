@@ -27,6 +27,8 @@ namespace IdleBlacksmith.EditorTools
         public const string CratePrefab = Paths.Prefabs + "/Crate.prefab";
         public const string StoolPrefab = Paths.Prefabs + "/Stool.prefab";
         public const string PlantPrefab = Paths.Prefabs + "/Plant.prefab";
+        public const string GrindstonePrefab = Paths.Prefabs + "/Grindstone.prefab";
+        public const string QuenchTroughPrefab = Paths.Prefabs + "/QuenchTrough.prefab";
         public const string ShelfPrefab = Paths.Prefabs + "/Shelf.prefab";
         public const string BannerPrefab = Paths.Prefabs + "/Banner.prefab";
         public const string RugPrefab = Paths.Prefabs + "/Rug.prefab";
@@ -318,6 +320,50 @@ namespace IdleBlacksmith.EditorTools
                 var root = new GameObject("Plant");
                 Part("Mesh", root.transform, SaveMesh(b, "Plant"), PM, Vector3.zero);
                 SavePrefab(root, PlantPrefab);
+            }
+            // Grindstone — A-frame, stone wheel, crank. Tap to sharpen: the next blade
+            // rolls its rarity twice and keeps the best.
+            {
+                var b = new MeshBuilder();
+                // treadle frame
+                b.Box(new Vector3(-0.30f, 0.28f, 0), new Vector3(0.09f, 0.56f, 0.34f), Palette.WoodDark);
+                b.Box(new Vector3(0.30f, 0.28f, 0), new Vector3(0.09f, 0.56f, 0.34f), Palette.WoodDark);
+                b.Box(new Vector3(0, 0.06f, 0), new Vector3(0.72f, 0.07f, 0.40f), Palette.WoodMid);
+                // stone wheel between the uprights
+                b.Cylinder(new Vector3(0, 0.52f, 0), 0.30f, 0.10f, 12, Palette.Stone);
+                b.Cylinder(new Vector3(0, 0.52f, 0), 0.05f, 0.16f, 8, Palette.MetalDark);
+                // crank handle on the near side
+                b.Box(new Vector3(0.36f, 0.52f, 0.10f), new Vector3(0.05f, 0.05f, 0.22f), Palette.MetalDark);
+                b.Box(new Vector3(0.36f, 0.46f, 0.20f), new Vector3(0.05f, 0.16f, 0.05f), Palette.WoodMid);
+                // drip trough under the wheel
+                b.Box(new Vector3(0, 0.16f, 0.22f), new Vector3(0.44f, 0.14f, 0.20f), Palette.WoodMid);
+                b.Box(new Vector3(0, 0.22f, 0.22f), new Vector3(0.36f, 0.03f, 0.14f), Palette.OreCrystal);
+                var root = new GameObject("Grindstone");
+                Part("Mesh", root.transform, SaveMesh(b, "Grindstone"), PM, Vector3.zero);
+                var tool = root.AddComponent<ToolStation>();
+                tool.kind = ToolStation.Kind.Grindstone;
+                tool.cooldown = 60f;
+                tool.anchorLocal = new Vector3(0f, 0.6f, 0f);
+                SavePrefab(root, GrindstonePrefab);
+            }
+            // Quench trough — a long water tub by the anvil. Tap mid-craft to finish the
+            // blade instantly; it needs a while to re-heat between quenches.
+            {
+                var b = new MeshBuilder();
+                b.Box(new Vector3(0, 0.22f, 0), new Vector3(1.15f, 0.40f, 0.48f), Palette.WoodMid);
+                b.Box(new Vector3(0, 0.40f, 0), new Vector3(1.19f, 0.07f, 0.52f), Palette.WoodDark);
+                b.Box(new Vector3(0, 0.42f, 0), new Vector3(1.02f, 0.03f, 0.36f), Palette.OreCrystal);
+                b.Box(new Vector3(-0.50f, 0.06f, 0), new Vector3(0.10f, 0.14f, 0.44f), Palette.WoodDark);
+                b.Box(new Vector3(0.50f, 0.06f, 0), new Vector3(0.10f, 0.14f, 0.44f), Palette.WoodDark);
+                // steam wisps frozen into the model read as heat shimmer at this scale
+                b.Rock(new Vector3(-0.20f, 0.52f, 0.05f), new Vector3(0.07f, 0.09f, 0.07f), Palette.White, 3.3f, 1);
+                var root = new GameObject("QuenchTrough");
+                Part("Mesh", root.transform, SaveMesh(b, "QuenchTrough"), PM, Vector3.zero);
+                var tool = root.AddComponent<ToolStation>();
+                tool.kind = ToolStation.Kind.QuenchTrough;
+                tool.cooldown = 90f;
+                tool.anchorLocal = new Vector3(0f, 0.55f, 0f);
+                SavePrefab(root, QuenchTroughPrefab);
             }
             // Wall shelf with two display swords and a candle.
             {

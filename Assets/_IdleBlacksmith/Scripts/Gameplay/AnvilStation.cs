@@ -48,6 +48,12 @@ namespace IdleBlacksmith.Gameplay
         Vector3 hotSwordBaseScale = Vector3.one;
         int hammerStrikes;
 
+        [Header("Tool buffs")]
+        [Tooltip("Set by the grindstone — the next blade rolls its rarity twice and keeps the best")]
+        public bool sharpenNext;
+        float speedBoost = 1f;
+        float boostUntil;
+
         void Awake()
         {
             if (hotSwordVisual != null)
@@ -100,10 +106,23 @@ namespace IdleBlacksmith.Gameplay
 
         RecipeDef pendingRecipe;
 
+        /// <summary>Bellows: the hearth roars and the current craft runs faster for a while.</summary>
+        public void Stoke(float multiplier, float seconds)
+        {
+            speedBoost = Mathf.Max(1f, multiplier);
+            boostUntil = Time.unscaledTime + seconds;
+        }
+
+        /// <summary>Quench trough: the blade hits the water and the craft completes now.</summary>
+        public void Quench()
+        {
+            if (IsCrafting) timer = duration;
+        }
+
         void Update()
         {
             if (!IsCrafting) return;
-            timer += Time.deltaTime;
+            timer += Time.deltaTime * (Time.unscaledTime < boostUntil ? speedBoost : 1f);
             float p = Mathf.Clamp01(timer / duration);
             if (progressBar != null) progressBar.SetProgress(p);
             if (timer >= duration)
@@ -122,6 +141,12 @@ namespace IdleBlacksmith.Gameplay
             GameManager gm = GameManager.Instance;
             string recipeId = pendingRecipe != null ? pendingRecipe.id : RecipeId.Copper;
             Rarity rarity = gm != null && gm.recipes != null ? gm.recipes.RollRarity() : Rarity.Common;
+            if (sharpenNext)
+            {
+                sharpenNext = false;
+                Rarity second = gm != null && gm.recipes != null ? gm.recipes.RollRarity() : Rarity.Common;
+                if (second > rarity) rarity = second;
+            }
             return new SwordItem(recipeId, rarity);
         }
 

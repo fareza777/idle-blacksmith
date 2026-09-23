@@ -124,6 +124,7 @@ MonoBehaviour:
   comboWindow: 1.5
   comboMax: 5
   comboBonusPerLevel: 0.15
+  sharpenNext: 0
 --- !u!1 &3332859037610278125
 GameObject:
   m_ObjectHideFlags: 0
