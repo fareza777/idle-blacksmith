@@ -30,6 +30,8 @@ namespace IdleBlacksmith.EditorTools
             { RecipeId.Silver,      new[] { Palette.SwordBlade,  Palette.Straw,      Palette.Grip } },
             { RecipeId.Mithril,     new[] { Palette.OreCrystal,  Palette.Teal,       Palette.Grip } },
             { RecipeId.Dragonsteel, new[] { Palette.RugRed,      Palette.Ember,      Palette.Grip } },
+            { RecipeId.Frostbrand,  new[] { Palette.OreCrystal,  Palette.SwordBlade, Palette.Grip } },
+            { RecipeId.Voidreaver,  new[] { Palette.PlumDark,    Palette.MetalDark,  Palette.Grip } },
         };
 
         public static GameObject SwordPrefabFor(string recipeId)
@@ -146,6 +148,25 @@ namespace IdleBlacksmith.EditorTools
                     b.Box(new Vector3(0, 0, 0.015f), new Vector3(0.11f, 0.050f, 0.022f), guard);   // tsuba
                     b.Box(new Vector3(0, 0, -0.09f), new Vector3(0.034f, 0.034f, 0.16f), grip);   // long wrap
                     b.Box(new Vector3(0, 0, -0.18f), new Vector3(0.046f, 0.046f, 0.030f), guard);
+                    break;
+                case RecipeId.Frostbrand: // glacier longsword: straight blade with rime barbs on one edge
+                    b.Box(new Vector3(0, 0, 0.29f), new Vector3(0.048f, 0.013f, 0.50f), blade);
+                    b.Box(new Vector3(0, 0, 0.565f), new Vector3(0.016f, 0.013f, 0.065f), blade);
+                    b.Box(new Vector3(0.045f, 0, 0.36f), new Vector3(0.05f, 0.012f, 0.045f), Quaternion.Euler(0f, -22f, 0f), blade); // barb 1
+                    b.Box(new Vector3(0.045f, 0, 0.46f), new Vector3(0.05f, 0.012f, 0.045f), Quaternion.Euler(0f, -22f, 0f), blade); // barb 2
+                    b.Box(new Vector3(0.045f, 0, 0.52f), new Vector3(0.04f, 0.012f, 0.035f), Quaternion.Euler(0f, -22f, 0f), blade);  // barb 3
+                    b.Box(Vector3.zero, new Vector3(0.15f, 0.028f, 0.034f), guard);
+                    b.Box(new Vector3(0, 0, -0.065f), new Vector3(0.036f, 0.036f, 0.11f), grip);
+                    b.Box(new Vector3(0, 0, -0.135f), new Vector3(0.06f, 0.06f, 0.045f), blade);   // rime crystal pommel
+                    break;
+                case RecipeId.Voidreaver: // void greatblade: split twin prong tip, dark steel
+                    b.Box(new Vector3(0, 0, 0.30f), new Vector3(0.085f, 0.016f, 0.48f), blade);
+                    b.Box(new Vector3(-0.028f, 0, 0.575f), new Vector3(0.038f, 0.016f, 0.09f), blade); // left prong
+                    b.Box(new Vector3(0.028f, 0, 0.575f), new Vector3(0.038f, 0.016f, 0.09f), blade);  // right prong
+                    b.Box(new Vector3(0, 0, 0.545f), new Vector3(0.018f, 0.016f, 0.05f), guard);        // void gap notch
+                    b.Box(Vector3.zero, new Vector3(0.20f, 0.036f, 0.040f), guard);
+                    b.Box(new Vector3(0, 0, -0.115f), new Vector3(0.046f, 0.046f, 0.19f), grip);
+                    b.Box(new Vector3(0, 0, -0.235f), new Vector3(0.08f, 0.08f, 0.05f), guard);        // heavy dark pommel
                     break;
                 case RecipeId.Dragonsteel: // greatsword: wide blade, parry hooks, two-hand grip
                     b.Box(new Vector3(0, 0, 0.30f), new Vector3(0.075f, 0.016f, 0.52f), blade);

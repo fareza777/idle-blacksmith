@@ -765,6 +765,14 @@ namespace IdleBlacksmith.EditorTools
                 },
                 new RecipeDef
                 {
+                    id = RecipeId.Frostbrand, displayName = "Frostbrand", oreCost = 10, baseValue = 330,
+                    craftDuration = 8.2f, requiredSmithyLevel = 4, requiredMineLevel = 3,
+                    description = "Forged cold and quenched in glacier water.",
+                    icon = AssetFactory.LoadIcon("frostbrand"),
+                    swordPrefab = ModelFactory.SwordPrefabFor(RecipeId.Frostbrand),
+                },
+                new RecipeDef
+                {
                     id = RecipeId.Mithril, displayName = "Mithril Katana", oreCost = 12, baseValue = 520,
                     craftDuration = 7.5f, requiredSmithyLevel = 4, requiredMineLevel = 3,
                     description = "Light as air, hard as dawn.",
@@ -778,6 +786,14 @@ namespace IdleBlacksmith.EditorTools
                     description = "Quenched in dragonfire. Nothing survives it.",
                     icon = AssetFactory.LoadIcon("dragonsteel"),
                     swordPrefab = ModelFactory.SwordPrefabFor(RecipeId.Dragonsteel),
+                },
+                new RecipeDef
+                {
+                    id = RecipeId.Voidreaver, displayName = "Voidreaver", oreCost = 30, baseValue = 2600,
+                    craftDuration = 10.5f, requiredSmithyLevel = 5, requiredMineLevel = 5,
+                    description = "A blade that drinks the light around it.",
+                    icon = AssetFactory.LoadIcon("voidreaver"),
+                    swordPrefab = ModelFactory.SwordPrefabFor(RecipeId.Voidreaver),
                 },
             };
 

@@ -316,6 +316,17 @@ MonoBehaviour:
     requiredMineLevel: 2
     swordPrefab: {fileID: 2986372140127373836, guid: ec1749fbdc24daf4a8777b3072f212a7, type: 3}
     bladeColor: 40
+  - id: frostbrand
+    displayName: Frostbrand
+    description: Forged cold and quenched in glacier water.
+    icon: {fileID: 21300000, guid: b07339ebec44b82d5882d3f4b67ced49, type: 3}
+    oreCost: 10
+    baseValue: 330
+    craftDuration: 8.2
+    requiredSmithyLevel: 4
+    requiredMineLevel: 3
+    swordPrefab: {fileID: 6319009176559754479, guid: 77473048d5f73776d90f233cce334bec, type: 3}
+    bladeColor: 40
   - id: mithril
     displayName: Mithril Katana
     description: Light as air, hard as dawn.
@@ -337,6 +348,17 @@ MonoBehaviour:
     requiredSmithyLevel: 5
     requiredMineLevel: 4
     swordPrefab: {fileID: 6705926366516421157, guid: ac64d29a15ee56d4c8720e1ddbd6a01c, type: 3}
+    bladeColor: 40
+  - id: voidreaver
+    displayName: Voidreaver
+    description: A blade that drinks the light around it.
+    icon: {fileID: 21300000, guid: 49192d3b41e17fb3fa66e2d9e7f09aff, type: 3}
+    oreCost: 30
+    baseValue: 2600
+    craftDuration: 10.5
+    requiredSmithyLevel: 5
+    requiredMineLevel: 5
+    swordPrefab: {fileID: 5273416513707545968, guid: 096640afc3f8a812bbead2d27ad480bb, type: 3}
     bladeColor: 40
   runes:
   - id: rune_flame

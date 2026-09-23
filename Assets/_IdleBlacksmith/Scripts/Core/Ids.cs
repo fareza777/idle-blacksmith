@@ -25,8 +25,10 @@ namespace IdleBlacksmith.Core
         public const string Silver = "silver";
         public const string Mithril = "mithril";
         public const string Dragonsteel = "dragonsteel";
+        public const string Frostbrand = "frostbrand";
+        public const string Voidreaver = "voidreaver";
 
-        public static readonly string[] All = { Copper, Iron, Steel, EmberAxe, Silver, Mithril, Dragonsteel };
+        public static readonly string[] All = { Copper, Iron, Steel, EmberAxe, Silver, Frostbrand, Mithril, Dragonsteel, Voidreaver };
     }
 
     public static class RuneId

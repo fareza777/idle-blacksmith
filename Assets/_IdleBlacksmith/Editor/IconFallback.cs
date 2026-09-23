@@ -53,6 +53,8 @@ namespace IdleBlacksmith.EditorTools
             Try("silver", p => DrawMetal(p, new Color32(232, 240, 250, 255), new Color32(170, 184, 200, 255)));
             Try("mithril", p => DrawMetal(p, new Color32(126, 226, 216, 255), new Color32(78, 172, 168, 255)));
             Try("dragonsteel", p => DrawMetal(p, new Color32(236, 132, 116, 255), new Color32(178, 74, 74, 255)));
+            Try("frostbrand", p => DrawMetal(p, new Color32(158, 224, 236, 255), new Color32(94, 178, 196, 255)));
+            Try("voidreaver", p => DrawMetal(p, new Color32(154, 111, 184, 255), new Color32(96, 62, 128, 255)));
 
             // Buildings
             Try("smithy", DrawSmithy);
