@@ -517,6 +517,9 @@ namespace IdleBlacksmith.EditorTools
 
             var root = new GameObject("Building_" + BuildingId.Furnace + "_L" + level);
             Part("Mesh", root.transform, SaveMesh(b, "Building_Furnace_L" + level), PME, Vector3.zero);
+            // coal smoke curls off the stack once the furnace is lit
+            CreateChimneySmoke(root.transform,
+                new Vector3(0.4f * s, 0.28f * s + bodyH + chimH + 0.16f, 0.4f * s));
             SavePrefab(root, BuildingPrefabPath(BuildingId.Furnace, level));
         }
 

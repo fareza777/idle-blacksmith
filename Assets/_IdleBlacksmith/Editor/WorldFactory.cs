@@ -847,7 +847,7 @@ namespace IdleBlacksmith.EditorTools
         }
 
         /// <summary>Looping grey puffs drifting up from the smithy chimney.</summary>
-        static void CreateChimneySmoke(Transform parent, Vector3 localPos)
+        public static void CreateChimneySmoke(Transform parent, Vector3 localPos)
         {
             var go = new GameObject("ChimneySmoke");
             go.transform.SetParent(parent, false);
