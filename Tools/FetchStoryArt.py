@@ -49,6 +49,10 @@ ART = [
      "prompt": PORTRAIT_STYLE + "a mysterious hooded enchanter named Nyx, pale sharp face, "
                "glowing violet eyes, deep purple hood with faint rune glyphs, subtle smirk, "
                "androgynous features, " + NO_TEXT},
+    {"name": "portrait_cole", "dir": MENU_DIR, "ratio": "1:1",
+     "prompt": PORTRAIT_STYLE + "a young eager apprentice blacksmith boy named Cole, about "
+               "fourteen years old, messy brown hair, freckles, gap-toothed excited grin, "
+               "oversized leather apron, holding a small hammer over one shoulder, " + NO_TEXT},
 
     # --- cinematic intro panels (3:2, dark moody) ---
     {"name": "intro_village", "dir": MENU_DIR, "ratio": "3:2",

@@ -102,6 +102,9 @@ namespace IdleBlacksmith.Core
                 case "first_sword": return s != null && s.swordsForged >= 1;
                 case "first_sale": return s != null && s.swordsSold >= 1;
                 case "helper": return gm.HelperUnlocked;
+                case "cole_meet": return gm.HelperUnlocked && gm.Data.seenDialogues.Contains("helper");
+                case "cole_mine": return gm.HelperUnlocked && gm.buildings.GetLevel(BuildingId.Mine) >= 1;
+                case "cole_dream": return gm.HelperUnlocked && s != null && s.expeditionsClaimed >= 1;
                 case "mine": return gm.buildings.GetLevel(BuildingId.Mine) >= 1;
                 case "smithy2": return gm.buildings.GetLevel(BuildingId.Smithy) >= 2;
                 case "market": return gm.buildings.GetLevel(BuildingId.Market) >= 1;
@@ -167,6 +170,20 @@ namespace IdleBlacksmith.Core
             Seq("helper",
                 Line("Bram Ironroot", "bram", "Two hammers, one song. Best coin I ever spent."),
                 Line("Petra Flint", "petra", "Your apprentice swings true, Bram. We'll have the yard humming by winter.")),
+
+            Seq("cole_meet",
+                Line("Cole", "cole", "M-Master Ironroot! Cole, sir. Cole the apprentice. I swept three smithies to earn this."),
+                Line("Bram Ironroot", "bram", "Steady hands and sharp eyes, lad. Fetch ore, swing true — and never touch my lucky tongs."),
+                Line("Cole", "cole", "Yes sir! ...which ones are the lucky ones? Sir? SIR?")),
+
+            Seq("cole_mine",
+                Line("Cole", "cole", "I hauled ore all morning! Master says my swing's getting honest — the pile agrees."),
+                Line("Petra Flint", "petra", "Kid's got pace. He'll out-muscle you in a year, Bram.")),
+
+            Seq("cole_dream",
+                Line("Cole", "cole", "The delvers came back with glowing ore and STORIES, master. One day that's me down there."),
+                Line("Bram Ironroot", "bram", "Forge first, lad. Every delver needs a smith waiting topside — that's our job."),
+                Line("Cole", "cole", "...a few more years then. I've been practicing my hero face.")),
 
             Seq("mine",
                 Line("Petra Flint", "petra", "She's open! The old veins never really dried, you know."),

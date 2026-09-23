@@ -164,6 +164,7 @@ namespace IdleBlacksmith.EditorTools
                 new DialogueManager.NamedSprite { key = "sable", sprite = AssetFactory.LoadMenuArt("portrait_sable") },
                 new DialogueManager.NamedSprite { key = "aldric", sprite = AssetFactory.LoadMenuArt("portrait_aldric") },
                 new DialogueManager.NamedSprite { key = "nyx", sprite = AssetFactory.LoadMenuArt("portrait_nyx") },
+                new DialogueManager.NamedSprite { key = "cole", sprite = AssetFactory.LoadMenuArt("portrait_cole") },
             };
 
             var spawnerGo = new GameObject("CustomerSpawner");
