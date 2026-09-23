@@ -308,7 +308,7 @@ namespace IdleBlacksmith.UI
         public void OpenMeta(bool stats)
         {
             if (metaPanel == null) return;
-            metaPanel.ShowPage(stats);
+            metaPanel.ShowPage(stats ? 1 : 0);
             OpenExclusive(metaPanel);
             metaPanel.Open();
         }

@@ -94,6 +94,16 @@ namespace IdleBlacksmith.Core
                 if (e.recipeId == recipeId && e.count > 0 && e.rarity > best) best = e.rarity;
             return best;
         }
+
+        /// <summary>Bitmask of which rarity tiers a recipe has been forged in (bit i = rarity i).</summary>
+        public int RarityMask(string recipeId)
+        {
+            int mask = 0;
+            foreach (RecipeRarityCount e in forgedLog)
+                if (e.recipeId == recipeId && e.count > 0 && e.rarity >= 0 && e.rarity < 30)
+                    mask |= 1 << e.rarity;
+            return mask;
+        }
     }
 
     [Serializable]

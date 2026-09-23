@@ -253,6 +253,15 @@ namespace IdleBlacksmith.EditorTools
             var statsTabTxtGo = Box("Label", statsTabGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(240, 52));
             Txt(statsTabTxtGo, "STATS", 26, Color.white, TextAlignmentOptions.Center, titleFont);
 
+            var codexTabGo = Box("CodexTab", s.sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(624, -120), new Vector2(260, 76));
+            var codexTab = codexTabGo.gameObject.AddComponent<BouncyButton>();
+            var codexTabImg = codexTabGo.gameObject.AddComponent<Image>();
+            codexTabImg.sprite = pill; codexTabImg.type = Image.Type.Sliced; codexTabImg.color = new Color(0.86f, 0.80f, 0.72f);
+            codexTab.targetGraphic = codexTabImg;
+            SetButtonColors(codexTab);
+            var codexTabTxtGo = Box("Label", codexTabGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(240, 52));
+            Txt(codexTabTxtGo, "CODEX", 26, Color.white, TextAlignmentOptions.Center, titleFont);
+
             // achievements page
             var achPage = Box("AchievementsPage", s.sheet, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -212), new Vector2(940, 1300));
             var vlg = achPage.gameObject.AddComponent<VerticalLayoutGroup>();
@@ -273,6 +282,17 @@ namespace IdleBlacksmith.EditorTools
             var statsBody = Txt(statsBodyGo, "...", 30, Brown, TextAlignmentOptions.TopLeft, bodyFont, true);
             statsPage.gameObject.SetActive(false);
 
+            // codex page — one row per recipe, same layout language as achievements
+            var codexPage = Box("CodexPage", s.sheet, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -212), new Vector2(940, 1300));
+            var codexVlg = codexPage.gameObject.AddComponent<VerticalLayoutGroup>();
+            codexVlg.spacing = 12;
+            codexVlg.childAlignment = TextAnchor.UpperCenter;
+            codexVlg.childControlWidth = true;
+            codexVlg.childControlHeight = false;
+            codexVlg.childForceExpandWidth = true;
+            codexVlg.childForceExpandHeight = false;
+            codexPage.gameObject.SetActive(false);
+
             panel.sheet = s.sheet;
             panel.backdrop = s.backdrop;
             panel.backdropButton = s.backdropButton;
@@ -281,8 +301,11 @@ namespace IdleBlacksmith.EditorTools
             panel.counterLabel = counterLabel;
             panel.achievementsTab = achTab;
             panel.statsTab = statsTab;
+            panel.codexTab = codexTab;
             panel.achievementsPage = achPage.gameObject;
             panel.statsPage = statsPage.gameObject;
+            panel.codexPage = codexPage.gameObject;
+            panel.codexParent = codexPage;
             panel.achRowPrefab = achRowPrefab.GetComponent<AchRow>();
             panel.achParent = achPage;
             panel.achFill = fillImg;
