@@ -119,6 +119,11 @@ namespace IdleBlacksmith.Core
                 bonusRelic = bonusRelic,
             };
             OnChanged?.Invoke();
+            UIManager.Instance?.SpawnFloatingText(
+                new Vector3(0f, 2.3f, 0f),
+                Active.patron + " requests " + Active.needed + "× " + pick.displayName + "!",
+                new Color(0.95f, 0.75f, 0.35f));
+            UI.SettingsPanel.Buzz();
             AudioManager.Play("quest_done", 0.05f, 0.55f);
             SpawnPatron();
         }

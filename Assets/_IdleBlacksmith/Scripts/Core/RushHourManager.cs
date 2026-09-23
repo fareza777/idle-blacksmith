@@ -48,6 +48,8 @@ namespace IdleBlacksmith.Core
                     endsAt = Time.time + duration;
                     UIManager.Instance?.SpawnFloatingText(
                         new Vector3(0f, 2.5f, 0f), "RUSH HOUR!", new Color(1f, 0.62f, 0.25f));
+                    UIManager.Instance?.FlashScreen(new Color(1f, 0.55f, 0.2f), 0.28f, 0.9f);
+                    UI.SettingsPanel.Buzz();
                     AudioManager.Play("ember_whoosh", 0.04f, 0.8f);
                     OnChanged?.Invoke();
                 }
@@ -58,6 +60,7 @@ namespace IdleBlacksmith.Core
             {
                 Active = false;
                 nextAt = Time.time + Random.Range(idleDelay.x, idleDelay.y);
+                UIManager.Instance?.FlashScreen(new Color(0.45f, 0.6f, 1f), 0.18f, 0.8f);
                 AudioManager.Play("blip", 0.06f, 0.6f);
                 OnChanged?.Invoke();
             }
