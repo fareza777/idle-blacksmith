@@ -36,6 +36,13 @@ namespace IdleBlacksmith.Core
                 case QuestGoal.UseTools: return st != null ? st.toolUses : 0;
                 case QuestGoal.PetCat: return st != null ? st.catPets : 0;
                 case QuestGoal.CatchEmber: return st != null ? st.embersCaught : 0;
+                case QuestGoal.MasterRecipe:
+                    // Highest mastery tier reached on any recipe the player has ever forged.
+                    if (gm.config == null || gm.config.recipes == null) return 0;
+                    int bestTier = 0;
+                    foreach (RecipeDef r in gm.config.recipes)
+                        bestTier = Mathf.Max(bestTier, gm.MasteryTierOf(r.id));
+                    return bestTier;
             }
             return 0;
         }
@@ -64,6 +71,7 @@ namespace IdleBlacksmith.Core
                 case QuestGoal.UseTools: return $"Use workbench tools {target} times";
                 case QuestGoal.PetCat: return $"Pet the forge cat {target} times";
                 case QuestGoal.CatchEmber: return $"Catch {target} lucky embers";
+                case QuestGoal.MasterRecipe: return $"Reach mastery tier {target} on any recipe";
             }
             return "Progress";
         }

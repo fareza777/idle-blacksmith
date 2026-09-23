@@ -120,6 +120,7 @@ namespace IdleBlacksmith.Core
                 case "nightfall": return DayCycle.Night >= 0.6f;
                 case "ember_lore": return s != null && s.embersCaught == 0 && s.playSeconds >= 240f;
                 case "ember_caught": return s != null && s.embersCaught >= 1;
+                case "mastery": return Goals.Progress(QuestGoal.MasterRecipe, null) >= 1;
                 case "rare": return s != null && s.bestRarity >= (int)Rarity.Epic;
                 case "legendary": return s != null && s.bestRarity >= (int)Rarity.Legendary;
                 case "talent": return gm.talents != null && gm.talents.TotalLevels >= 1;
@@ -286,6 +287,10 @@ namespace IdleBlacksmith.Core
             Seq("ember_caught",
                 Line("Bram Ironroot", "bram", "You caught one! Quick hands, keeper — the Ember likes that."),
                 Line("Nyx", "nyx", "It remembers being caught, you know. Keep your eyes on the sky — it will send more.")),
+
+            Seq("mastery",
+                Line("Bram Ironroot", "bram", "Watch this — same swing, same steel, but my hands already know the shape. That's a smith's signature."),
+                Line("Sable", "sable", "Buyers pay extra for a name they trust, darling. Forge it until the blade signs itself.")),
         };
     }
 }

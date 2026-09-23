@@ -803,6 +803,17 @@ MonoBehaviour:
     oreReward: 0
     relicReward: 0
     shardReward: 0
+  - id: q_mastery
+    title: A Smith's Signature
+    body: "Master a recipe \u2014 forge it until your hands know it by heart and
+      buyers pay a premium."
+    goal: 19
+    targetId: 
+    target: 2
+    goldReward: 1500
+    oreReward: 0
+    relicReward: 0
+    shardReward: 1
   - id: q_smithy4
     title: Mithril Works
     body: Grow the Smithy to level 4 and unlock mithril.
@@ -1208,6 +1219,24 @@ MonoBehaviour:
     target: 50
     bonusKind: 4
     bonus: 1
+  - id: a_master3
+    displayName: Signature Blade
+    description: Reach mastery tier 3 on any recipe
+    icon: {fileID: 21300000, guid: 58c5a2d5a496ca640a561a037378cd1f, type: 3}
+    goal: 19
+    targetId: 
+    target: 3
+    bonusKind: 2
+    bonus: 0.03
+  - id: a_master5
+    displayName: Grandmaster Smith
+    description: Reach mastery tier 5 on any recipe
+    icon: {fileID: 21300000, guid: af567f88b0bed5e499f9a16bc3ed62e6, type: 3}
+    goal: 19
+    targetId: 
+    target: 5
+    bonusKind: 2
+    bonus: 0.05
   workerPrefab: {fileID: 1208270762283020123, guid: 25182fd6a6fc62348aa8bb3ada4eda28, type: 3}
   helperPrefab: {fileID: 5151690350410580974, guid: 083b0901ccd174747a41c075f0565afa, type: 3}
   customerPrefabA: {fileID: 6717537910521031009, guid: 1d08f49f91edf184283cde0f1e58c8bc, type: 3}

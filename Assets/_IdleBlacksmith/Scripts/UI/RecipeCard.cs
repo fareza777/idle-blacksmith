@@ -79,6 +79,8 @@ namespace IdleBlacksmith.UI
                 if (forged > 0 && best >= 0)
                 {
                     forgedLabel.text = forged + " forged  ·  best " + RarityInfo.NameOf((Rarity)best);
+                    int tier = gm.MasteryTierOf(def.id);
+                    if (tier > 0) forgedLabel.text += "  ·  mastery +" + tier * 4 + "%";
                     forgedLabel.color = RarityInfo.TextColor((Rarity)best);
                 }
                 else

@@ -84,8 +84,27 @@ namespace IdleBlacksmith.Core
             float oreMult = 1f + config.relicOrePriceBonus * Mathf.Min(RelicOre, config.relicOreMaxBonusCount);
             float mult = RarityInfo.MultiplierOf(item != null ? item.rarity : Rarity.Common)
                        * oreMult * Production.PriceMult * Production.GoldMult
-                       * (rush != null ? rush.PriceMult : 1f);
+                       * (rush != null ? rush.PriceMult : 1f)
+                       * MasteryMultOf(recipe != null ? recipe.id : null);
             return Mathf.Max(1, Mathf.RoundToInt(baseValue * mult));
+        }
+
+        static readonly int[] masterySteps = { 10, 25, 60, 120, 250 };
+
+        /// <summary>Mastery tier 0..5 for a recipe — each tier is a permanent +4% sell price.</summary>
+        public int MasteryTierOf(string recipeId)
+        {
+            if (Data == null || Data.stats == null || string.IsNullOrEmpty(recipeId)) return 0;
+            int forged = Data.stats.ForgedCount(recipeId);
+            int tier = 0;
+            foreach (int step in masterySteps)
+                if (forged >= step) tier++;
+            return tier;
+        }
+
+        public float MasteryMultOf(string recipeId)
+        {
+            return 1f + MasteryTierOf(recipeId) * 0.04f;
         }
 
         /// <summary>Records a forge and tracks the best rarity seen. Called by the worker.</summary>
@@ -361,6 +380,10 @@ namespace IdleBlacksmith.Core
             // Stars fade in once true night settles over the village.
             var starGo = new GameObject("StarField");
             starGo.AddComponent<StarField>();
+
+            // The moon climbs the sky through the night half of the day cycle.
+            var moonGo = new GameObject("MoonDrift");
+            moonGo.AddComponent<MoonDrift>();
         }
 
         // ------------------------------------------------------------ shop expansion

@@ -477,6 +477,8 @@ namespace IdleBlacksmith.EditorTools
                 QuestGoal.PetCat, 5, gold: 400),
             Q("q_ember", "Lucky Catch", "A wandering ember drifts over the village now and then. Snatch it before it fades — fortune favours the quick.",
                 QuestGoal.CatchEmber, 3, gold: 500),
+            Q("q_mastery", "A Smith's Signature", "Master a recipe — forge it until your hands know it by heart and buyers pay a premium.",
+                QuestGoal.MasterRecipe, 2, gold: 1500, shard: 1),
             Q("q_smithy4", "Mithril Works", "Grow the Smithy to level 4 and unlock mithril.",
                 QuestGoal.UpgradeBuilding, 4, gold: 8000, targetId: BuildingId.Smithy),
             Q("q_rare", "Something Rare", "Forge a Rare sword. Luck, the Sanctum and the Lucky Anvil all help.",
@@ -542,6 +544,8 @@ namespace IdleBlacksmith.EditorTools
             A("a_tools100", "Hand and Hammer", "Use the workbench tools 100 times", QuestGoal.UseTools, 100, AchBonus.Luck, 0.5f, "gem"),
             A("a_ember10", "Ember Hunter", "Catch 10 lucky embers", QuestGoal.CatchEmber, 10, AchBonus.Luck, 0.5f, "ember"),
             A("a_ember50", "Sprite Whisperer", "Catch 50 lucky embers", QuestGoal.CatchEmber, 50, AchBonus.Luck, 1f, "star"),
+            A("a_master3", "Signature Blade", "Reach mastery tier 3 on any recipe", QuestGoal.MasterRecipe, 3, AchBonus.Price, 0.03f, "craft"),
+            A("a_master5", "Grandmaster Smith", "Reach mastery tier 5 on any recipe", QuestGoal.MasterRecipe, 5, AchBonus.Price, 0.05f, "trophy"),
         };
 
         // ------------------------------------------------------------ config asset

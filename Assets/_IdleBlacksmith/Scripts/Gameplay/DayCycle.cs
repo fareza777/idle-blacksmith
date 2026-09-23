@@ -42,6 +42,9 @@ namespace IdleBlacksmith.Gameplay
         /// <summary>0 in daylight, 1 at deep night — drives window/lamp glow scaling.</summary>
         public static float Night { get; private set; }
 
+        /// <summary>Position in the 0..1 day loop (0 dawn, .25 noon, .5 dusk, .75..1 night).</summary>
+        public static float Phase { get; private set; }
+
         void Start()
         {
             sun = GetComponent<Light>();
@@ -58,6 +61,7 @@ namespace IdleBlacksmith.Gameplay
 
         void Apply(float t)
         {
+            Phase = t;
             float span = 1f / (keys.Length - 1);
             int i = Mathf.Min(keys.Length - 2, Mathf.FloorToInt(t / span));
             float u = Mathf.SmoothStep(0f, 1f, (t - i * span) / span);

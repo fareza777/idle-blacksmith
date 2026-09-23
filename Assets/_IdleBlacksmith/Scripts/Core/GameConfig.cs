@@ -299,6 +299,7 @@ namespace IdleBlacksmith.Core
         UseTools,
         PetCat,
         CatchEmber,
+        MasterRecipe,
     }
 
     [System.Serializable]
