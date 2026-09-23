@@ -16,6 +16,7 @@ namespace IdleBlacksmith.EditorTools
         public const string HelperPrefab = Paths.Prefabs + "/Helper.prefab";
         public const string CustomerAPrefab = Paths.Prefabs + "/CustomerA.prefab";
         public const string CustomerBPrefab = Paths.Prefabs + "/CustomerB.prefab";
+        public const string CustomerCPrefab = Paths.Prefabs + "/CustomerC.prefab";
         public const string SwordPrefab = Paths.Prefabs + "/Sword.prefab";
         public const string OreChunkPrefab = Paths.Prefabs + "/OreChunk.prefab";
 
@@ -138,9 +139,10 @@ namespace IdleBlacksmith.EditorTools
             BuildCharacter("Helper", Palette.ShirtGreen, Palette.HairBlond, true, Hat.Headband, Palette.Pants);
             BuildCharacter("CustomerA", Palette.ShirtOrange, Palette.HairBrown, false, Hat.Straw, Palette.PlumDark);
             BuildCharacter("CustomerB", Palette.Teal, Palette.HairBlack, false, Hat.Buns, Palette.PlumDark);
+            BuildCharacter("CustomerC", Palette.ShirtPurple, Palette.HairBlond, false, Hat.Feather, Palette.PlumDark);
         }
 
-        enum Hat { Cap, Straw, Buns, Headband }
+        enum Hat { Cap, Straw, Buns, Headband, Feather }
 
         static void BuildCharacter(string name, int shirt, int hair, bool apron, Hat hat, int pants)
         {
@@ -188,6 +190,12 @@ namespace IdleBlacksmith.EditorTools
                 case Hat.Headband:
                     b.Box(new Vector3(0, 0.44f, -0.02f), new Vector3(0.48f, 0.12f, 0.44f), hair);
                     b.Box(new Vector3(0, 0.31f, 0.01f), new Vector3(0.49f, 0.07f, 0.45f), Palette.RedAccent);
+                    break;
+                case Hat.Feather:
+                    // noble's soft beret with a gold quill
+                    b.Cylinder(new Vector3(0, 0.45f, -0.02f), 0.27f, 0.09f, 10, Palette.PlumDark);
+                    b.Box(new Vector3(0.13f, 0.53f, -0.08f), new Vector3(0.05f, 0.15f, 0.03f), Palette.Gold);
+                    b.Box(new Vector3(0, 0.30f, -0.20f), new Vector3(0.46f, 0.18f, 0.05f), hair);
                     break;
             }
             Mesh headMesh = SaveMesh(b, name + "_Head");

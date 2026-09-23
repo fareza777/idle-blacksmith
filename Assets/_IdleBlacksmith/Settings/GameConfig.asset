@@ -1183,6 +1183,7 @@ MonoBehaviour:
   helperPrefab: {fileID: 5151690350410580974, guid: 083b0901ccd174747a41c075f0565afa, type: 3}
   customerPrefabA: {fileID: 6717537910521031009, guid: 1d08f49f91edf184283cde0f1e58c8bc, type: 3}
   customerPrefabB: {fileID: 1825171781917545765, guid: 15f74a505191f8340bba110430fe5493, type: 3}
+  customerPrefabC: {fileID: 8669693862358168829, guid: 993883b5ad55dcc8c9c8123fff5fe638, type: 3}
   swordPrefab: {fileID: 1231381036963706882, guid: cffa8cc058209234ea17542312f4c5b7, type: 3}
   oreChunkPrefab: {fileID: 8549194295169169001, guid: a1d9016c2feadbd4ebfd9626a66d342b, type: 3}
   rarityGems:

@@ -72,6 +72,8 @@ namespace IdleBlacksmith.Core
         public GameObject helperPrefab;
         public GameObject customerPrefabA;
         public GameObject customerPrefabB;
+        [Tooltip("Distinct noble look used for VIP customers (high pay multiplier)")]
+        public GameObject customerPrefabC;
         public GameObject swordPrefab;
         public GameObject oreChunkPrefab;
 

@@ -50,16 +50,18 @@ namespace IdleBlacksmith.Gameplay
 
         void Spawn(SwordRack rack, GameConfig config)
         {
-            GameObject prefab = Random.value < 0.5f ? config.customerPrefabA : config.customerPrefabB;
+            // Rare golden visitor: a distinct noble when the model exists, else a gilded regular.
+            bool vip = Random.value < vipChance;
+            GameObject prefab = vip && config.customerPrefabC != null
+                ? config.customerPrefabC
+                : (Random.value < 0.5f ? config.customerPrefabA : config.customerPrefabB);
             if (prefab == null || spawnPoint == null) return;
 
             GameObject go = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation, transform);
             current = go.GetComponent<CustomerController>();
             if (current == null) return;
 
-            // Rare golden visitor: the whole figure turns gilded and pays a fat premium.
-            bool vip = Random.value < vipChance;
-            if (vip)
+            if (vip && config.customerPrefabC == null)
             {
                 var block = new MaterialPropertyBlock();
                 foreach (Renderer r in go.GetComponentsInChildren<Renderer>())
