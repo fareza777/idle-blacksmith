@@ -33,6 +33,7 @@ namespace IdleBlacksmith.Core
                 case QuestGoal.ServeOrders: return st != null ? st.ordersServed : 0;
                 case QuestGoal.RushOrders: return st != null ? st.rushOrdersDone : 0;
                 case QuestGoal.ClaimDailies: return st != null ? st.dailyClaims : 0;
+                case QuestGoal.UseTools: return st != null ? st.toolUses : 0;
             }
             return 0;
         }
@@ -58,6 +59,7 @@ namespace IdleBlacksmith.Core
                 case QuestGoal.ServeOrders: return $"Complete {target} merchant orders";
                 case QuestGoal.RushOrders: return $"Complete {target} orders during Rush Hour";
                 case QuestGoal.ClaimDailies: return $"Claim {target} daily embers";
+                case QuestGoal.UseTools: return $"Use workbench tools {target} times";
             }
             return "Progress";
         }

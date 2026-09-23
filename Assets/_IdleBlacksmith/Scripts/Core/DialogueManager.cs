@@ -116,6 +116,10 @@ namespace IdleBlacksmith.Core
                 case "legendary": return s != null && s.bestRarity >= (int)Rarity.Legendary;
                 case "talent": return gm.talents != null && gm.talents.TotalLevels >= 1;
                 case "hundred": return s != null && s.swordsForged >= 100;
+                case "tools": return s != null && s.toolUses >= 3;
+                case "cat": return s != null && s.catPets >= 5;
+                case "five_hundred": return s != null && s.swordsForged >= 500;
+                case "runemaster": return gm.runes != null && gm.runes.TotalLevels >= 5;
                 case "smithy5": return gm.buildings.GetLevel(BuildingId.Smithy) >= 5;
                 case "rekindle": return gm.prestige != null && gm.prestige.Count >= 1;
                 default: return false;
@@ -207,6 +211,24 @@ namespace IdleBlacksmith.Core
             Seq("hundred",
                 Line("Bram Ironroot", "bram", "A hundred blades off this anvil. Count them — a hundred stories carried out that door."),
                 Line("Petra Flint", "petra", "And every one started as a stone I pulled from the hill. We make a fine line, you and I.")),
+
+            Seq("tools",
+                Line("Bram Ironroot", "bram", "You found the bellows, then? Good. Stoke her when the steel runs slow — the coals answer."),
+                Line("Petra Flint", "petra", "And that old grindstone is not furniture! Sharpen a blank before the pour and the metal listens."),
+                Line("Bram Ironroot", "bram", "Quench trough's for finishing only — patience in the water is still patience.")),
+
+            Seq("cat",
+                Line("Nyx", "nyx", "You keep petting that creature. You know it sleeps on warm relics, yes? It has taste."),
+                Line("Bram Ironroot", "bram", "Ember's been here longer than I have. She came with the anvil — part of the forge, really."),
+                Line("Sable", "sable", "A shop with a cat sells more. It's science. Marketing science.")),
+
+            Seq("five_hundred",
+                Line("Bram Ironroot", "bram", "Five hundred blades. I stopped counting the stories a hundred back — now I count the quiet mornings instead."),
+                Line("Sir Aldric", "aldric", "Armies would call that a supply line. I call it a reputation with a chimney.")),
+
+            Seq("runemaster",
+                Line("Nyx", "nyx", "Five runes deep and still standing upright. The Ember is starting to recognize you, smith."),
+                Line("Nyx", "nyx", "Soon it will ask things of you. Say yes — the Ember pays its debts.")),
 
             Seq("rekindle",
                 Line("Nyx", "nyx", "You fed a whole legend to the Ember and it gave you shards. Beautiful."),

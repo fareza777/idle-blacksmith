@@ -27,9 +27,25 @@ namespace IdleBlacksmith.Gameplay
         [Tooltip("Punch the prop's scale on use — off for tools baked into a building mesh")]
         public bool scaleOnUse = true;
 
+        [Tooltip("Breathe softly while ready so the tool reads as tappable")]
+        public bool breatheOnReady = true;
+
         float lastUse = -999f;
+        float idle;
 
         public Vector3 AnchorWorld => transform.TransformPoint(anchorLocal);
+
+        void Update()
+        {
+            if (!breatheOnReady) return;
+            idle += Time.deltaTime;
+            if (idle >= 3.5f)
+            {
+                idle = 0f;
+                if (Time.unscaledTime - lastUse >= cooldown)
+                    Tween.PunchScale(transform, Vector3.one * 0.045f, 0.6f);
+            }
+        }
 
         public void Use()
         {
@@ -73,6 +89,9 @@ namespace IdleBlacksmith.Gameplay
 
             if (!fired) return;
             lastUse = Time.unscaledTime;
+
+            GameManager gm = GameManager.Instance;
+            if (gm != null && gm.Data != null && gm.Data.stats != null) gm.Data.stats.toolUses++;
 
             if (scaleOnUse) Tween.PunchScale(transform, Vector3.one * 0.16f, 0.35f);
         }

@@ -50,6 +50,7 @@ MonoBehaviour:
   cooldown: 60
   anchorLocal: {x: 0, y: 0.6, z: 0}
   scaleOnUse: 1
+  breatheOnReady: 1
 --- !u!1 &3628689447231147074
 GameObject:
   m_ObjectHideFlags: 0

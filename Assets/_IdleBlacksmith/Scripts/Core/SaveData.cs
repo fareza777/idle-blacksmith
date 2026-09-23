@@ -65,6 +65,8 @@ namespace IdleBlacksmith.Core
         public int ordersServed;
         public int rushOrdersDone;
         public int dailyClaims;
+        public int toolUses;
+        public int catPets;
         public float playSeconds;
         public System.Collections.Generic.List<RecipeRarityCount> forgedLog = new System.Collections.Generic.List<RecipeRarityCount>();
 

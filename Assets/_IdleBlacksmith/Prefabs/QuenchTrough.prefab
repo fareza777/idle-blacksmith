@@ -140,3 +140,4 @@ MonoBehaviour:
   cooldown: 90
   anchorLocal: {x: 0, y: 0.55, z: 0}
   scaleOnUse: 1
+  breatheOnReady: 1

@@ -222,6 +222,7 @@ namespace IdleBlacksmith.EditorTools
             bellows.cooldown = 45f;
             bellows.anchorLocal = new Vector3(-0.85f, 0.45f, 0.25f);
             bellows.scaleOnUse = false;
+            bellows.breatheOnReady = false;
             var stations = Object.FindObjectsByType<ToolStation>(FindObjectsSortMode.None);
             foreach (ToolStation t in stations) t.anvil = picker.anvil;
             picker.tools = stations;
@@ -425,6 +426,8 @@ namespace IdleBlacksmith.EditorTools
                 QuestGoal.UnlockRecipe, 2, gold: 200, ore: 15),
             Q("q_helper", "An Extra Pair of Hands", "Hire the apprentice and let two smiths share the work.",
                 QuestGoal.HireHelper, 1, gold: 200),
+            Q("q_tools", "The Smith's Tools", "The bellows stoke the hearth, the grindstone sharpens the next blade, the quench trough finishes a craft. Put them to work.",
+                QuestGoal.UseTools, 5, gold: 220, ore: 10),
             Q("q_order1", "A Patron's Request", "Merchants post orders at the gate arch — deliver the swords they ask for and they pay over the counter price.",
                 QuestGoal.ServeOrders, 1, gold: 250),
             Q("q_gate1", "The Way Down", "Build the Dungeon Gate. Expeditions pay out even while the app is closed.",
@@ -514,6 +517,8 @@ namespace IdleBlacksmith.EditorTools
             A("a_daily7", "Faithful", "Claim the daily ember 7 times", QuestGoal.ClaimDailies, 7, AchBonus.Offline, 0.03f, "star"),
             A("a_daily30", "Ember Devout", "Claim the daily ember 30 times", QuestGoal.ClaimDailies, 30, AchBonus.Gold, 0.05f, "ember"),
             A("a_furnace5", "Volcanic Heart", "Raise the Blast Furnace to level 5", QuestGoal.UpgradeBuilding, 5, AchBonus.Craft, 0.05f, "furnace", BuildingId.Furnace),
+            A("a_tools", "Tool Time", "Use the bellows, grindstone and quench trough 25 times", QuestGoal.UseTools, 25, AchBonus.Craft, 0.03f, "craft"),
+            A("a_tools100", "Hand and Hammer", "Use the workbench tools 100 times", QuestGoal.UseTools, 100, AchBonus.Luck, 0.5f, "gem"),
         };
 
         // ------------------------------------------------------------ config asset

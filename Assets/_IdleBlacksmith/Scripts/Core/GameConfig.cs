@@ -289,6 +289,7 @@ namespace IdleBlacksmith.Core
         ServeOrders,
         RushOrders,
         ClaimDailies,
+        UseTools,
     }
 
     [System.Serializable]

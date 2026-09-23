@@ -575,6 +575,17 @@ MonoBehaviour:
     oreReward: 0
     relicReward: 0
     shardReward: 0
+  - id: q_tools
+    title: The Smith's Tools
+    body: The bellows stoke the hearth, the grindstone sharpens the next blade, the
+      quench trough finishes a craft. Put them to work.
+    goal: 16
+    targetId: 
+    target: 5
+    goldReward: 220
+    oreReward: 10
+    relicReward: 0
+    shardReward: 0
   - id: q_order1
     title: A Patron's Request
     body: "Merchants post orders at the gate arch \u2014 deliver the swords they
@@ -1080,6 +1091,24 @@ MonoBehaviour:
     target: 5
     bonusKind: 3
     bonus: 0.05
+  - id: a_tools
+    displayName: Tool Time
+    description: Use the bellows, grindstone and quench trough 25 times
+    icon: {fileID: 21300000, guid: 58c5a2d5a496ca640a561a037378cd1f, type: 3}
+    goal: 16
+    targetId: 
+    target: 25
+    bonusKind: 3
+    bonus: 0.03
+  - id: a_tools100
+    displayName: Hand and Hammer
+    description: Use the workbench tools 100 times
+    icon: {fileID: 21300000, guid: 8862744bda5e1df408e20290f0ab1c79, type: 3}
+    goal: 16
+    targetId: 
+    target: 100
+    bonusKind: 4
+    bonus: 0.5
   workerPrefab: {fileID: 1208270762283020123, guid: 25182fd6a6fc62348aa8bb3ada4eda28, type: 3}
   helperPrefab: {fileID: 5151690350410580974, guid: 083b0901ccd174747a41c075f0565afa, type: 3}
   customerPrefabA: {fileID: 6717537910521031009, guid: 1d08f49f91edf184283cde0f1e58c8bc, type: 3}

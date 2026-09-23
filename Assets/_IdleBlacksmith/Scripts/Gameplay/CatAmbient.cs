@@ -41,6 +41,8 @@ namespace IdleBlacksmith.Gameplay
             Vector3 up = transform.position + Vector3.up * 0.6f;
             UI.UIManager.Instance?.SpawnFloatingText(up, "\u2665", new Color(1f, 0.45f, 0.55f));
             UI.UIManager.Instance?.SpawnFloatingText(up + new Vector3(0.25f, 0.15f, 0f), "purr", new Color(1f, 0.7f, 0.75f));
+            var gm = GameManager.Instance;
+            if (gm != null && gm.Data != null && gm.Data.stats != null) gm.Data.stats.catPets++;
             // a petted cat purrs a while longer where it lies
             state = CatState.Rest;
             timer = Random.Range(restTime.x, restTime.y);
