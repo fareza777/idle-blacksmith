@@ -391,6 +391,17 @@ MonoBehaviour:
     requiredMineLevel: 5
     swordPrefab: {fileID: 5273416513707545968, guid: 096640afc3f8a812bbead2d27ad480bb, type: 3}
     bladeColor: 40
+  - id: starforged
+    displayName: Starforged
+    description: "Hammered from a fallen star \u2014 the last word in blades."
+    icon: {fileID: 21300000, guid: e8742f745a8bec519828518e067a8ecc, type: 3}
+    oreCost: 45
+    baseValue: 5200
+    craftDuration: 12
+    requiredSmithyLevel: 5
+    requiredMineLevel: 5
+    swordPrefab: {fileID: 2561268697986718284, guid: 656a059cadd7f85018e35ee7bccacadc, type: 3}
+    bladeColor: 40
   runes:
   - id: rune_flame
     displayName: Rune of Flame
@@ -855,6 +866,17 @@ MonoBehaviour:
     oreReward: 0
     relicReward: 0
     shardReward: 2
+  - id: q_starforged
+    title: Reach the Stars
+    body: "Unlock every blade the forge knows \u2014 including the Starforged, hammered
+      from a fallen star."
+    goal: 6
+    targetId: 
+    target: 10
+    goldReward: 20000
+    oreReward: 0
+    relicReward: 0
+    shardReward: 3
   - id: q_orders10
     title: The Guild Ledger
     body: "Ten merchant orders fulfilled \u2014 patrons remember a smith who delivers."

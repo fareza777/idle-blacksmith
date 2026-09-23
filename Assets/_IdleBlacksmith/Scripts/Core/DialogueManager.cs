@@ -127,6 +127,7 @@ namespace IdleBlacksmith.Core
                     && gm.Data.seenDialogues.Contains("legendary");
                 case "rare": return s != null && s.bestRarity >= (int)Rarity.Epic;
                 case "legendary": return s != null && s.bestRarity >= (int)Rarity.Legendary;
+                case "starforged": return s != null && s.ForgedCount("starforged") >= 1;
                 case "talent": return gm.talents != null && gm.talents.TotalLevels >= 1;
                 case "hundred": return s != null && s.swordsForged >= 100;
                 case "tools": return s != null && s.toolUses >= 3;
@@ -291,6 +292,11 @@ namespace IdleBlacksmith.Core
             Seq("ember_caught",
                 Line("Bram Ironroot", "bram", "You caught one! Quick hands, keeper — the Ember likes that."),
                 Line("Nyx", "nyx", "It remembers being caught, you know. Keep your eyes on the sky — it will send more.")),
+
+            Seq("starforged",
+                Line("Nyx", "nyx", "Keeper — the anvil just sang a note I have never heard. That blade was not forged tonight. It was only found, sleeping in star-metal."),
+                Line("Bram Ironroot", "bram", "A Starforged. In all my years I never believed the old map. Light still clings to it — look, it refuses to dim."),
+                Line("Sable", "sable", "Priceless, darling. Literally — no ledger in the kingdom has a column for it. We shall have to invent one.")),
 
             Seq("dawns",
                 Line("Petra Flint", "petra", "Third dawn since the reopening, keeper. I counted — the village rooster crows at the smoke now, not the sun."),

@@ -488,6 +488,8 @@ namespace IdleBlacksmith.EditorTools
                 QuestGoal.OwnRarity, 2, gold: 6000, shard: 1),
             Q("q_forge500", "Five Hundred", "Forge five hundred swords.",
                 QuestGoal.ForgeSwords, 500, gold: 12000, shard: 2),
+            Q("q_starforged", "Reach the Stars", "Unlock every blade the forge knows — including the Starforged, hammered from a fallen star.",
+                QuestGoal.UnlockRecipe, 10, gold: 20000, shard: 3),
             Q("q_orders10", "The Guild Ledger", "Ten merchant orders fulfilled — patrons remember a smith who delivers.",
                 QuestGoal.ServeOrders, 10, gold: 9000, shard: 2),
             Q("q_prestige", "Rekindle the Forge", "Burn this run for ember shards and start again, permanently stronger.",
@@ -861,6 +863,14 @@ namespace IdleBlacksmith.EditorTools
                     description = "A blade that drinks the light around it.",
                     icon = AssetFactory.LoadIcon("voidreaver"),
                     swordPrefab = ModelFactory.SwordPrefabFor(RecipeId.Voidreaver),
+                },
+                new RecipeDef
+                {
+                    id = RecipeId.Starforged, displayName = "Starforged", oreCost = 45, baseValue = 5200,
+                    craftDuration = 12f, requiredSmithyLevel = 5, requiredMineLevel = 5,
+                    description = "Hammered from a fallen star — the last word in blades.",
+                    icon = AssetFactory.LoadIcon("starforged"),
+                    swordPrefab = ModelFactory.SwordPrefabFor(RecipeId.Starforged),
                 },
             };
 

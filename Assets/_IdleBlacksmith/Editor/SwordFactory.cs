@@ -32,6 +32,7 @@ namespace IdleBlacksmith.EditorTools
             { RecipeId.Dragonsteel, new[] { Palette.RugRed,      Palette.Ember,      Palette.Grip } },
             { RecipeId.Frostbrand,  new[] { Palette.OreCrystal,  Palette.SwordBlade, Palette.Grip } },
             { RecipeId.Voidreaver,  new[] { Palette.PlumDark,    Palette.MetalDark,  Palette.Grip } },
+            { RecipeId.Starforged,  new[] { Palette.OreCrystal,  Palette.Gold,       Palette.Grip } },
         };
 
         public static GameObject SwordPrefabFor(string recipeId)
@@ -167,6 +168,15 @@ namespace IdleBlacksmith.EditorTools
                     b.Box(Vector3.zero, new Vector3(0.20f, 0.036f, 0.040f), guard);
                     b.Box(new Vector3(0, 0, -0.115f), new Vector3(0.046f, 0.046f, 0.19f), grip);
                     b.Box(new Vector3(0, 0, -0.235f), new Vector3(0.08f, 0.08f, 0.05f), guard);        // heavy dark pommel
+                    break;
+                case RecipeId.Starforged: // celestial longsword: luminous straight blade, star crossguard
+                    b.Box(new Vector3(0, 0, 0.32f), new Vector3(0.046f, 0.013f, 0.56f), blade);
+                    b.Box(new Vector3(0, 0, 0.615f), new Vector3(0.018f, 0.013f, 0.07f), blade);
+                    b.Box(Vector3.zero, new Vector3(0.17f, 0.030f, 0.040f), guard);   // crossbar
+                    b.Box(new Vector3(0, 0.052f, 0.005f), new Vector3(0.030f, 0.072f, 0.038f), guard); // star point up
+                    b.Box(new Vector3(0, -0.052f, 0.005f), new Vector3(0.030f, 0.072f, 0.038f), guard); // star point down
+                    b.Box(new Vector3(0, 0, -0.075f), new Vector3(0.040f, 0.040f, 0.12f), grip);
+                    b.Box(new Vector3(0, 0, -0.15f), new Vector3(0.055f, 0.055f, 0.055f), guard);      // star pommel
                     break;
                 case RecipeId.Dragonsteel: // greatsword: wide blade, parry hooks, two-hand grip
                     b.Box(new Vector3(0, 0, 0.30f), new Vector3(0.075f, 0.016f, 0.52f), blade);
