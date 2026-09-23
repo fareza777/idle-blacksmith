@@ -12,8 +12,9 @@ namespace IdleBlacksmith.Core
         public const string Gate = "gate";
         public const string Sanctum = "sanctum";
         public const string Furnace = "furnace";
+        public const string Storehouse = "storehouse";
 
-        public static readonly string[] All = { Smithy, Mine, Market, Gate, Sanctum, Furnace };
+        public static readonly string[] All = { Smithy, Mine, Market, Gate, Sanctum, Furnace, Storehouse };
     }
 
     public static class RecipeId

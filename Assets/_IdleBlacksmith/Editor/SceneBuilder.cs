@@ -81,6 +81,11 @@ namespace IdleBlacksmith.EditorTools
             }
             GameObject cat = Spawn(ModelFactory.CatPrefab, V(-0.95f, 0, 1.95f), 205f);
 
+            // Small birds cross the sky every few seconds — ambient life.
+            var flock = new GameObject("BirdFlock");
+            var bf = flock.AddComponent<BirdFlock>();
+            bf.birdPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.BirdPrefab);
+
             // ------------------------------------------------ the rest of the complex
             // Each plot faces the forge, so every building reads as part of one yard. The plots sit
             // clear of the Smithy's *widest* growth stage (level 5 reaches x ±5.3, z -3.5..5.9),
@@ -96,6 +101,7 @@ namespace IdleBlacksmith.EditorTools
                 MakePlot(plotsRoot, BuildingId.Gate, V(-3.4f, 0, -5.4f), shopCentre),
                 MakePlot(plotsRoot, BuildingId.Sanctum, V(5.4f, 0, 6.6f), shopCentre),
                 MakePlot(plotsRoot, BuildingId.Furnace, V(-5.6f, 0, 6.4f), shopCentre),
+                MakePlot(plotsRoot, BuildingId.Storehouse, V(-6.3f, 0, -2.3f), shopCentre),
             };
 
             Transform helperSpawn = Marker("HelperSpawn", V(1.3f, 0, 0.85f));
@@ -458,6 +464,8 @@ namespace IdleBlacksmith.EditorTools
                 QuestGoal.UpgradeBuilding, 1, gold: 5000, relic: 25, targetId: BuildingId.Sanctum),
             Q("q_furnace1", "Brick and Blast", "Raise the Blast Furnace — forced air means faster forging.",
                 QuestGoal.UpgradeBuilding, 1, gold: 6000, targetId: BuildingId.Furnace),
+            Q("q_store", "Lock the Goods", "Raise a Storehouse — what the forge earns while you sleep should still be there when you wake.",
+                QuestGoal.UpgradeBuilding, 1, gold: 2500, targetId: BuildingId.Storehouse),
             Q("q_smithy4", "Mithril Works", "Grow the Smithy to level 4 and unlock mithril.",
                 QuestGoal.UpgradeBuilding, 4, gold: 8000, targetId: BuildingId.Smithy),
             Q("q_rare", "Something Rare", "Forge a Rare sword. Luck, the Sanctum and the Lucky Anvil all help.",
@@ -517,6 +525,7 @@ namespace IdleBlacksmith.EditorTools
             A("a_daily7", "Faithful", "Claim the daily ember 7 times", QuestGoal.ClaimDailies, 7, AchBonus.Offline, 0.03f, "star"),
             A("a_daily30", "Ember Devout", "Claim the daily ember 30 times", QuestGoal.ClaimDailies, 30, AchBonus.Gold, 0.05f, "ember"),
             A("a_furnace5", "Volcanic Heart", "Raise the Blast Furnace to level 5", QuestGoal.UpgradeBuilding, 5, AchBonus.Craft, 0.05f, "furnace", BuildingId.Furnace),
+            A("a_store3", "Hoard Master", "Raise the Storehouse to level 3", QuestGoal.UpgradeBuilding, 3, AchBonus.Offline, 0.05f, "chest", BuildingId.Storehouse),
             A("a_tools", "Tool Time", "Use the bellows, grindstone and quench trough 25 times", QuestGoal.UseTools, 25, AchBonus.Craft, 0.03f, "craft"),
             A("a_tools100", "Hand and Hammer", "Use the workbench tools 100 times", QuestGoal.UseTools, 100, AchBonus.Luck, 0.5f, "gem"),
         };
@@ -738,6 +747,22 @@ namespace IdleBlacksmith.EditorTools
                         "Volcanic Heart — forging 40% faster",
                     },
                     craftSpeedCut = 0.08f,
+                },
+                new BuildingDef
+                {
+                    id = BuildingId.Storehouse, displayName = "Storehouse", startLevel = 0, maxLevel = 5,
+                    description = "Cargo under lock and lantern. Every level keeps more of what the complex earns while you are away.",
+                    icon = AssetFactory.LoadIcon("chest"),
+                    levelCosts = new[] { 450, 2400, 12000, 60000, 260000 },
+                    levelPerks = new[]
+                    {
+                        "Lean-To — offline earnings +20%",
+                        "Timber Shed — offline earnings +40%",
+                        "Cargo Shed — offline earnings +60%",
+                        "Warehouse — offline earnings +80%",
+                        "Grand Depot — offline earnings +100%",
+                    },
+                    offlineBonus = 0.20f,
                 },
             };
 

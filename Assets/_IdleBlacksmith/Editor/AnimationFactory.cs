@@ -133,11 +133,29 @@ namespace IdleBlacksmith.EditorTools
             return t;
         }
 
+        /// <summary>
+        /// Loads the controller at <paramref name="path"/> (or creates it) and returns it wiped
+        /// to a single empty "Base Layer". Copying a whole controller between assets leaves the
+        /// layer's stateMachine reference dangling — the player then reports "Statemachine for
+        /// layer 'Base Layer' is missing" and no animation ever plays. Rebuilding in place keeps
+        /// the GUID stable AND the state machine valid.
+        /// </summary>
+        static AnimatorController ControllerAt(string path)
+        {
+            var c = AssetDatabase.LoadAssetAtPath<AnimatorController>(path);
+            if (c == null) c = AnimatorController.CreateAnimatorControllerAtPath(path);
+
+            for (int i = c.parameters.Length - 1; i >= 0; i--) c.RemoveParameter(i);
+            while (c.layers.Length > 0) c.RemoveLayer(0);
+            c.AddLayer("Base Layer");
+            EditorUtility.SetDirty(c);
+            return c;
+        }
+
         static AnimatorController BuildWorkerController(AnimationClip idle, AnimationClip walk,
             AnimationClip carry, AnimationClip hammer)
         {
-            string path = Paths.Animations + "/Worker.controller";
-            var c = AnimatorController.CreateAnimatorControllerAtPath(AssetReplace.ScratchPath(Paths.Animations, "WorkerController"));
+            var c = ControllerAt(Paths.Animations + "/Worker.controller");
             c.AddParameter("Speed", AnimatorControllerParameterType.Float);
             c.AddParameter("WalkSpeed", AnimatorControllerParameterType.Float);
             c.AddParameter("Carry", AnimatorControllerParameterType.Bool);
@@ -173,13 +191,12 @@ namespace IdleBlacksmith.EditorTools
             toHammer.AddCondition(AnimatorConditionMode.If, 0, "Hammer");
 
             T(sHammer, sIdle, 0.15f, (AnimatorConditionMode.IfNot, 0, "Hammer"));
-            return AssetReplace.SaveController(c, path);
+            return c;
         }
 
         static AnimatorController BuildCustomerController(AnimationClip idle, AnimationClip walk)
         {
-            string path = Paths.Animations + "/Customer.controller";
-            var c = AnimatorController.CreateAnimatorControllerAtPath(AssetReplace.ScratchPath(Paths.Animations, "CustomerController"));
+            var c = ControllerAt(Paths.Animations + "/Customer.controller");
             c.AddParameter("Speed", AnimatorControllerParameterType.Float);
             c.AddParameter("WalkSpeed", AnimatorControllerParameterType.Float);
             AnimatorStateMachine sm = c.layers[0].stateMachine;
@@ -192,7 +209,7 @@ namespace IdleBlacksmith.EditorTools
             sm.defaultState = sIdle;
             T(sIdle, sWalk, 0.12f, (AnimatorConditionMode.Greater, 0.1f, "Speed"));
             T(sWalk, sIdle, 0.12f, (AnimatorConditionMode.Less, 0.1f, "Speed"));
-            return AssetReplace.SaveController(c, path);
+            return c;
         }
 
         static void AssignController(string prefabPath, RuntimeAnimatorController controller)

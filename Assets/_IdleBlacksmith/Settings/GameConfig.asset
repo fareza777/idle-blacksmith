@@ -145,6 +145,7 @@ MonoBehaviour:
     runeLevelsPerTier: 0
     runeCostCut: 0
     craftSpeedCut: 0
+    offlineBonus: 0
   - id: mine
     displayName: Ore Mine
     description: Miners feed the forge while you are away. No ore, no swords.
@@ -168,6 +169,7 @@ MonoBehaviour:
     runeLevelsPerTier: 0
     runeCostCut: 0
     craftSpeedCut: 0
+    offlineBonus: 0
   - id: market
     displayName: Trading Post
     description: A busy storefront pulls in more customers and better offers.
@@ -191,6 +193,7 @@ MonoBehaviour:
     runeLevelsPerTier: 0
     runeCostCut: 0
     craftSpeedCut: 0
+    offlineBonus: 0
   - id: gate
     displayName: Dungeon Gate
     description: Opens the way below. Higher levels send more parties and pay better.
@@ -214,6 +217,7 @@ MonoBehaviour:
     runeLevelsPerTier: 0
     runeCostCut: 0
     craftSpeedCut: 0
+    offlineBonus: 0
   - id: sanctum
     displayName: Enchanter's Sanctum
     description: Spend relic ore on runes that sharpen every part of the forge.
@@ -237,6 +241,7 @@ MonoBehaviour:
     runeLevelsPerTier: 4
     runeCostCut: 0.08
     craftSpeedCut: 0
+    offlineBonus: 0
   - id: furnace
     displayName: Blast Furnace
     description: Roaring forced-draft heat. Every level hammers craft time down.
@@ -260,6 +265,32 @@ MonoBehaviour:
     runeLevelsPerTier: 0
     runeCostCut: 0
     craftSpeedCut: 0.08
+    offlineBonus: 0
+  - id: storehouse
+    displayName: Storehouse
+    description: Cargo under lock and lantern. Every level keeps more of what the
+      complex earns while you are away.
+    icon: {fileID: 21300000, guid: e8c7874a722f30141ada4f7a4d915908, type: 3}
+    startLevel: 0
+    maxLevel: 5
+    levelCosts: c201000060090000e02e000060ea0000a0f70300
+    levelPerks:
+    - "Lean-To \u2014 offline earnings +20%"
+    - "Timber Shed \u2014 offline earnings +40%"
+    - "Cargo Shed \u2014 offline earnings +60%"
+    - "Warehouse \u2014 offline earnings +80%"
+    - "Grand Depot \u2014 offline earnings +100%"
+    priceBonus: 0
+    rackBonus: 0
+    orePerSecond: 0
+    oreCapacity: 0
+    customerIntervalCut: 0
+    expeditionSlots: 0
+    dungeonRewardBonus: 0
+    runeLevelsPerTier: 0
+    runeCostCut: 0
+    craftSpeedCut: 0
+    offlineBonus: 0.2
   recipes:
   - id: copper
     displayName: Copper Dagger
@@ -740,6 +771,17 @@ MonoBehaviour:
     oreReward: 0
     relicReward: 0
     shardReward: 0
+  - id: q_store
+    title: Lock the Goods
+    body: "Raise a Storehouse \u2014 what the forge earns while you sleep should
+      still be there when you wake."
+    goal: 5
+    targetId: storehouse
+    target: 1
+    goldReward: 2500
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
   - id: q_smithy4
     title: Mithril Works
     body: Grow the Smithy to level 4 and unlock mithril.
@@ -1090,6 +1132,15 @@ MonoBehaviour:
     targetId: furnace
     target: 5
     bonusKind: 3
+    bonus: 0.05
+  - id: a_store3
+    displayName: Hoard Master
+    description: Raise the Storehouse to level 3
+    icon: {fileID: 21300000, guid: e8c7874a722f30141ada4f7a4d915908, type: 3}
+    goal: 5
+    targetId: storehouse
+    target: 3
+    bonusKind: 5
     bonus: 0.05
   - id: a_tools
     displayName: Tool Time

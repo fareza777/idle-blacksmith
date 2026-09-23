@@ -109,6 +109,7 @@ namespace IdleBlacksmith.Core
                 case "expedition": return s != null && s.expeditionsClaimed >= 1;
                 case "sanctum": return gm.buildings.GetLevel(BuildingId.Sanctum) >= 1;
                 case "furnace": return gm.buildings.GetLevel(BuildingId.Furnace) >= 1;
+                case "storehouse": return gm.buildings.GetLevel(BuildingId.Storehouse) >= 1;
                 case "order": return s != null && s.ordersServed >= 1;
                 case "rush": return s != null && s.rushOrdersDone >= 1;
                 case "daily": return s != null && s.dailyClaims >= 2;
@@ -238,6 +239,9 @@ namespace IdleBlacksmith.Core
                 Line("Bram Ironroot", "bram", "Brick, clay and a hungry mouth of fire. The old furnace breathes again."),
                 Line("Petra Flint", "petra", "Forced air, smith! Steel in half the time — the old miners called that a dragon's lung.")),
 
+            Seq("storehouse",
+                Line("Bram Ironroot", "bram", "Lock, key and a dry roof. What we earn by day stays ours by night."),
+                Line("Nyx", "nyx", "A hoard grows in the dark, keeper. I approve — even the rats are impressed.")),
             Seq("order",
                 Line("Sir Aldric", "aldric", "First order filled and the patron paid smiling. Reputation travels faster than any cart."),
                 Line("Sable", "sable", "Bulk buyers, premium prices. I taught you well — don't forget my ten percent. (I jest. Mostly.)")),

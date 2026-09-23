@@ -65,6 +65,7 @@ namespace IdleBlacksmith.EditorTools
                 BuildGate(level);
                 BuildSanctum(level);
                 BuildFurnace(level);
+                BuildStorehouse(level);
             }
         }
 
@@ -521,6 +522,89 @@ namespace IdleBlacksmith.EditorTools
             CreateChimneySmoke(root.transform,
                 new Vector3(0.4f * s, 0.28f * s + bodyH + chimH + 0.16f, 0.4f * s));
             SavePrefab(root, BuildingPrefabPath(BuildingId.Furnace, level));
+        }
+
+        // ------------------------------------------------------------ storehouse
+
+        /// <summary>
+        /// The storehouse reads as a cargo shed that fills up and walls in with level: a lean-to
+        /// at 1, plank walls at 2, a full timber warehouse with lit lantern from 3, and a grand
+        /// depot with banner and stacked wares at 5. It faces the shop like every other plot.
+        /// </summary>
+        static void BuildStorehouse(int level)
+        {
+            var b = new MeshBuilder();
+            float w = 1.3f + 0.10f * (level - 1);   // half-width
+            float d = 1.0f + 0.06f * (level - 1);   // half-depth
+            float h = 0.85f + 0.30f * (level - 1);  // wall height
+
+            // stone footing
+            b.Box(new Vector3(0f, 0.12f, 0f), new Vector3(2f * w + 0.5f, 0.24f, 2f * d + 0.5f), Palette.Stone);
+
+            // corner posts
+            b.Box(new Vector3(-w, 0.24f + h * 0.5f, d), new Vector3(0.12f, h, 0.12f), Palette.WoodDark);
+            b.Box(new Vector3(w, 0.24f + h * 0.5f, d), new Vector3(0.12f, h, 0.12f), Palette.WoodDark);
+            b.Box(new Vector3(-w, 0.24f + h * 0.5f, -d), new Vector3(0.12f, h, 0.12f), Palette.WoodDark);
+            b.Box(new Vector3(w, 0.24f + h * 0.5f, -d), new Vector3(0.12f, h, 0.12f), Palette.WoodDark);
+
+            // plank walls close in from level 2: back first, then the sides
+            if (level >= 2)
+            {
+                b.Box(new Vector3(0f, 0.24f + h * 0.5f, -d), new Vector3(2f * w, h, 0.07f), Palette.WoodMid);
+                b.Box(new Vector3(-w, 0.24f + h * 0.5f, 0f), new Vector3(0.07f, h, 2f * d), Palette.WoodMid);
+                b.Box(new Vector3(w, 0.24f + h * 0.5f, 0f), new Vector3(0.07f, h, 2f * d), Palette.WoodMid);
+            }
+            // front wall with a doorway once the shed is real
+            if (level >= 3)
+            {
+                float dw = 0.34f; // door half-width
+                b.Box(new Vector3(-(w + dw) * 0.5f, 0.24f + h * 0.5f, d), new Vector3(w - dw, h, 0.07f), Palette.WoodMid);
+                b.Box(new Vector3((w + dw) * 0.5f, 0.24f + h * 0.5f, d), new Vector3(w - dw, h, 0.07f), Palette.WoodMid);
+                b.Box(new Vector3(0f, 0.24f + h - 0.09f, d), new Vector3(2f * dw + 0.06f, 0.16f, 0.09f), Palette.WoodDark);
+                b.Box(new Vector3(0f, 0.24f + h * 0.42f, d + 0.02f), new Vector3(2f * dw, h * 0.84f, 0.05f), Palette.Coal);
+            }
+
+            // gable roof: two slabs pitched toward the ridge, ridge beam on top
+            float ry = 0.24f + h;
+            float roofLift = 0.16f + 0.05f * level;
+            Quaternion pitch = Quaternion.Euler(38f, 0f, 0f);
+            b.Box(new Vector3(0f, ry + roofLift * 0.55f, -d * 0.52f), new Vector3(2f * w + 0.35f, 0.09f, d + 0.28f),
+                  pitch * Quaternion.Euler(0f, 0f, 0f), Palette.WoodPale);
+            b.Box(new Vector3(0f, ry + roofLift * 0.55f, d * 0.52f), new Vector3(2f * w + 0.35f, 0.09f, d + 0.28f),
+                  Quaternion.Euler(-38f, 0f, 0f), Palette.WoodPale);
+            b.Box(new Vector3(0f, ry + roofLift, 0f), new Vector3(2f * w + 0.4f, 0.12f, 0.16f), Palette.WoodDark);
+
+            // cargo: crates and barrels multiplying with level, spilling out front
+            int crates = 1 + level;
+            for (int i = 0; i < crates; i++)
+            {
+                float cx = -0.9f + (i % 3) * 0.62f;
+                float cz = d + 0.42f + (i / 3) * 0.52f;
+                float cs = 0.32f + 0.04f * ((i + level) % 2);
+                b.Box(new Vector3(cx, 0.24f + cs * 0.5f, cz), new Vector3(cs, cs, cs),
+                      i % 2 == 0 ? Palette.WoodLight : Palette.WoodMid);
+                if (i == crates - 1 && level >= 4)
+                    b.Box(new Vector3(cx, 0.24f + cs + cs * 0.4f, cz), new Vector3(cs * 0.8f, cs * 0.8f, cs * 0.8f), Palette.WoodPale);
+            }
+            // barrel on the flank from level 2
+            if (level >= 2)
+            {
+                b.Cylinder(new Vector3(w + 0.55f, 0.24f + 0.26f, d * 0.4f), 0.20f, 0.52f, 8, Palette.WoodMid);
+                b.Cylinder(new Vector3(w + 0.55f, 0.24f + 0.38f, d * 0.4f), 0.215f, 0.05f, 8, Palette.MetalDark);
+            }
+            // lantern over the door from level 3 — the depot never sleeps
+            if (level >= 3)
+            {
+                b.Box(new Vector3(0f, ry + 0.02f, d + 0.10f), new Vector3(0.06f, 0.16f, 0.06f), Palette.MetalDark);
+                b.Box(new Vector3(0f, ry - 0.14f, d + 0.10f), new Vector3(0.13f, 0.16f, 0.13f), Palette.Ember, 1);
+            }
+            // trade banner at level 5
+            if (level >= 5)
+                b.Box(new Vector3(w + 0.02f, ry - 0.35f, d * 0.5f), new Vector3(0.04f, 0.6f, 0.4f), Palette.Banner);
+
+            var root = new GameObject("Building_" + BuildingId.Storehouse + "_L" + level);
+            Part("Mesh", root.transform, SaveMesh(b, "Building_Storehouse_L" + level), PM, Vector3.zero);
+            SavePrefab(root, BuildingPrefabPath(BuildingId.Storehouse, level));
         }
 
         // ------------------------------------------------------------ helpers

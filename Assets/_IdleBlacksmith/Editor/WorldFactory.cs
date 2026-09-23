@@ -29,6 +29,7 @@ namespace IdleBlacksmith.EditorTools
         public const string PlantPrefab = Paths.Prefabs + "/Plant.prefab";
         public const string GrindstonePrefab = Paths.Prefabs + "/Grindstone.prefab";
         public const string QuenchTroughPrefab = Paths.Prefabs + "/QuenchTrough.prefab";
+        public const string BirdPrefab = Paths.Prefabs + "/Bird.prefab";
         public const string ShelfPrefab = Paths.Prefabs + "/Shelf.prefab";
         public const string BannerPrefab = Paths.Prefabs + "/Banner.prefab";
         public const string RugPrefab = Paths.Prefabs + "/Rug.prefab";
@@ -364,6 +365,24 @@ namespace IdleBlacksmith.EditorTools
                 tool.cooldown = 90f;
                 tool.anchorLocal = new Vector3(0f, 0.55f, 0f);
                 SavePrefab(root, QuenchTroughPrefab);
+            }
+            // Bird — tiny flier that crosses the sky: wing parts pivot at the body edge so
+            // BirdFlock can flap them by rotating z.
+            {
+                var root = new GameObject("Bird");
+                var b = new MeshBuilder();
+                b.Box(new Vector3(0, 0, 0), new Vector3(0.07f, 0.06f, 0.20f), Palette.Coal);
+                b.Box(new Vector3(0, 0.01f, 0.12f), new Vector3(0.05f, 0.05f, 0.06f), Palette.Coal);
+                var bodyMesh = SaveMesh(b, "Bird_Body");
+                Part("Body", root.transform, bodyMesh, PM, Vector3.zero);
+                // wings: mesh drawn outward from the pivot so rotation reads as flapping
+                var wl = new MeshBuilder();
+                wl.Box(new Vector3(-0.13f, 0, 0), new Vector3(0.22f, 0.015f, 0.14f), Palette.Coal);
+                Part("WingL", root.transform, SaveMesh(wl, "Bird_WingL"), PM, new Vector3(-0.03f, 0.03f, 0.01f));
+                var wr = new MeshBuilder();
+                wr.Box(new Vector3(0.13f, 0, 0), new Vector3(0.22f, 0.015f, 0.14f), Palette.Coal);
+                Part("WingR", root.transform, SaveMesh(wr, "Bird_WingR"), PM, new Vector3(0.03f, 0.03f, 0.01f));
+                SavePrefab(root, BirdPrefab);
             }
             // Wall shelf with two display swords and a candle.
             {

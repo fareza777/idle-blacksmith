@@ -203,6 +203,8 @@ namespace IdleBlacksmith.Core
         public float runeCostCut;
         [Tooltip("Blast Furnace: fraction off craft duration per level")]
         public float craftSpeedCut;
+        [Tooltip("Storehouse: extra offline earnings fraction per level")]
+        public float offlineBonus;
 
         public int MaxBuyableLevel => Mathf.Min(maxLevel, (levelCosts != null ? levelCosts.Length : 0) + 1);
     }
