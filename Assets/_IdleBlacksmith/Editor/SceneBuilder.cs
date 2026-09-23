@@ -113,6 +113,12 @@ namespace IdleBlacksmith.EditorTools
             Transform wpCounter = Marker("WpCounter", V(0.8f, 0f, -2.8f));
             Transform customerSpawn = Marker("CustomerSpawn", V(6.4f, ModelFactory.OutdoorGroundY, -5.7f));
 
+            // The storehouse porter: hauls crates smithy -> depot once the building stands.
+            var porterGo = Spawn(ModelFactory.CustomerBPrefab, V(-6.3f, 0, -1.0f), 140f);
+            Object.DestroyImmediate(porterGo.GetComponent<CustomerController>());
+            var porter = porterGo.AddComponent<PorterController>();
+            porter.shopPoint = wpDoor;
+
             // ------------------------------------------------ systems
             var gameGo = new GameObject("Game");
             var economy = gameGo.AddComponent<EconomyManager>();

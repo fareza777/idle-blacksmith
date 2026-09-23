@@ -40,7 +40,15 @@ namespace IdleBlacksmith.UI
             IsOpen = true;
 
             if (elapsedLabel != null)
-                elapsedLabel.text = "The forge kept working for " + OfflineProgress.FormatElapsed(report.elapsedSeconds);
+            {
+                var gm = GameManager.Instance;
+                int storeLevel = gm != null && gm.buildings != null ? gm.buildings.GetLevel(BuildingId.Storehouse) : 0;
+                var storeDef = gm != null && gm.config != null ? gm.config.GetBuilding(BuildingId.Storehouse) : null;
+                string storeNote = storeLevel > 0 && storeDef != null
+                    ? $"  ·  Storehouse kept +{Mathf.RoundToInt(storeLevel * storeDef.offlineBonus * 100f)}%"
+                    : "";
+                elapsedLabel.text = "The forge kept working for " + OfflineProgress.FormatElapsed(report.elapsedSeconds) + storeNote;
+            }
             if (oreLabel != null)
                 oreLabel.text = report.oreGained > 0 ? $"+{report.oreGained} ore" : "";
             if (goldLabel != null)

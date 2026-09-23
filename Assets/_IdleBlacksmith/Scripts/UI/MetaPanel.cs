@@ -237,6 +237,8 @@ namespace IdleBlacksmith.UI
                 $"Buildings upgraded     {s.buildingsUpgraded}",
                 $"Recipes unlocked       {s.recipesUnlocked}",
                 $"Best sword forged      {RarityInfo.NameOf((Rarity)s.bestRarity)}",
+                $"Workbench tools used   {s.toolUses}",
+                $"Cat pets               {s.catPets}",
                 $"Times rekindled        {s.prestiges}",
                 $"Play time              {FormatPlaytime(s.playSeconds)}",
             };
