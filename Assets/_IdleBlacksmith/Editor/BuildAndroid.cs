@@ -56,6 +56,7 @@ namespace IdleBlacksmith.EditorTools
             PlayerSettings.allowedAutorotateToPortrait = true;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             EditorUserBuildSettings.buildAppBundle = false; // APK, not AAB
+            ApplySigning();
             AssetDatabase.SaveAssets();
 
             BuildTo(ApkPath);
@@ -93,9 +94,29 @@ namespace IdleBlacksmith.EditorTools
             PlayerSettings.allowedAutorotateToPortrait = true;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             EditorUserBuildSettings.buildAppBundle = true; // Play Store artifact
+            ApplySigning();
             AssetDatabase.SaveAssets();
 
             BuildTo(AabPath);
+        }
+
+        /// <summary>
+        /// Release signing comes only from env vars — no keystore path or password ever
+        /// touches the repo or PlayerSettings on disk:
+        ///   EMBERFORGE_KEYSTORE (absolute .keystore path), EMBERFORGE_KEYSTORE_PASS,
+        ///   EMBERFORGE_KEYALIAS, EMBERFORGE_KEYALIAS_PASS
+        /// Unset → Unity debug signing, fine for sideload/testing builds.
+        /// </summary>
+        static void ApplySigning()
+        {
+            string ks = System.Environment.GetEnvironmentVariable("EMBERFORGE_KEYSTORE");
+            if (string.IsNullOrEmpty(ks) || !System.IO.File.Exists(ks)) return;
+            PlayerSettings.Android.useCustomKeystore = true;
+            PlayerSettings.Android.keystoreName = ks;
+            PlayerSettings.Android.keystorePass = System.Environment.GetEnvironmentVariable("EMBERFORGE_KEYSTORE_PASS");
+            PlayerSettings.Android.keyaliasName = System.Environment.GetEnvironmentVariable("EMBERFORGE_KEYALIAS");
+            PlayerSettings.Android.keyaliasPass = System.Environment.GetEnvironmentVariable("EMBERFORGE_KEYALIAS_PASS");
+            Debug.Log("[Android] release keystore applied from EMBERFORGE_KEYSTORE");
         }
 
         static void BuildTo(string locationPath)

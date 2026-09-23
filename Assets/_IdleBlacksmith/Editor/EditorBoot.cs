@@ -14,7 +14,7 @@ namespace IdleBlacksmith.EditorTools
         public static void Apply()
         {
             PlayerSettings.colorSpace = ColorSpace.Linear;
-            PlayerSettings.productName = "Emberforge";
+            PlayerSettings.productName = "Emberforge: Idle Blacksmith";
             PlayerSettings.companyName = "CozyForge";
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToLandscapeLeft = false;
