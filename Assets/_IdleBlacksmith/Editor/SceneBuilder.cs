@@ -120,18 +120,22 @@ namespace IdleBlacksmith.EditorTools
             porter.shopPoint = wpDoor;
 
             // The mine hand: hauls ore chunks mine -> ore pile once the mine stands.
-            var minerGo = Spawn(ModelFactory.CustomerAPrefab, V(-6.0f, 0, 0.1f), 160f);
-            Object.DestroyImmediate(minerGo.GetComponent<CustomerController>());
+            // Plain marker GOs — the villager prefab is instantiated at runtime, which keeps
+            // these spawns out of the serialized prefab-instance machinery entirely.
+            var minerGo = new GameObject("MinerHand");
+            minerGo.transform.position = V(-6.0f, 0, 0.1f);
+            minerGo.transform.rotation = Quaternion.Euler(0f, 160f, 0f);
             var miner = minerGo.AddComponent<MinerController>();
+            miner.characterPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CustomerAPrefab);
             miner.pile = ore.transform;
 
             // The delver: dives into the gate when an expedition launches, returns with loot.
-            var advGo = Spawn(ModelFactory.CustomerAPrefab, V(-3.4f, 0, -4.0f), 20f);
-            var advCc = advGo.GetComponent<CustomerController>();
-            if (advCc != null && advCc.carriedSwordProp != null)
-                advCc.carriedSwordProp.SetActive(true);   // armed for the delve
-            Object.DestroyImmediate(advCc);
-            advGo.AddComponent<AdventurerController>();
+            var advGo = new GameObject("Delver");
+            advGo.transform.position = V(-3.4f, 0, -4.0f);
+            advGo.transform.rotation = Quaternion.Euler(0f, 20f, 0f);
+            var adv = advGo.AddComponent<AdventurerController>();
+            adv.characterPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CustomerBPrefab);
+            adv.armSword = true;
 
             // ------------------------------------------------ systems
             var gameGo = new GameObject("Game");

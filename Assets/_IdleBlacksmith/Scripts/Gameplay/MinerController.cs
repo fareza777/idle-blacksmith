@@ -9,34 +9,42 @@ namespace IdleBlacksmith.Gameplay
     /// The mine hand: once the Ore Mine stands, this miner works a loop between the mine
     /// mouth and the smithy's ore pile — walks in empty, chips the rock a few swings, then
     /// hauls a chunk of ore to the pile. Hidden until the building exists.
+    /// The villager itself is spawned at runtime so the scene holds only a plain marker GO.
     /// </summary>
-    [RequireComponent(typeof(Animator))]
-    [RequireComponent(typeof(SimpleWalker))]
     public class MinerController : MonoBehaviour
     {
+        [Tooltip("Villager prefab instantiated at runtime (CustomerA/B)")]
+        public GameObject characterPrefab;
         [Tooltip("Ore pile root; the drop-off end of the haul")]
         public Transform pile;
         public float moveSpeed = 1.2f;
 
         SimpleWalker walker;
         Transform model;
+        Transform shadow;
+        Transform npc;
         Transform mine;
         GameObject chunk;
         bool active;
 
-        void Awake()
-        {
-            walker = GetComponent<SimpleWalker>();
-            model = transform.Find("Model");
-        }
-
         void Start()
         {
+            if (characterPrefab != null)
+            {
+                npc = Instantiate(characterPrefab, transform.position, transform.rotation).transform;
+                var cc = npc.GetComponent<CustomerController>();
+                if (cc != null) Destroy(cc);
+                walker = npc.GetComponent<SimpleWalker>();
+                model = npc.Find("Model");
+                shadow = npc.Find("Shadow");
+            }
+
             var plot = GameObject.Find("Plot_" + BuildingId.Mine);
             if (plot != null)
             {
                 mine = plot.transform;
-                transform.position = mine.position + mine.forward * 1.4f;
+                if (npc != null)
+                    npc.position = mine.position + mine.forward * 1.4f;
             }
 
             chunk = BuildChunk();
@@ -61,7 +69,7 @@ namespace IdleBlacksmith.Gameplay
             yield return null;
             while (true)
             {
-                if (!active || mine == null || pile == null)
+                if (!active || mine == null || pile == null || walker == null)
                 {
                     yield return new WaitForSeconds(0.5f);
                     continue;
@@ -96,8 +104,8 @@ namespace IdleBlacksmith.Gameplay
         void SetVisual(bool on)
         {
             if (model != null) model.gameObject.SetActive(on);
-            var shadow = transform.Find("Shadow");
             if (shadow != null) shadow.gameObject.SetActive(on);
+            if (chunk != null && !on) chunk.SetActive(false);
         }
 
         Vector3 Jitter(float r)
@@ -107,7 +115,7 @@ namespace IdleBlacksmith.Gameplay
         {
             var c = GameObject.CreatePrimitive(PrimitiveType.Cube);
             Destroy(c.GetComponent<Collider>());
-            c.transform.SetParent(transform, false);
+            c.transform.SetParent(npc != null ? npc : transform, false);
             c.transform.localScale = new Vector3(0.20f, 0.15f, 0.24f);
             var r = c.GetComponent<MeshRenderer>();
             if (r != null)

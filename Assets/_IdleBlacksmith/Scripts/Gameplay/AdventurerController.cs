@@ -11,15 +11,20 @@ namespace IdleBlacksmith.Gameplay
     /// adventurer walks to the gate arch and slips inside; when one is claimed they come
     /// back out carrying a glowing sack and drop it at the smithy door before wandering
     /// off. Driven by ExpeditionManager.OnChanged — slot count up = a dive, down = a return.
+    /// The villager itself is spawned at runtime so the scene holds only a plain marker GO.
     /// </summary>
-    [RequireComponent(typeof(Animator))]
-    [RequireComponent(typeof(SimpleWalker))]
     public class AdventurerController : MonoBehaviour
     {
+        [Tooltip("Villager prefab instantiated at runtime (CustomerA/B)")]
+        public GameObject characterPrefab;
+        [Tooltip("Show the carried sword prop on the spawned villager")]
+        public bool armSword;
         public float moveSpeed = 1.45f;
 
         SimpleWalker walker;
         Transform model;
+        Transform shadow;
+        Transform npc;
         Transform gate;
         Transform door;
         GameObject sack;
@@ -27,14 +32,23 @@ namespace IdleBlacksmith.Gameplay
         readonly Queue<IEnumerator> pending = new Queue<IEnumerator>();
         bool busy;
 
-        void Awake()
-        {
-            walker = GetComponent<SimpleWalker>();
-            model = transform.Find("Model");
-        }
-
         void Start()
         {
+            if (characterPrefab != null)
+            {
+                npc = Instantiate(characterPrefab, transform.position, transform.rotation).transform;
+                var cc = npc.GetComponent<CustomerController>();
+                if (cc != null)
+                {
+                    if (armSword && cc.carriedSwordProp != null)
+                        cc.carriedSwordProp.SetActive(true);   // armed for the delve
+                    Destroy(cc);
+                }
+                walker = npc.GetComponent<SimpleWalker>();
+                model = npc.Find("Model");
+                shadow = npc.Find("Shadow");
+            }
+
             var go = GameObject.Find("Plot_" + BuildingId.Gate);
             if (go != null) gate = go.transform;
             var d = GameObject.Find("WpDoor");
@@ -63,7 +77,7 @@ namespace IdleBlacksmith.Gameplay
         void HandleChanged()
         {
             var gm = GameManager.Instance;
-            if (gm == null || gm.expeditions == null || gate == null) return;
+            if (gm == null || gm.expeditions == null || gate == null || walker == null) return;
             int running = gm.expeditions.RunningCount;
             if (lastRunning < 0) lastRunning = running;
             if (running > lastRunning)
@@ -92,11 +106,11 @@ namespace IdleBlacksmith.Gameplay
 
         IEnumerator DiveIn()
         {
-            if (gate == null) yield break;
+            if (gate == null || npc == null) yield break;
 
             // Stroll up from the yard path and slip through the arch.
             Vector3 approach = gate.position + gate.forward * 3.2f;
-            transform.position = approach + new Vector3(Random.Range(-0.4f, 0.4f), 0f, 0f);
+            npc.position = approach + new Vector3(Random.Range(-0.4f, 0.4f), 0f, 0f);
             SetVisual(true);
             Vector3 mouth = gate.position + gate.forward * 1.1f;
             yield return walker.MoveTo(mouth, moveSpeed);
@@ -116,11 +130,11 @@ namespace IdleBlacksmith.Gameplay
 
         IEnumerator WalkOut()
         {
-            if (gate == null) yield break;
+            if (gate == null || npc == null) yield break;
 
             // Emerge at the arch, sack in hand.
             Vector3 mouth = gate.position + gate.forward * 1.1f;
-            transform.position = mouth;
+            npc.position = mouth;
             SetVisual(true);
             if (model != null)
             {
@@ -150,8 +164,8 @@ namespace IdleBlacksmith.Gameplay
         void SetVisual(bool on)
         {
             if (model != null) model.gameObject.SetActive(on);
-            var shadow = transform.Find("Shadow");
             if (shadow != null) shadow.gameObject.SetActive(on);
+            if (sack != null && !on) sack.SetActive(false);
         }
 
         Vector3 Jitter(float r)
@@ -161,7 +175,7 @@ namespace IdleBlacksmith.Gameplay
         {
             var c = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             Destroy(c.GetComponent<Collider>());
-            c.transform.SetParent(transform, false);
+            c.transform.SetParent(npc != null ? npc : transform, false);
             c.transform.localScale = new Vector3(0.30f, 0.24f, 0.30f);
             var r = c.GetComponent<MeshRenderer>();
             if (r != null)
