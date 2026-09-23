@@ -28,6 +28,9 @@ namespace IdleBlacksmith.Gameplay
         [Tooltip("The forge cat — tapping it earns a purr, nothing more")]
         public CatAmbient cat;
 
+        [Tooltip("The lucky ember — a wandering bonus sprite, tapped for gold while it is up")]
+        public EmberSprite emberSprite;
+
         [Tooltip("Workbench tools — bellows, grindstone, quench trough — each with its own tap effect")]
         public ToolStation[] tools;
 
@@ -101,6 +104,17 @@ namespace IdleBlacksmith.Gameplay
 
                 float d = Vector2.Distance(sp, screenPos);
                 if (d < bestDist) { bestDist = d; best = b; }
+            }
+
+            // The lucky ember outranks everything while it is up — it fades fast.
+            if (emberSprite != null && emberSprite.IsActive)
+            {
+                Vector3 ep = cam.WorldToScreenPoint(emberSprite.AnchorWorld);
+                if (ep.z > 0f && Vector2.Distance(ep, screenPos) <= toolTapRadiusNormalized * Screen.height)
+                {
+                    emberSprite.Collect();
+                    return;
+                }
             }
 
             // While a sword is on the anvil, a tap on the anvil is a hammer blow, not a menu

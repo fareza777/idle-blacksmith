@@ -351,6 +351,12 @@ namespace IdleBlacksmith.Core
             // Rune shards orbit the Sanctum — one per rune level owned.
             var orbitGo = new GameObject("RuneOrbit");
             orbitGo.AddComponent<RuneOrbit>();
+
+            // The lucky ember — a wandering tap-for-gold bonus over the village.
+            var emberGo = new GameObject("EmberSprite");
+            var sprite = emberGo.AddComponent<EmberSprite>();
+            var picker = FindFirstObjectByType<BuildingPicker>();
+            if (picker != null) picker.emberSprite = sprite;
         }
 
         // ------------------------------------------------------------ shop expansion

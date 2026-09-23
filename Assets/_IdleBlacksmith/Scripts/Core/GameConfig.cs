@@ -298,6 +298,7 @@ namespace IdleBlacksmith.Core
         ClaimDailies,
         UseTools,
         PetCat,
+        CatchEmber,
     }
 
     [System.Serializable]

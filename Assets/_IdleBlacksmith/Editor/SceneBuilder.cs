@@ -475,6 +475,8 @@ namespace IdleBlacksmith.EditorTools
                 QuestGoal.UpgradeBuilding, 1, gold: 2500, targetId: BuildingId.Storehouse),
             Q("q_cat5", "Nine Lives", "The forge cat keeps the shop's luck — scratch her until she purrs.",
                 QuestGoal.PetCat, 5, gold: 400),
+            Q("q_ember", "Lucky Catch", "A wandering ember drifts over the village now and then. Snatch it before it fades — fortune favours the quick.",
+                QuestGoal.CatchEmber, 3, gold: 500),
             Q("q_smithy4", "Mithril Works", "Grow the Smithy to level 4 and unlock mithril.",
                 QuestGoal.UpgradeBuilding, 4, gold: 8000, targetId: BuildingId.Smithy),
             Q("q_rare", "Something Rare", "Forge a Rare sword. Luck, the Sanctum and the Lucky Anvil all help.",
@@ -538,6 +540,8 @@ namespace IdleBlacksmith.EditorTools
             A("a_cat10", "Cat Person", "Pet the forge cat 10 times", QuestGoal.PetCat, 10, AchBonus.Luck, 0.5f, "cat"),
             A("a_tools", "Tool Time", "Use the bellows, grindstone and quench trough 25 times", QuestGoal.UseTools, 25, AchBonus.Craft, 0.03f, "craft"),
             A("a_tools100", "Hand and Hammer", "Use the workbench tools 100 times", QuestGoal.UseTools, 100, AchBonus.Luck, 0.5f, "gem"),
+            A("a_ember10", "Ember Hunter", "Catch 10 lucky embers", QuestGoal.CatchEmber, 10, AchBonus.Luck, 0.5f, "ember"),
+            A("a_ember50", "Sprite Whisperer", "Catch 50 lucky embers", QuestGoal.CatchEmber, 50, AchBonus.Luck, 1f, "star"),
         };
 
         // ------------------------------------------------------------ config asset

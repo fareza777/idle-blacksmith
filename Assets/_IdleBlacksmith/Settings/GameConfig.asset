@@ -792,6 +792,17 @@ MonoBehaviour:
     oreReward: 0
     relicReward: 0
     shardReward: 0
+  - id: q_ember
+    title: Lucky Catch
+    body: "A wandering ember drifts over the village now and then. Snatch it before
+      it fades \u2014 fortune favours the quick."
+    goal: 18
+    targetId: 
+    target: 3
+    goldReward: 500
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
   - id: q_smithy4
     title: Mithril Works
     body: Grow the Smithy to level 4 and unlock mithril.
@@ -1179,6 +1190,24 @@ MonoBehaviour:
     target: 100
     bonusKind: 4
     bonus: 0.5
+  - id: a_ember10
+    displayName: Ember Hunter
+    description: Catch 10 lucky embers
+    icon: {fileID: 21300000, guid: b51935894df4bdd48a41f46b40830b25, type: 3}
+    goal: 18
+    targetId: 
+    target: 10
+    bonusKind: 4
+    bonus: 0.5
+  - id: a_ember50
+    displayName: Sprite Whisperer
+    description: Catch 50 lucky embers
+    icon: {fileID: 21300000, guid: b2f6a7c67844c79449db6e1197b31e44, type: 3}
+    goal: 18
+    targetId: 
+    target: 50
+    bonusKind: 4
+    bonus: 1
   workerPrefab: {fileID: 1208270762283020123, guid: 25182fd6a6fc62348aa8bb3ada4eda28, type: 3}
   helperPrefab: {fileID: 5151690350410580974, guid: 083b0901ccd174747a41c075f0565afa, type: 3}
   customerPrefabA: {fileID: 6717537910521031009, guid: 1d08f49f91edf184283cde0f1e58c8bc, type: 3}
