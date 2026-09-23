@@ -76,6 +76,7 @@ namespace IdleBlacksmith.Core
         public GameObject customerPrefabC;
         public GameObject vendorPrefab;
         public GameObject mysticPrefab;
+        public GameObject stokerPrefab;
         public GameObject swordPrefab;
         public GameObject oreChunkPrefab;
 

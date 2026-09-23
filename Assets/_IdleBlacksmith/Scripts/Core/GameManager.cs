@@ -332,6 +332,16 @@ namespace IdleBlacksmith.Core
             mystic.patrolOffset = 0f;
             mystic.idleMin = 6f;
             mystic.idleMax = 12f;
+
+            // The stoker shovels at the Blast Furnace mouth once it stands.
+            var stokerGo = new GameObject("Stoker");
+            stokerGo.transform.position = new Vector3(-5.6f, 0f, 5.0f);
+            var stoker = stokerGo.AddComponent<AmbientHand>();
+            stoker.characterPrefab = config != null ? config.stokerPrefab : null;
+            stoker.requiresBuilding = BuildingId.Furnace;
+            stoker.patrolOffset = 0.9f;
+            stoker.idleMin = 2.5f;
+            stoker.idleMax = 5f;
         }
 
         // ------------------------------------------------------------ shop expansion

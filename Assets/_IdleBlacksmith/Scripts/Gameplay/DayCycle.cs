@@ -39,6 +39,9 @@ namespace IdleBlacksmith.Gameplay
         Camera cam;
         float phase;
 
+        /// <summary>0 in daylight, 1 at deep night — drives window/lamp glow scaling.</summary>
+        public static float Night { get; private set; }
+
         void Start()
         {
             sun = GetComponent<Light>();
@@ -67,6 +70,10 @@ namespace IdleBlacksmith.Gameplay
             }
             RenderSettings.ambientLight = Color.Lerp(a.ambient, b.ambient, u);
             if (cam != null) cam.backgroundColor = Color.Lerp(a.sky, b.sky, u);
+
+            float lum = RenderSettings.ambientLight.r * 0.3f + RenderSettings.ambientLight.g * 0.6f
+                        + RenderSettings.ambientLight.b * 0.1f;
+            Night = 1f - Mathf.InverseLerp(0.37f, 0.68f, lum);
         }
     }
 }

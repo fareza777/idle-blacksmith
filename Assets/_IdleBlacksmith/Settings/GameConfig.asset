@@ -1186,6 +1186,7 @@ MonoBehaviour:
   customerPrefabC: {fileID: 8669693862358168829, guid: 993883b5ad55dcc8c9c8123fff5fe638, type: 3}
   vendorPrefab: {fileID: 6053979202876858400, guid: 6d7d08a0f097d76048fda04221994604, type: 3}
   mysticPrefab: {fileID: 5109953914527540470, guid: d5dc71b6608fe3f9f9f8f78285b55380, type: 3}
+  stokerPrefab: {fileID: 847840825305347185, guid: 787be21057add4f4b9cc5137e944168c, type: 3}
   swordPrefab: {fileID: 1231381036963706882, guid: cffa8cc058209234ea17542312f4c5b7, type: 3}
   oreChunkPrefab: {fileID: 8549194295169169001, guid: a1d9016c2feadbd4ebfd9626a66d342b, type: 3}
   rarityGems:

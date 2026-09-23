@@ -19,6 +19,7 @@ namespace IdleBlacksmith.EditorTools
         public const string CustomerCPrefab = Paths.Prefabs + "/CustomerC.prefab";
         public const string VendorPrefab = Paths.Prefabs + "/Vendor.prefab";
         public const string MysticPrefab = Paths.Prefabs + "/Mystic.prefab";
+        public const string StokerPrefab = Paths.Prefabs + "/Stoker.prefab";
         public const string SwordPrefab = Paths.Prefabs + "/Sword.prefab";
         public const string OreChunkPrefab = Paths.Prefabs + "/OreChunk.prefab";
 
@@ -144,6 +145,7 @@ namespace IdleBlacksmith.EditorTools
             BuildCharacter("CustomerC", Palette.ShirtPurple, Palette.HairBlond, false, Hat.Feather, Palette.PlumDark);
             BuildCharacter("Vendor", Palette.ClothCream, Palette.HairBrown, true, Hat.Cap, Palette.Pants);
             BuildCharacter("Mystic", Palette.PlumDark, Palette.HairBlack, false, Hat.Hood, Palette.PlumDark);
+            BuildCharacter("Stoker", Palette.ShirtOrange, Palette.HairBlack, true, Hat.Headband, Palette.Coal);
         }
 
         enum Hat { Cap, Straw, Buns, Headband, Feather, Hood }
