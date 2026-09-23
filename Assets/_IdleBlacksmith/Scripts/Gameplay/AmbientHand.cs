@@ -34,8 +34,10 @@ namespace IdleBlacksmith.Gameplay
             if (characterPrefab != null)
             {
                 npc = Instantiate(characterPrefab, transform.position, transform.rotation).transform;
-                var cc = npc.GetComponent<CustomerController>();
-                if (cc != null) Destroy(cc);
+                // Strip every behaviour but the walker — customer/worker controllers would
+                // otherwise drag the villager off to the queue or the anvil.
+                foreach (var mb in npc.GetComponents<MonoBehaviour>())
+                    if (!(mb is SimpleWalker)) Destroy(mb);
                 walker = npc.GetComponent<SimpleWalker>();
                 model = npc.Find("Model");
                 shadow = npc.Find("Shadow");

@@ -1,3 +1,4 @@
+using IdleBlacksmith.Gameplay;
 using IdleBlacksmith.UI;
 using UnityEngine;
 
@@ -116,6 +117,7 @@ namespace IdleBlacksmith.Core
                 case "order": return s != null && s.ordersServed >= 1;
                 case "rush": return s != null && s.rushOrdersDone >= 1;
                 case "daily": return s != null && s.dailyClaims >= 2;
+                case "nightfall": return DayCycle.Night >= 0.6f;
                 case "rare": return s != null && s.bestRarity >= (int)Rarity.Epic;
                 case "legendary": return s != null && s.bestRarity >= (int)Rarity.Legendary;
                 case "talent": return gm.talents != null && gm.talents.TotalLevels >= 1;
@@ -270,6 +272,10 @@ namespace IdleBlacksmith.Core
             Seq("daily",
                 Line("Nyx", "nyx", "The Ember remembers every day you return to it. Faithfulness has a flavor, smith — it tastes like relics."),
                 Line("Bram Ironroot", "bram", "A forge feeds the hand that feeds it. Come back tomorrow; she'll keep the ember warm.")),
+
+            Seq("nightfall",
+                Line("Bram Ironroot", "bram", "Lamps lit, coals banked. The village goes quiet — but a forge never really sleeps."),
+                Line("Nyx", "nyx", "Watch the dark come in, keeper. Even the fireflies gather near a working hearth.")),
         };
     }
 }

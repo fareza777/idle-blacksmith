@@ -342,6 +342,11 @@ namespace IdleBlacksmith.Core
             stoker.patrolOffset = 0.9f;
             stoker.idleMin = 2.5f;
             stoker.idleMax = 5f;
+
+            // Fireflies over the village once dusk settles.
+            var fireflyGo = new GameObject("Fireflies");
+            fireflyGo.transform.position = new Vector3(0f, 0f, 1f);
+            fireflyGo.AddComponent<FireflyDrift>();
         }
 
         // ------------------------------------------------------------ shop expansion
