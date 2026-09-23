@@ -53,6 +53,8 @@ namespace IdleBlacksmith.UI
             if (group != null)
             {
                 group.alpha = 0f;
+                group.blocksRaycasts = true;
+                group.interactable = true;
                 Tween.Alpha(group, 1f, 0.35f, Ease.OutQuad);
             }
             if (card != null)
@@ -70,8 +72,12 @@ namespace IdleBlacksmith.UI
             IsOpen = false;
             AudioManager.Play("coin");
             if (group != null)
+            {
+                group.blocksRaycasts = false;
+                group.interactable = false;
                 Tween.Alpha(group, 0f, 0.28f, Ease.InQuad)
                     .OnComplete(() => gameObject.SetActive(false));
+            }
             else
                 gameObject.SetActive(false);
         }

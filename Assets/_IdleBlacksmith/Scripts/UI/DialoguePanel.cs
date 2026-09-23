@@ -79,6 +79,8 @@ namespace IdleBlacksmith.UI
             if (group != null)
             {
                 group.alpha = 0f;
+                group.blocksRaycasts = true;
+                group.interactable = true;
                 Tween.Alpha(group, 1f, 0.3f, Ease.OutQuad);
             }
             Vector2 p = card.anchoredPosition;
@@ -153,8 +155,12 @@ namespace IdleBlacksmith.UI
             Vector2 p = card.anchoredPosition;
             Tween.UIAnchoredPosition(card, new Vector2(p.x, closedY), 0.3f, Ease.InBack);
             if (group != null)
+            {
+                group.blocksRaycasts = false;
+                group.interactable = false;
                 Tween.Alpha(group, 0f, 0.3f, Ease.InQuad)
                     .OnComplete(() => gameObject.SetActive(false));
+            }
             else
                 gameObject.SetActive(false);
             onComplete?.Invoke();

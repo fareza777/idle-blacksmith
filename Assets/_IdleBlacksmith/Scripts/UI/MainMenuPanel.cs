@@ -103,6 +103,34 @@ namespace IdleBlacksmith.UI
             if (creditsRoot != null) creditsRoot.SetActive(false);
             if (confirmRoot != null) confirmRoot.SetActive(false);
 
+            RefreshSaveState();
+
+            if (group != null)
+            {
+                group.alpha = 0f;
+                group.blocksRaycasts = true;
+                group.interactable = true;
+                Tween.Alpha(group, 1f, 0.4f, Ease.OutQuad);
+            }
+            if (titleBlock != null)
+            {
+                Vector2 p = titleBlock.anchoredPosition;
+                titleBlock.anchoredPosition = p + Vector2.down * 30f;
+                Tween.UIAnchoredPosition(titleBlock, p, 0.55f, Ease.OutCubic);
+            }
+            if (emblem != null)
+            {
+                emblem.transform.localScale = Vector3.one * 0.7f;
+                Tween.Scale(emblem.transform, Vector3.one, 0.6f, Ease.OutBack);
+            }
+        }
+
+        /// <summary>
+        /// CONTINUE visibility, the NEW GAME/START label and the progress line all depend
+        /// on the save — re-evaluated on Show and whenever the loaded save state flips.
+        /// </summary>
+        void RefreshSaveState()
+        {
             GameManager gm = GameManager.Instance;
             bool hasSave = HasSave;
             if (continueButton != null) continueButton.gameObject.SetActive(hasSave);
@@ -117,22 +145,19 @@ namespace IdleBlacksmith.UI
                     : $"{GoldCounter.Format(gm.economy.Gold)} gold  ·  {s.swordsForged} swords forged"
                       + (gm.prestige != null && gm.prestige.Count > 0 ? $"  ·  rekindled {gm.prestige.Count}×" : "");
             }
+        }
 
-            if (group != null)
+        bool lastHasSave;
+
+        void Update()
+        {
+            // The save can finish loading while the menu is already up — refresh the
+            // save-dependent labels the moment Data flips, and also after the wipe
+            // confirm closes (the labels were set before the confirm knew the save).
+            if (IsOpen && lastHasSave != HasSave)
             {
-                group.alpha = 0f;
-                Tween.Alpha(group, 1f, 0.4f, Ease.OutQuad);
-            }
-            if (titleBlock != null)
-            {
-                Vector2 p = titleBlock.anchoredPosition;
-                titleBlock.anchoredPosition = p + Vector2.down * 30f;
-                Tween.UIAnchoredPosition(titleBlock, p, 0.55f, Ease.OutCubic);
-            }
-            if (emblem != null)
-            {
-                emblem.transform.localScale = Vector3.one * 0.7f;
-                Tween.Scale(emblem.transform, Vector3.one, 0.6f, Ease.OutBack);
+                lastHasSave = HasSave;
+                RefreshSaveState();
             }
         }
 
@@ -160,12 +185,16 @@ namespace IdleBlacksmith.UI
             AudioManager.Play("unlock");
             IsOpen = false;
             if (group != null)
+            {
+                group.blocksRaycasts = false;
+                group.interactable = false;
                 Tween.Alpha(group, 0f, 0.35f, Ease.InQuad)
                     .OnComplete(() =>
                     {
                         gameObject.SetActive(false);
                         onPlay?.Invoke(newGame);
                     });
+            }
             else
             {
                 gameObject.SetActive(false);

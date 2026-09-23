@@ -99,6 +99,8 @@ namespace IdleBlacksmith.UI
             if (group != null)
             {
                 group.alpha = 0f;
+                group.blocksRaycasts = true;
+                group.interactable = true;
                 Tween.Alpha(group, 1f, 0.6f, Ease.OutQuad);
             }
             SetBarsInstant(0f);
@@ -225,12 +227,18 @@ namespace IdleBlacksmith.UI
             TweenBars(0f);
 
             if (group != null)
+            {
+                // Raycasts die before the fade starts — a killed tween must never
+                // leave an invisible full-screen input eater behind.
+                group.blocksRaycasts = false;
+                group.interactable = false;
                 Tween.Alpha(group, 0f, 0.7f, Ease.InQuad)
                     .OnComplete(() =>
                     {
                         gameObject.SetActive(false);
                         onDone?.Invoke();
                     });
+            }
             else
             {
                 gameObject.SetActive(false);

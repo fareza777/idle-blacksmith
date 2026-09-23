@@ -24,7 +24,12 @@ namespace IdleBlacksmith.UI
             onDone = done;
             shownAt = Time.unscaledTime;
             gameObject.SetActive(true);
-            if (group != null) group.alpha = 1f;
+            if (group != null)
+            {
+                group.alpha = 1f;
+                group.blocksRaycasts = true;
+                group.interactable = true;
+            }
 
             if (emblem != null)
             {
@@ -58,12 +63,16 @@ namespace IdleBlacksmith.UI
             if (closing) return;
             closing = true;
             if (group != null)
+            {
+                group.blocksRaycasts = false;
+                group.interactable = false;
                 Tween.Alpha(group, 0f, 0.55f, Ease.InQuad)
                     .OnComplete(() =>
                     {
                         gameObject.SetActive(false);
                         onDone?.Invoke();
                     });
+            }
             else
             {
                 gameObject.SetActive(false);
