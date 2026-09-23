@@ -119,6 +119,20 @@ namespace IdleBlacksmith.EditorTools
             var porter = porterGo.AddComponent<PorterController>();
             porter.shopPoint = wpDoor;
 
+            // The mine hand: hauls ore chunks mine -> ore pile once the mine stands.
+            var minerGo = Spawn(ModelFactory.CustomerAPrefab, V(-6.0f, 0, 0.1f), 160f);
+            Object.DestroyImmediate(minerGo.GetComponent<CustomerController>());
+            var miner = minerGo.AddComponent<MinerController>();
+            miner.pile = ore.transform;
+
+            // The delver: dives into the gate when an expedition launches, returns with loot.
+            var advGo = Spawn(ModelFactory.CustomerAPrefab, V(-3.4f, 0, -4.0f), 20f);
+            var advCc = advGo.GetComponent<CustomerController>();
+            if (advCc != null && advCc.carriedSwordProp != null)
+                advCc.carriedSwordProp.SetActive(true);   // armed for the delve
+            Object.DestroyImmediate(advCc);
+            advGo.AddComponent<AdventurerController>();
+
             // ------------------------------------------------ systems
             var gameGo = new GameObject("Game");
             var economy = gameGo.AddComponent<EconomyManager>();
