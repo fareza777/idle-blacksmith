@@ -835,11 +835,6 @@ namespace IdleBlacksmith.EditorTools
                 new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(1f, 0.15f), new GradientAlphaKey(0.85f, 0.6f), new GradientAlphaKey(0f, 1f) });
             col.color = gradient;
 
-            ParticleSystem.VelocityOverLifetimeModule vol = ps.velocityOverLifetime;
-            vol.enabled = true;
-            vol.x = new ParticleSystem.MinMaxCurve(-0.05f, 0.05f);
-            vol.y = new ParticleSystem.MinMaxCurve(0f, 0f);
-            vol.z = new ParticleSystem.MinMaxCurve(-0.05f, 0.05f);
 
             var psr = go.GetComponent<ParticleSystemRenderer>();
             psr.sharedMaterial = sparkMat;
@@ -889,9 +884,6 @@ namespace IdleBlacksmith.EditorTools
             sol.size = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(
                 new Keyframe(0f, 0.5f), new Keyframe(0.4f, 0.95f), new Keyframe(1f, 1.6f)));
 
-            ParticleSystem.RotationOverLifetimeModule rol = ps.rotationOverLifetime;
-            rol.enabled = true;
-            rol.z = new ParticleSystem.MinMaxCurve(-0.35f, 0.35f);
 
             var psr = go.GetComponent<ParticleSystemRenderer>();
             psr.sharedMaterial = smokeMat;
