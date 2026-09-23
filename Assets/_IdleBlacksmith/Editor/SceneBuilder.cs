@@ -119,24 +119,6 @@ namespace IdleBlacksmith.EditorTools
             var porter = porterGo.AddComponent<PorterController>();
             porter.shopPoint = wpDoor;
 
-            // The mine hand: hauls ore chunks mine -> ore pile once the mine stands.
-            // Plain marker GOs — the villager prefab is instantiated at runtime, which keeps
-            // these spawns out of the serialized prefab-instance machinery entirely.
-            var minerGo = new GameObject("MinerHand");
-            minerGo.transform.position = V(-6.0f, 0, 0.1f);
-            minerGo.transform.rotation = Quaternion.Euler(0f, 160f, 0f);
-            var miner = minerGo.AddComponent<MinerController>();
-            miner.characterPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CustomerAPrefab);
-            miner.pile = ore.transform;
-
-            // The delver: dives into the gate when an expedition launches, returns with loot.
-            var advGo = new GameObject("Delver");
-            advGo.transform.position = V(-3.4f, 0, -4.0f);
-            advGo.transform.rotation = Quaternion.Euler(0f, 20f, 0f);
-            var adv = advGo.AddComponent<AdventurerController>();
-            adv.characterPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CustomerBPrefab);
-            adv.armSword = true;
-
             // ------------------------------------------------ systems
             var gameGo = new GameObject("Game");
             var economy = gameGo.AddComponent<EconomyManager>();

@@ -250,6 +250,7 @@ namespace IdleBlacksmith.Core
             if (apprenticeAnvilRoot != null && HelperUnlocked)
                 apprenticeAnvilRoot.SetActive(true);
             if (HelperUnlocked) SpawnHelper(false);
+            SpawnAmbientNpcs();
             upgrades.OnUpgradeChanged += HandleUpgradeChanged;
             if (buildings != null) buildings.OnBuildingChanged += (id, _) => HandleBuildingChanged(id);
             Save();
@@ -293,6 +294,26 @@ namespace IdleBlacksmith.Core
                 w.Init(orePile, helperAnvil != null ? helperAnvil : anvil, rack, 1);
                 if (withEffect) w.PlaySpawnEffect();
             }
+        }
+
+        /// <summary>
+        /// Ambient villager hands spawned at runtime. Their controller types must never
+        /// appear on serialized scene objects — a scene-level MonoBehaviour of a script
+        /// compiled this way corrupts level0 on device (editor tolerates it).
+        /// </summary>
+        void SpawnAmbientNpcs()
+        {
+            var minerGo = new GameObject("MinerHand");
+            minerGo.transform.position = new Vector3(-6.0f, 0f, 0.1f);
+            var miner = minerGo.AddComponent<MinerController>();
+            miner.characterPrefab = config != null ? config.customerPrefabA : null;
+            miner.pile = orePile != null ? orePile.transform : null;
+
+            var delverGo = new GameObject("Delver");
+            delverGo.transform.position = new Vector3(-3.4f, 0f, -4.0f);
+            var adv = delverGo.AddComponent<AdventurerController>();
+            adv.characterPrefab = config != null ? config.customerPrefabB : null;
+            adv.armSword = true;
         }
 
         // ------------------------------------------------------------ shop expansion
