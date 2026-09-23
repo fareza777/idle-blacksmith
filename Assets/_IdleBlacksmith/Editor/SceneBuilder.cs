@@ -472,6 +472,8 @@ namespace IdleBlacksmith.EditorTools
                 QuestGoal.UpgradeBuilding, 1, gold: 6000, targetId: BuildingId.Furnace),
             Q("q_store", "Lock the Goods", "Raise a Storehouse — what the forge earns while you sleep should still be there when you wake.",
                 QuestGoal.UpgradeBuilding, 1, gold: 2500, targetId: BuildingId.Storehouse),
+            Q("q_cat5", "Nine Lives", "The forge cat keeps the shop's luck — scratch her until she purrs.",
+                QuestGoal.PetCat, 5, gold: 400),
             Q("q_smithy4", "Mithril Works", "Grow the Smithy to level 4 and unlock mithril.",
                 QuestGoal.UpgradeBuilding, 4, gold: 8000, targetId: BuildingId.Smithy),
             Q("q_rare", "Something Rare", "Forge a Rare sword. Luck, the Sanctum and the Lucky Anvil all help.",
@@ -532,6 +534,7 @@ namespace IdleBlacksmith.EditorTools
             A("a_daily30", "Ember Devout", "Claim the daily ember 30 times", QuestGoal.ClaimDailies, 30, AchBonus.Gold, 0.05f, "ember"),
             A("a_furnace5", "Volcanic Heart", "Raise the Blast Furnace to level 5", QuestGoal.UpgradeBuilding, 5, AchBonus.Craft, 0.05f, "furnace", BuildingId.Furnace),
             A("a_store3", "Hoard Master", "Raise the Storehouse to level 3", QuestGoal.UpgradeBuilding, 3, AchBonus.Offline, 0.05f, "chest", BuildingId.Storehouse),
+            A("a_cat10", "Cat Person", "Pet the forge cat 10 times", QuestGoal.PetCat, 10, AchBonus.Luck, 0.5f, "cat"),
             A("a_tools", "Tool Time", "Use the bellows, grindstone and quench trough 25 times", QuestGoal.UseTools, 25, AchBonus.Craft, 0.03f, "craft"),
             A("a_tools100", "Hand and Hammer", "Use the workbench tools 100 times", QuestGoal.UseTools, 100, AchBonus.Luck, 0.5f, "gem"),
         };

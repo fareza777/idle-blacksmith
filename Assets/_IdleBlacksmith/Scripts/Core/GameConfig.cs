@@ -292,6 +292,7 @@ namespace IdleBlacksmith.Core
         RushOrders,
         ClaimDailies,
         UseTools,
+        PetCat,
     }
 
     [System.Serializable]

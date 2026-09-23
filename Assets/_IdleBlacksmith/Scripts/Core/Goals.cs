@@ -34,6 +34,7 @@ namespace IdleBlacksmith.Core
                 case QuestGoal.RushOrders: return st != null ? st.rushOrdersDone : 0;
                 case QuestGoal.ClaimDailies: return st != null ? st.dailyClaims : 0;
                 case QuestGoal.UseTools: return st != null ? st.toolUses : 0;
+                case QuestGoal.PetCat: return st != null ? st.catPets : 0;
             }
             return 0;
         }
@@ -60,6 +61,7 @@ namespace IdleBlacksmith.Core
                 case QuestGoal.RushOrders: return $"Complete {target} orders during Rush Hour";
                 case QuestGoal.ClaimDailies: return $"Claim {target} daily embers";
                 case QuestGoal.UseTools: return $"Use workbench tools {target} times";
+                case QuestGoal.PetCat: return $"Pet the forge cat {target} times";
             }
             return "Progress";
         }

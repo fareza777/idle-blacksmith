@@ -782,6 +782,16 @@ MonoBehaviour:
     oreReward: 0
     relicReward: 0
     shardReward: 0
+  - id: q_cat5
+    title: Nine Lives
+    body: "The forge cat keeps the shop's luck \u2014 scratch her until she purrs."
+    goal: 17
+    targetId: 
+    target: 5
+    goldReward: 400
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
   - id: q_smithy4
     title: Mithril Works
     body: Grow the Smithy to level 4 and unlock mithril.
@@ -1142,6 +1152,15 @@ MonoBehaviour:
     target: 3
     bonusKind: 5
     bonus: 0.05
+  - id: a_cat10
+    displayName: Cat Person
+    description: Pet the forge cat 10 times
+    icon: {fileID: 21300000, guid: 57e8f63f77f291b16ad2871fe225b832, type: 3}
+    goal: 17
+    targetId: 
+    target: 10
+    bonusKind: 4
+    bonus: 0.5
   - id: a_tools
     displayName: Tool Time
     description: Use the bellows, grindstone and quench trough 25 times
