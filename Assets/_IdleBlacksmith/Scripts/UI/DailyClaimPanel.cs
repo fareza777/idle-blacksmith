@@ -24,6 +24,7 @@ namespace IdleBlacksmith.UI
 
         DailyRewardManager mgr;
         float checkAt;
+        bool snoozed;
 
         public void Init(DailyRewardManager manager)
         {
@@ -31,12 +32,12 @@ namespace IdleBlacksmith.UI
             checkAt = Time.unscaledTime + 4f;
             if (group != null) { group.alpha = 0f; group.blocksRaycasts = false; group.interactable = false; }
             if (claimButton != null) claimButton.onClick.AddListener(Claim);
-            if (laterButton != null) laterButton.onClick.AddListener(Close);
+            if (laterButton != null) laterButton.onClick.AddListener(Later);
         }
 
         void Update()
         {
-            if (IsOpen || mgr == null || Time.unscaledTime < checkAt) return;
+            if (IsOpen || snoozed || mgr == null || Time.unscaledTime < checkAt) return;
             checkAt = Time.unscaledTime + 20f; // missed this window: re-check quietly
             TryOpen();
         }
@@ -82,6 +83,13 @@ namespace IdleBlacksmith.UI
                 SettingsPanel.Buzz();
                 ui?.FlashScreen(new Color(1f, 0.85f, 0.45f), 0.35f, 0.8f);
             }
+            Close();
+        }
+
+        /// <summary>LATER means "not now" — stop re-popping for the rest of this session.</summary>
+        void Later()
+        {
+            snoozed = true;
             Close();
         }
 
