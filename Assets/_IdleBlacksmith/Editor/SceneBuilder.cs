@@ -307,6 +307,7 @@ namespace IdleBlacksmith.EditorTools
             sun.shadows = LightShadows.Soft;
             sun.shadowStrength = 0.82f;
             sunGo.transform.rotation = Quaternion.LookRotation(new Vector3(0.45f, -1f, -0.35f));
+            sunGo.AddComponent<Gameplay.DayCycle>();
 
             RenderSettings.ambientMode = AmbientMode.Flat;
             RenderSettings.ambientLight = new Color(0.72f, 0.65f, 0.55f);
