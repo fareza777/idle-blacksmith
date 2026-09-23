@@ -347,6 +347,10 @@ namespace IdleBlacksmith.Core
             var fireflyGo = new GameObject("Fireflies");
             fireflyGo.transform.position = new Vector3(0f, 0f, 1f);
             fireflyGo.AddComponent<FireflyDrift>();
+
+            // Rune shards orbit the Sanctum — one per rune level owned.
+            var orbitGo = new GameObject("RuneOrbit");
+            orbitGo.AddComponent<RuneOrbit>();
         }
 
         // ------------------------------------------------------------ shop expansion
