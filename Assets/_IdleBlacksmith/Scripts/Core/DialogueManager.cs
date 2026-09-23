@@ -113,6 +113,9 @@ namespace IdleBlacksmith.Core
                 case "rush": return s != null && s.rushOrdersDone >= 1;
                 case "daily": return s != null && s.dailyClaims >= 2;
                 case "rare": return s != null && s.bestRarity >= (int)Rarity.Epic;
+                case "legendary": return s != null && s.bestRarity >= (int)Rarity.Legendary;
+                case "talent": return gm.talents != null && gm.talents.TotalLevels >= 1;
+                case "hundred": return s != null && s.swordsForged >= 100;
                 case "smithy5": return gm.buildings.GetLevel(BuildingId.Smithy) >= 5;
                 case "rekindle": return gm.prestige != null && gm.prestige.Count >= 1;
                 default: return false;
@@ -191,6 +194,19 @@ namespace IdleBlacksmith.Core
             Seq("smithy5",
                 Line("Bram Ironroot", "bram", "Five levels. Grandfather's forge was never half this size."),
                 Line("Sable", "sable", "Half the kingdom talks about the forge on the hill now. Keep them talking.")),
+
+            Seq("legendary",
+                Line("Nyx", "nyx", "Legendary. Do you understand what just left your anvil? The Ember kissed that steel."),
+                Line("Bram Ironroot", "bram", "I've swung a hammer thirty years and never held one like it. Grandfather would weep."),
+                Line("Sable", "sable", "Legends sell themselves, darling. Word will reach the capital before the blade cools.")),
+
+            Seq("talent",
+                Line("Nyx", "nyx", "First rune learned — the Ember is lending you its memory now, not just its fire."),
+                Line("Sable", "sable", "Skills, smith! A smith with talents earns while a smith without them merely sweats.")),
+
+            Seq("hundred",
+                Line("Bram Ironroot", "bram", "A hundred blades off this anvil. Count them — a hundred stories carried out that door."),
+                Line("Petra Flint", "petra", "And every one started as a stone I pulled from the hill. We make a fine line, you and I.")),
 
             Seq("rekindle",
                 Line("Nyx", "nyx", "You fed a whole legend to the Ember and it gave you shards. Beautiful."),

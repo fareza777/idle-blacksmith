@@ -111,6 +111,7 @@ namespace IdleBlacksmith.Gameplay
                 IsCrafting = false;
                 LastForged = RollForged();
                 if (progressBar != null) progressBar.CompleteFlash();
+                CelebrateRarity(LastForged.rarity);
                 onComplete?.Invoke();
                 onComplete = null;
             }
@@ -122,6 +123,28 @@ namespace IdleBlacksmith.Gameplay
             string recipeId = pendingRecipe != null ? pendingRecipe.id : RecipeId.Copper;
             Rarity rarity = gm != null && gm.recipes != null ? gm.recipes.RollRarity() : Rarity.Common;
             return new SwordItem(recipeId, rarity);
+        }
+
+        /// <summary>
+        /// Rare-and-up rolls announce themselves: a rarity-coloured banner floats off the anvil,
+        /// Epic and Legendary get their own fanfares, and Legendary briefly flashes the screen.
+        /// Without this the only rarity tell was the gem tint on the finished blade.
+        /// </summary>
+        void CelebrateRarity(Rarity rarity)
+        {
+            if (rarity < Rarity.Rare) return;
+            Vector3 where = craftPoint != null ? craftPoint.position : transform.position + Vector3.up;
+            bool legendary = rarity >= Rarity.Legendary;
+            UI.UIManager.Instance?.SpawnFloatingText(
+                where + Vector3.up * 0.7f,
+                RarityInfo.NameOf(rarity).ToUpperInvariant() + "!",
+                RarityInfo.TextColor(rarity));
+            AudioManager.Play(legendary ? "fanfare" : "levelup", 0.05f, legendary ? 0.9f : 0.55f);
+            if (legendary)
+            {
+                UI.SettingsPanel.Buzz();
+                UI.UIManager.Instance?.FlashScreen(new Color(1f, 0.75f, 0.3f), 0.32f, 0.7f);
+            }
         }
 
         /// <summary>Called by the worker's hammer animation event on each strike.</summary>
