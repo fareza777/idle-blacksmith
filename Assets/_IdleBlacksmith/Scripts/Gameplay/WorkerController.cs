@@ -21,6 +21,8 @@ namespace IdleBlacksmith.Gameplay
         [Header("Rig")]
         public Transform model;
         public Transform handAnchor;
+        [Tooltip("The smith's hammer prop — hidden while ore or a finished sword occupies the same hand.")]
+        public GameObject hammerProp;
 
         Animator anim;
         SimpleWalker walker;
@@ -66,6 +68,14 @@ namespace IdleBlacksmith.Gameplay
             if (!initialized && GameManager.Instance != null)
                 Init(GameManager.Instance.orePile, GameManager.Instance.anvil, GameManager.Instance.rack, 0);
             StartCoroutine(WorkLoop());
+        }
+
+        void Update()
+        {
+            // One hand, one tool: the hammer only shows while the hand isn't holding ore or a blade.
+            if (hammerProp == null) return;
+            bool show = carriedOre == null && carriedSword == null;
+            if (hammerProp.activeSelf != show) hammerProp.SetActive(show);
         }
 
         public void PlaySpawnEffect()

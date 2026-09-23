@@ -117,6 +117,17 @@ namespace IdleBlacksmith.EditorTools
                 Part("Rock", root.transform, mesh, PMC, Vector3.zero);
                 SavePrefab(root, OreChunkPrefab);
             }
+            // Hand hammer: grip at the anchor, head forward along +Z (same convention as
+            // the carried sword prop).
+            {
+                var b = new MeshBuilder();
+                b.Box(new Vector3(0, 0, 0.09f), new Vector3(0.034f, 0.034f, 0.19f), Palette.Grip);
+                b.Box(new Vector3(0, 0.005f, 0.20f), new Vector3(0.075f, 0.075f, 0.12f), Palette.MetalLight);
+                b.Box(new Vector3(0, 0.005f, 0.265f), new Vector3(0.052f, 0.052f, 0.02f), Palette.MetalDark);
+                b.Box(new Vector3(0, 0, -0.015f), new Vector3(0.05f, 0.05f, 0.035f), Palette.MetalDark);
+                carriedHammerMesh = AssetReplace.SaveMesh(
+                    b.Build("HammerMesh"), "CarriedHammer", $"{Paths.Models}/CarriedHammer.asset");
+            }
         }
 
         // ------------------------------------------------------------ characters
@@ -229,11 +240,19 @@ namespace IdleBlacksmith.EditorTools
                 var wc = root.AddComponent<WorkerController>();
                 wc.model = model.transform;
                 wc.handAnchor = handAnchor.transform;
+                if (carriedHammerMesh != null)
+                {
+                    GameObject hammer = Part("CarriedHammer", handAnchor.transform, carriedHammerMesh, PM,
+                        new Vector3(0, 0.02f, 0.04f));
+                    hammer.transform.localRotation = Quaternion.Euler(32f, 0f, 0f);
+                    wc.hammerProp = hammer;
+                }
                 SavePrefab(root, Paths.Prefabs + "/" + name + ".prefab");
             }
         }
 
         static Mesh carriedSwordMesh;
+        static Mesh carriedHammerMesh;
 
         static void SavePrefab(GameObject root, string path)
             => AssetReplace.SavePrefab(root, path);

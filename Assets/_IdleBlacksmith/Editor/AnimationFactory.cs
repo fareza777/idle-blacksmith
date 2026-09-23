@@ -67,27 +67,41 @@ namespace IdleBlacksmith.EditorTools
             return Save(c);
         }
 
+        /// <summary>
+        /// Cycle 0.55s. Legs swing ±26°; each leg's localScale.y dips mid-swing so the
+        /// low-poly leg reads as bending at the knee while it moves through bottom-dead-centre.
+        /// The body dips slightly while the legs are split and rises at the passing pose,
+        /// with a constant small forward lean. Authored foot speed ≈ 1.1 u/s — the controllers
+        /// retime the clip via the WalkSpeed parameter so feet track ground velocity.
+        /// </summary>
         static AnimationClip BuildWalk()
         {
             var c = NewClip("Char_Walk");
-            Curve(c, LegL, "localEulerAngles.x", 0f, 28f, 0.275f, -28f, 0.55f, 28f);
-            Curve(c, LegR, "localEulerAngles.x", 0f, -28f, 0.275f, 28f, 0.55f, -28f);
-            Curve(c, ArmL, "localEulerAngles.x", 0f, -22f, 0.275f, 22f, 0.55f, -22f);
-            Curve(c, ArmR, "localEulerAngles.x", 0f, 22f, 0.275f, -22f, 0.55f, 22f);
-            Curve(c, Body, "localPosition.y", 0f, 0.34f, 0.1375f, 0.375f, 0.275f, 0.34f, 0.4125f, 0.375f, 0.55f, 0.34f);
-            Curve(c, Body, "localEulerAngles.z", 0f, 2.5f, 0.275f, -2.5f, 0.55f, 2.5f);
+            Curve(c, LegL, "localEulerAngles.x", 0f, 26f, 0.275f, -26f, 0.55f, 26f);
+            Curve(c, LegR, "localEulerAngles.x", 0f, -26f, 0.275f, 26f, 0.55f, -26f);
+            Curve(c, LegL, "localScale.y", 0f, 1f, 0.4125f, 0.86f, 0.55f, 1f);
+            Curve(c, LegR, "localScale.y", 0f, 1f, 0.1375f, 0.86f, 0.275f, 1f);
+            Curve(c, ArmL, "localEulerAngles.x", 0f, -24f, 0.275f, 24f, 0.55f, -24f);
+            Curve(c, ArmR, "localEulerAngles.x", 0f, 24f, 0.275f, -24f, 0.55f, 24f);
+            Curve(c, Body, "localPosition.y", 0f, 0.335f, 0.1375f, 0.362f, 0.275f, 0.335f, 0.4125f, 0.362f, 0.55f, 0.335f);
+            Curve(c, Body, "localEulerAngles.x", 0f, 3f, 0.55f, 3f);
+            Curve(c, Body, "localEulerAngles.z", 0f, 2f, 0.275f, -2f, 0.55f, 2f);
+            Curve(c, Head, "localEulerAngles.z", 0f, -1.5f, 0.275f, 1.5f, 0.55f, -1.5f);
             return Save(c);
         }
 
         static AnimationClip BuildCarry()
         {
             var c = NewClip("Char_Carry");
-            Curve(c, LegL, "localEulerAngles.x", 0f, 28f, 0.275f, -28f, 0.55f, 28f);
-            Curve(c, LegR, "localEulerAngles.x", 0f, -28f, 0.275f, 28f, 0.55f, -28f);
+            Curve(c, LegL, "localEulerAngles.x", 0f, 24f, 0.275f, -24f, 0.55f, 24f);
+            Curve(c, LegR, "localEulerAngles.x", 0f, -24f, 0.275f, 24f, 0.55f, -24f);
+            Curve(c, LegL, "localScale.y", 0f, 1f, 0.4125f, 0.87f, 0.55f, 1f);
+            Curve(c, LegR, "localScale.y", 0f, 1f, 0.1375f, 0.87f, 0.275f, 1f);
             Curve(c, ArmL, "localEulerAngles.x", 0f, -52f, 0.275f, -48f, 0.55f, -52f);
             Curve(c, ArmR, "localEulerAngles.x", 0f, -52f, 0.275f, -48f, 0.55f, -52f);
-            Curve(c, Body, "localPosition.y", 0f, 0.34f, 0.1375f, 0.37f, 0.275f, 0.34f, 0.4125f, 0.37f, 0.55f, 0.34f);
-            Curve(c, Body, "localEulerAngles.x", 0f, 4f, 0.55f, 4f);
+            Curve(c, Body, "localPosition.y", 0f, 0.335f, 0.1375f, 0.355f, 0.275f, 0.335f, 0.4125f, 0.355f, 0.55f, 0.335f);
+            Curve(c, Body, "localEulerAngles.x", 0f, 5f, 0.55f, 5f);
+            Curve(c, Body, "localEulerAngles.z", 0f, 1.5f, 0.275f, -1.5f, 0.55f, 1.5f);
             return Save(c);
         }
 
@@ -125,6 +139,7 @@ namespace IdleBlacksmith.EditorTools
             string path = Paths.Animations + "/Worker.controller";
             var c = AnimatorController.CreateAnimatorControllerAtPath(AssetReplace.ScratchPath(Paths.Animations, "WorkerController"));
             c.AddParameter("Speed", AnimatorControllerParameterType.Float);
+            c.AddParameter("WalkSpeed", AnimatorControllerParameterType.Float);
             c.AddParameter("Carry", AnimatorControllerParameterType.Bool);
             c.AddParameter("Hammer", AnimatorControllerParameterType.Bool);
 
@@ -137,6 +152,11 @@ namespace IdleBlacksmith.EditorTools
             sWalk.motion = walk;
             sCarry.motion = carry;
             sHammer.motion = hammer;
+            // Retime walk/carry by actual ground speed — feet plant instead of sliding.
+            sWalk.speedParameter = "WalkSpeed";
+            sWalk.speedParameterActive = true;
+            sCarry.speedParameter = "WalkSpeed";
+            sCarry.speedParameterActive = true;
             sm.defaultState = sIdle;
 
             T(sIdle, sWalk, 0.12f, (AnimatorConditionMode.Greater, 0.1f, "Speed"), (AnimatorConditionMode.IfNot, 0, "Carry"));
@@ -161,11 +181,14 @@ namespace IdleBlacksmith.EditorTools
             string path = Paths.Animations + "/Customer.controller";
             var c = AnimatorController.CreateAnimatorControllerAtPath(AssetReplace.ScratchPath(Paths.Animations, "CustomerController"));
             c.AddParameter("Speed", AnimatorControllerParameterType.Float);
+            c.AddParameter("WalkSpeed", AnimatorControllerParameterType.Float);
             AnimatorStateMachine sm = c.layers[0].stateMachine;
             AnimatorState sIdle = sm.AddState("Idle");
             AnimatorState sWalk = sm.AddState("Walk");
             sIdle.motion = idle;
             sWalk.motion = walk;
+            sWalk.speedParameter = "WalkSpeed";
+            sWalk.speedParameterActive = true;
             sm.defaultState = sIdle;
             T(sIdle, sWalk, 0.12f, (AnimatorConditionMode.Greater, 0.1f, "Speed"));
             T(sWalk, sIdle, 0.12f, (AnimatorConditionMode.Less, 0.1f, "Speed"));

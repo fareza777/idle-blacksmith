@@ -156,6 +156,12 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
+  - m_Name: WalkSpeed
+    m_Type: 1
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
   - m_Name: Carry
     m_Type: 4
     m_DefaultFloat: 0
@@ -171,7 +177,7 @@ AnimatorController:
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer
-    m_StateMachine: {fileID: -4469377245472615157, guid: ebca3337c0decb6d89b004d90cb92ec7, type: 2}
+    m_StateMachine: {fileID: 6890372554880016961, guid: 8d7b90c9515ca6897b4844ec34489cec, type: 2}
     m_Mask: {fileID: 0}
     m_Motions: []
     m_Behaviours: []

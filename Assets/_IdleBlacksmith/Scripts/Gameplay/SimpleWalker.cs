@@ -12,6 +12,10 @@ namespace IdleBlacksmith.Gameplay
     public class SimpleWalker : MonoBehaviour
     {
         static readonly int SpeedHash = Animator.StringToHash("Speed");
+        static readonly int WalkSpeedHash = Animator.StringToHash("WalkSpeed");
+
+        /// <summary>Ground speed the walk clip was authored for — cycle retimed to actual velocity.</summary>
+        const float RefWalkSpeed = 1.1f;
 
         public float turnSpeed = 12f;
 
@@ -52,10 +56,12 @@ namespace IdleBlacksmith.Gameplay
                     transform.rotation = Quaternion.Slerp(transform.rotation, look, turnSpeed * Time.deltaTime);
                 }
                 SetSpeedNorm(speed > 0.001f ? Mathf.Clamp01(effective / speed) : 0f);
+                if (anim != null) anim.SetFloat(WalkSpeedHash, effective / RefWalkSpeed);
                 yield return null;
             }
             transform.position = target;
             SetSpeedNorm(0f);
+            if (anim != null) anim.SetFloat(WalkSpeedHash, 0f);
         }
 
         public void FaceTowards(Vector3 worldPos, float duration = 0.18f)
