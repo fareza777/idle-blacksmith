@@ -45,7 +45,7 @@ namespace IdleBlacksmith.Gameplay
             crate = BuildCrate();
             crate.SetActive(false);
 
-            if (model != null) model.gameObject.SetActive(false);
+            SetVisual(false);
             StartCoroutine(RouteLoop());
         }
 
@@ -56,7 +56,7 @@ namespace IdleBlacksmith.Gameplay
                          && gm.buildings.GetLevel(BuildingId.Storehouse) >= 1;
             if (built == active) return;
             active = built;
-            if (model != null) model.gameObject.SetActive(built);
+            SetVisual(built);
         }
 
         IEnumerator RouteLoop()
@@ -83,6 +83,13 @@ namespace IdleBlacksmith.Gameplay
                 DropCrate();
                 yield return new WaitForSeconds(Random.Range(4f, 8f));
             }
+        }
+
+        void SetVisual(bool on)
+        {
+            if (model != null) model.gameObject.SetActive(on);
+            var shadow = transform.Find("Shadow");
+            if (shadow != null) shadow.gameObject.SetActive(on);
         }
 
         Vector3 Jitter(float r)
