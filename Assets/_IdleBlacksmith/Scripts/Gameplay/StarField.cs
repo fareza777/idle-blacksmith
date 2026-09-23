@@ -1,3 +1,4 @@
+using IdleBlacksmith.UI;
 using UnityEngine;
 
 namespace IdleBlacksmith.Gameplay
@@ -53,7 +54,7 @@ namespace IdleBlacksmith.Gameplay
         void Update()
         {
             // Stars need true dark before they earn their keep.
-            float vis = Mathf.InverseLerp(0.55f, 0.95f, DayCycle.Night);
+            float vis = SettingsPanel.ReduceFX ? 0f : Mathf.InverseLerp(0.55f, 0.95f, DayCycle.Night);
             if (vis <= 0.001f)
             {
                 if (starT != null && starT[0] != null && starT[0].localScale.x != 0f)

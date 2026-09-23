@@ -1,3 +1,4 @@
+using IdleBlacksmith.UI;
 using UnityEngine;
 
 namespace IdleBlacksmith.Gameplay
@@ -49,7 +50,7 @@ namespace IdleBlacksmith.Gameplay
         {
             // Night occupies the last quarter of the loop; map 0.75..1 onto a rise→set arc.
             float u = Mathf.InverseLerp(0.75f, 1.005f, DayCycle.Phase);
-            float vis = Mathf.InverseLerp(0.25f, 0.75f, DayCycle.Night);
+            float vis = SettingsPanel.ReduceFX ? 0f : Mathf.InverseLerp(0.25f, 0.75f, DayCycle.Night);
             if (u <= 0f || vis <= 0.001f)
             {
                 if (halo.localScale.x != 0f)

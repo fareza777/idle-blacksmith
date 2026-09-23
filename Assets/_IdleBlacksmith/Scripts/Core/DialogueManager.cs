@@ -118,6 +118,7 @@ namespace IdleBlacksmith.Core
                 case "rush": return s != null && s.rushOrdersDone >= 1;
                 case "daily": return s != null && s.dailyClaims >= 2;
                 case "nightfall": return DayCycle.Night >= 0.6f;
+                case "dawns": return s != null && s.dayCycles >= 3;
                 case "ember_lore": return s != null && s.embersCaught == 0 && s.playSeconds >= 240f;
                 case "ember_caught": return s != null && s.embersCaught >= 1;
                 case "mastery": return Goals.Progress(QuestGoal.MasterRecipe, null) >= 1;
@@ -290,6 +291,10 @@ namespace IdleBlacksmith.Core
             Seq("ember_caught",
                 Line("Bram Ironroot", "bram", "You caught one! Quick hands, keeper — the Ember likes that."),
                 Line("Nyx", "nyx", "It remembers being caught, you know. Keep your eyes on the sky — it will send more.")),
+
+            Seq("dawns",
+                Line("Petra Flint", "petra", "Third dawn since the reopening, keeper. I counted — the village rooster crows at the smoke now, not the sun."),
+                Line("Bram Ironroot", "bram", "Days stack up like ingots, Flint. Every sunrise the forge is still warm is one the Ember kept its promise.")),
 
             Seq("mastery",
                 Line("Bram Ironroot", "bram", "Watch this — same swing, same steel, but my hands already know the shape. That's a smith's signature."),

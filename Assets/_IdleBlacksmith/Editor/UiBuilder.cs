@@ -111,6 +111,16 @@ namespace IdleBlacksmith.EditorTools
             var oreLabelGo = Box("Label", orePill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(68, 0), new Vector2(150, 48));
             var oreLabel = Txt(oreLabelGo, "0", 36, OreText, TextAlignmentOptions.Left, titleFont);
 
+            // Day chip (below relic ore) — counts dawns over the forge.
+            var dayPill = Box("DayPill", hud, new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -290), new Vector2(200, 56));
+            var dayImg = dayPill.gameObject.AddComponent<Image>();
+            dayImg.sprite = pill; dayImg.type = Image.Type.Sliced; dayImg.color = new Color(0.24f, 0.28f, 0.38f, 0.9f);
+            SoftShadow(dayPill.gameObject);
+            var dayLabelGo = Box("Label", dayPill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(20, 0), new Vector2(160, 44));
+            var dayLabel = Txt(dayLabelGo, "Day 1", 30, new Color(0.85f, 0.88f, 1f), TextAlignmentOptions.Left, bodyFont);
+            var dayChip = dayPill.gameObject.AddComponent<DayChip>();
+            dayChip.label = dayLabel;
+
             // ---------------- top-right rail: menu, upgrades, achievements, prestige, mute
             var railGo = Box("TopRail", hud, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-24, -22), new Vector2(84, 460));
             var rail = railGo.gameObject.AddComponent<VerticalLayoutGroup>();

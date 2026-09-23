@@ -300,6 +300,7 @@ namespace IdleBlacksmith.Core
         PetCat,
         CatchEmber,
         MasterRecipe,
+        DaysPassed,
     }
 
     [System.Serializable]

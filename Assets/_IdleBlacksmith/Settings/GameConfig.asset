@@ -814,6 +814,17 @@ MonoBehaviour:
     oreReward: 0
     relicReward: 0
     shardReward: 1
+  - id: q_dawns
+    title: Many Mornings
+    body: Five dawns over the forge. The village wakes to the smell of fresh steel
+      now.
+    goal: 20
+    targetId: 
+    target: 5
+    goldReward: 1800
+    oreReward: 0
+    relicReward: 0
+    shardReward: 0
   - id: q_smithy4
     title: Mithril Works
     body: Grow the Smithy to level 4 and unlock mithril.
@@ -1236,6 +1247,15 @@ MonoBehaviour:
     targetId: 
     target: 5
     bonusKind: 2
+    bonus: 0.05
+  - id: a_dawns15
+    displayName: Seasoned Hearth
+    description: See 15 dawns over the forge
+    icon: {fileID: 21300000, guid: b2f6a7c67844c79449db6e1197b31e44, type: 3}
+    goal: 20
+    targetId: 
+    target: 15
+    bonusKind: 5
     bonus: 0.05
   workerPrefab: {fileID: 1208270762283020123, guid: 25182fd6a6fc62348aa8bb3ada4eda28, type: 3}
   helperPrefab: {fileID: 5151690350410580974, guid: 083b0901ccd174747a41c075f0565afa, type: 3}

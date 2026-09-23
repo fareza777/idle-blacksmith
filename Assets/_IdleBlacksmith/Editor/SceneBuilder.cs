@@ -480,6 +480,8 @@ namespace IdleBlacksmith.EditorTools
                 QuestGoal.CatchEmber, 3, gold: 500),
             Q("q_mastery", "A Smith's Signature", "Master a recipe — forge it until your hands know it by heart and buyers pay a premium.",
                 QuestGoal.MasterRecipe, 2, gold: 1500, shard: 1),
+            Q("q_dawns", "Many Mornings", "Five dawns over the forge. The village wakes to the smell of fresh steel now.",
+                QuestGoal.DaysPassed, 5, gold: 1800),
             Q("q_smithy4", "Mithril Works", "Grow the Smithy to level 4 and unlock mithril.",
                 QuestGoal.UpgradeBuilding, 4, gold: 8000, targetId: BuildingId.Smithy),
             Q("q_rare", "Something Rare", "Forge a Rare sword. Luck, the Sanctum and the Lucky Anvil all help.",
@@ -547,6 +549,7 @@ namespace IdleBlacksmith.EditorTools
             A("a_ember50", "Sprite Whisperer", "Catch 50 lucky embers", QuestGoal.CatchEmber, 50, AchBonus.Luck, 1f, "star"),
             A("a_master3", "Signature Blade", "Reach mastery tier 3 on any recipe", QuestGoal.MasterRecipe, 3, AchBonus.Price, 0.03f, "craft"),
             A("a_master5", "Grandmaster Smith", "Reach mastery tier 5 on any recipe", QuestGoal.MasterRecipe, 5, AchBonus.Price, 0.05f, "trophy"),
+            A("a_dawns15", "Seasoned Hearth", "See 15 dawns over the forge", QuestGoal.DaysPassed, 15, AchBonus.Offline, 0.05f, "star"),
         };
 
         // ------------------------------------------------------------ config asset

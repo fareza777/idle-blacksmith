@@ -43,6 +43,7 @@ namespace IdleBlacksmith.Core
                     foreach (RecipeDef r in gm.config.recipes)
                         bestTier = Mathf.Max(bestTier, gm.MasteryTierOf(r.id));
                     return bestTier;
+                case QuestGoal.DaysPassed: return st != null ? st.dayCycles : 0;
             }
             return 0;
         }
@@ -72,6 +73,7 @@ namespace IdleBlacksmith.Core
                 case QuestGoal.PetCat: return $"Pet the forge cat {target} times";
                 case QuestGoal.CatchEmber: return $"Catch {target} lucky embers";
                 case QuestGoal.MasterRecipe: return $"Reach mastery tier {target} on any recipe";
+                case QuestGoal.DaysPassed: return $"See {target} dawns over the forge";
             }
             return "Progress";
         }

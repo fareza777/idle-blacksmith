@@ -58,7 +58,14 @@ namespace IdleBlacksmith.Gameplay
 
         void Update()
         {
+            float prev = phase;
             phase = Mathf.Repeat(phase + Time.deltaTime / cycleSeconds, 1f);
+            if (phase < prev)
+            {
+                // A dawn has come and gone — count it for the Day chip and quests.
+                var d = GameManager.Instance != null ? GameManager.Instance.Data : null;
+                if (d != null && d.stats != null) d.stats.dayCycles++;
+            }
             Apply(phase);
 
             // Ambience bed follows the sun — forge crackle by day, crickets and the

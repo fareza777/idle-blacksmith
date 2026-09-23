@@ -1,3 +1,4 @@
+using IdleBlacksmith.UI;
 using UnityEngine;
 
 namespace IdleBlacksmith.Gameplay
@@ -65,8 +66,9 @@ namespace IdleBlacksmith.Gameplay
             if (showerEnd <= now && now >= nextShower)
                 showerEnd = now + Random.Range(showerLength.x, showerLength.y);
 
-            // Ease the shower in and out so it never pops.
-            float target = showerEnd > now ? 1f : 0f;
+            // Ease the shower in and out so it never pops. Lite mode skips the shower
+            // entirely — the drop pool just stays empty.
+            float target = (showerEnd > now && !SettingsPanel.ReduceFX) ? 1f : 0f;
             intensity = Mathf.MoveTowards(intensity, target, Time.deltaTime / 3f);
             if (target == 0f && intensity <= 0.001f)
             {

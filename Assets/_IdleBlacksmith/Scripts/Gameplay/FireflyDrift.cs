@@ -1,3 +1,4 @@
+using IdleBlacksmith.UI;
 using UnityEngine;
 
 namespace IdleBlacksmith.Gameplay
@@ -54,7 +55,7 @@ namespace IdleBlacksmith.Gameplay
 
         void Update()
         {
-            float vis = Mathf.InverseLerp(0.35f, 0.75f, DayCycle.Night);
+            float vis = SettingsPanel.ReduceFX ? 0f : Mathf.InverseLerp(0.35f, 0.75f, DayCycle.Night);
             if (moteT == null) return;
             if (vis <= 0.001f)
             {
