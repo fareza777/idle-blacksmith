@@ -118,6 +118,8 @@ namespace IdleBlacksmith.Core
                 case "rush": return s != null && s.rushOrdersDone >= 1;
                 case "daily": return s != null && s.dailyClaims >= 2;
                 case "nightfall": return DayCycle.Night >= 0.6f;
+                case "ember_lore": return s != null && s.embersCaught == 0 && s.playSeconds >= 240f;
+                case "ember_caught": return s != null && s.embersCaught >= 1;
                 case "rare": return s != null && s.bestRarity >= (int)Rarity.Epic;
                 case "legendary": return s != null && s.bestRarity >= (int)Rarity.Legendary;
                 case "talent": return gm.talents != null && gm.talents.TotalLevels >= 1;
@@ -276,6 +278,14 @@ namespace IdleBlacksmith.Core
             Seq("nightfall",
                 Line("Bram Ironroot", "bram", "Lamps lit, coals banked. The village goes quiet — but a forge never really sleeps."),
                 Line("Nyx", "nyx", "Watch the dark come in, keeper. Even the fireflies gather near a working hearth.")),
+
+            Seq("ember_lore",
+                Line("Nyx", "nyx", "Something wanders the green, keeper — a loose spark of the Ember itself. It drifts, it glows, it leaves gold where it lands."),
+                Line("Bram Ironroot", "bram", "A lucky ember! Grandfather chased them for hours. Snatch one before it fades and it'll pay for the chase.")),
+
+            Seq("ember_caught",
+                Line("Bram Ironroot", "bram", "You caught one! Quick hands, keeper — the Ember likes that."),
+                Line("Nyx", "nyx", "It remembers being caught, you know. Keep your eyes on the sky — it will send more.")),
         };
     }
 }

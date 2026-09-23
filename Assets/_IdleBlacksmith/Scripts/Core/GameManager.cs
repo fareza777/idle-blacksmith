@@ -357,6 +357,10 @@ namespace IdleBlacksmith.Core
             var sprite = emberGo.AddComponent<EmberSprite>();
             var picker = FindFirstObjectByType<BuildingPicker>();
             if (picker != null) picker.emberSprite = sprite;
+
+            // Stars fade in once true night settles over the village.
+            var starGo = new GameObject("StarField");
+            starGo.AddComponent<StarField>();
         }
 
         // ------------------------------------------------------------ shop expansion
