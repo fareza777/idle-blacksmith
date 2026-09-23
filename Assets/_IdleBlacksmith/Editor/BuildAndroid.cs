@@ -18,6 +18,7 @@ namespace IdleBlacksmith.EditorTools
     public static class BuildAndroid
     {
         const string ApkPath = "_Builds/IdleBlacksmith.apk";
+        const string AabPath = "_Builds/Emberforge.aab";
 
         /// <summary>
         /// Pass this on the command line to skip the asset rebuild. The player build then runs in
@@ -57,11 +58,48 @@ namespace IdleBlacksmith.EditorTools
             EditorUserBuildSettings.buildAppBundle = false; // APK, not AAB
             AssetDatabase.SaveAssets();
 
-            // ------------------------------------------------ build
-            // The player build serializes scenes from disk. BuildAll has just rewritten the shop
-            // scene, and leaving it open and dirty while the build runs is what produces a
-            // half-written level0 that crashes on device with "level0 is corrupted". Flush
-            // everything to disk and let the build read a clean, closed scene instead.
+            BuildTo(ApkPath);
+        }
+
+        /// <summary>
+        /// Play Store upload artifact: the same player as an Android App Bundle (.aab).
+        /// Signing still needs a release keystore — the bundle comes out debug-signed
+        /// until PlayerSettings.Android keystore fields are filled in.
+        /// Run headless:
+        ///   Unity.exe -batchmode -quit -buildTarget Android -projectPath "&lt;proj&gt;" `
+        ///     -executeMethod IdleBlacksmith.EditorTools.BuildAndroid.BuildAab
+        /// </summary>
+        [MenuItem("Tools/Idle Blacksmith/Build Android AAB")]
+        public static void BuildAab()
+        {
+            bool skipRebuild = System.Array.IndexOf(
+                System.Environment.GetCommandLineArgs(), SkipRebuildFlag) >= 0;
+
+            if (!skipRebuild) EditorBoot.BuildAll();
+
+            PlayerSettings.companyName = "CozyForge";
+            PlayerSettings.productName = "Emberforge: Idle Blacksmith";
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.cozyforge.emberforge");
+            PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
+            PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
+            PlayerSettings.bundleVersion = "3.0";
+            PlayerSettings.Android.bundleVersionCode = 3;
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
+            PlayerSettings.allowedAutorotateToLandscapeLeft = false;
+            PlayerSettings.allowedAutorotateToLandscapeRight = false;
+            PlayerSettings.allowedAutorotateToPortrait = true;
+            PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+            EditorUserBuildSettings.buildAppBundle = true; // Play Store artifact
+            AssetDatabase.SaveAssets();
+
+            BuildTo(AabPath);
+        }
+
+        static void BuildTo(string locationPath)
+        {
             EditorSceneManager.SaveOpenScenes();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
@@ -71,14 +109,19 @@ namespace IdleBlacksmith.EditorTools
             {
                 scenes = new[] { SceneBuilder.ScenePath },
                 target = BuildTarget.Android,
-                locationPathName = ApkPath,
+                locationPathName = locationPath,
             };
             BuildReport report = BuildPipeline.BuildPlayer(options);
             Debug.Log($"[IdleBlacksmith] Android build result: {report.summary.result}, " +
                       $"size {report.summary.totalSize / (1024f * 1024f):0.0} MB, " +
                       $"errors {report.summary.totalErrors}, time {report.summary.totalTime.TotalSeconds:0}s");
             if (report.summary.result != BuildResult.Succeeded)
-                throw new System.Exception("[IdleBlacksmith] Android APK build failed — see log above.");
+                throw new System.Exception("[IdleBlacksmith] Android build failed — see log above.");
         }
+
+        // The player build serializes scenes from disk. BuildAll has just rewritten the shop
+        // scene, and leaving it open and dirty while the build runs is what produces a
+        // half-written level0 that crashes on device with "level0 is corrupted". BuildTo
+        // flushes everything to disk and lets the build read a clean, closed scene instead.
     }
 }

@@ -21,6 +21,9 @@ namespace IdleBlacksmith.EditorTools
             PlayerSettings.allowedAutorotateToLandscapeRight = false;
             PlayerSettings.allowedAutorotateToPortrait = true;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+            // Unity 6: the Unity splash is optional on every tier — our own branded
+            // splash panel shows instead, so the store build boots straight into Emberforge.
+            PlayerSettings.SplashScreen.show = false;
 
             if (GraphicsSettings.defaultRenderPipeline == null)
             {
