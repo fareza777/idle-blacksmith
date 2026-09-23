@@ -838,6 +838,7 @@ namespace IdleBlacksmith.EditorTools
             ParticleSystem.VelocityOverLifetimeModule vol = ps.velocityOverLifetime;
             vol.enabled = true;
             vol.x = new ParticleSystem.MinMaxCurve(-0.05f, 0.05f);
+            vol.y = new ParticleSystem.MinMaxCurve(0f, 0f);
             vol.z = new ParticleSystem.MinMaxCurve(-0.05f, 0.05f);
 
             var psr = go.GetComponent<ParticleSystemRenderer>();

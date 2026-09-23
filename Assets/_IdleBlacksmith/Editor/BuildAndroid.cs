@@ -13,7 +13,7 @@ namespace IdleBlacksmith.EditorTools
     /// Run headless:
     ///   Unity.exe -batchmode -quit -buildTarget Android -projectPath "&lt;proj&gt;" `
     ///     -executeMethod IdleBlacksmith.EditorTools.BuildAndroid.BuildApk
-    /// Produces _Builds/IdleBlacksmith.apk (debug-signed, IL2CPP, ARM64, GLES3).
+    /// Produces _Builds/IdleBlacksmith.apk (debug-signed, IL2CPP, ARM64+x86_64, GLES3).
     /// </summary>
     public static class BuildAndroid
     {
@@ -42,7 +42,7 @@ namespace IdleBlacksmith.EditorTools
             // IL2CPP + ARM64: the reliably supported Android config on Unity 6
             // (Mono reported "target architecture not specified" from BuildPlayer despite PlayerSettings).
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
-            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.X86_64;
             AssetDatabase.SaveAssets();
             Debug.Log($"[Android] arch readback={PlayerSettings.Android.targetArchitectures}, backend={PlayerSettings.GetScriptingBackend(NamedBuildTarget.Android)}, activeTarget={EditorUserBuildSettings.activeBuildTarget}");
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
@@ -81,7 +81,7 @@ namespace IdleBlacksmith.EditorTools
             PlayerSettings.productName = "Emberforge: Idle Blacksmith";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.cozyforge.emberforge");
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
-            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.X86_64;
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
             PlayerSettings.bundleVersion = "3.0";
