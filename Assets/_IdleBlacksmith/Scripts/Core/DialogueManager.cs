@@ -121,6 +121,9 @@ namespace IdleBlacksmith.Core
                 case "ember_lore": return s != null && s.embersCaught == 0 && s.playSeconds >= 240f;
                 case "ember_caught": return s != null && s.embersCaught >= 1;
                 case "mastery": return Goals.Progress(QuestGoal.MasterRecipe, null) >= 1;
+                case "epilogue": return s != null && s.bestRarity >= (int)Rarity.Legendary
+                    && gm.buildings.GetLevel(BuildingId.Smithy) >= 5
+                    && gm.Data.seenDialogues.Contains("legendary");
                 case "rare": return s != null && s.bestRarity >= (int)Rarity.Epic;
                 case "legendary": return s != null && s.bestRarity >= (int)Rarity.Legendary;
                 case "talent": return gm.talents != null && gm.talents.TotalLevels >= 1;
@@ -291,6 +294,14 @@ namespace IdleBlacksmith.Core
             Seq("mastery",
                 Line("Bram Ironroot", "bram", "Watch this — same swing, same steel, but my hands already know the shape. That's a smith's signature."),
                 Line("Sable", "sable", "Buyers pay extra for a name they trust, darling. Forge it until the blade signs itself.")),
+
+            Seq("epilogue",
+                Line("Nyx", "nyx", "It is done, keeper. The Dragonforge burns, a Legendary rests on your rack, and the Ember — the Ember is awake."),
+                Line("Sir Aldric", "aldric", "The garrison sings your name at muster, smith. That gate you reopened now guards the whole valley."),
+                Line("Petra Flint", "petra", "Every stone I ever hauled fed this moment. Look at the village — it glows like a banked fire."),
+                Line("Cole", "cole", "Master Ironroot... the forge on the hill is the legend now. I-I mean, WE'RE the legend now, right sir?"),
+                Line("Sable", "sable", "Kingdoms will write letters, darling. I'll frame them. And sell copies.") ,
+                Line("Bram Ironroot", "bram", "Grandfather built a forge. You built a hearth for a whole people. But an ember never dies — it only waits for the next strike. Onward, keeper.")),
         };
     }
 }

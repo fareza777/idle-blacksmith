@@ -384,6 +384,10 @@ namespace IdleBlacksmith.Core
             // The moon climbs the sky through the night half of the day cycle.
             var moonGo = new GameObject("MoonDrift");
             moonGo.AddComponent<MoonDrift>();
+
+            // Rain showers roll over the village every few minutes.
+            var rainGo = new GameObject("RainWeather");
+            rainGo.AddComponent<RainWeather>();
         }
 
         // ------------------------------------------------------------ shop expansion
