@@ -28,6 +28,9 @@ namespace IdleBlacksmith.Gameplay
         float showerEnd;
         float intensity; // 0..1 ease
 
+        /// <summary>True once a shower is meaningfully underway — lets chatter react to weather.</summary>
+        public bool IsRaining => intensity > 0.5f;
+
         void Start()
         {
             var sh = Shader.Find("Universal Render Pipeline/Particles/Unlit");

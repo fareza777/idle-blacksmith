@@ -41,11 +41,19 @@ namespace IdleBlacksmith.Core
             "Smell that festival air!", "The fair's worth the walk!",
         };
 
+        static readonly string[] RainLines =
+        {
+            "Rain's good for the steel!", "Stay dry, friend!",
+            "The anvil sings louder in a storm!", "Quench-day for the whole valley!",
+        };
+
         static readonly Color Warm = new Color(1f, 0.92f, 0.78f);
         static readonly Color Gold = new Color(1f, 0.84f, 0.4f);
+        static readonly Color Mist = new Color(0.8f, 0.88f, 1f);
 
         WorkerController worker;
         FairCrowd crowd;
+        RainWeather rain;
         float nextAt = 8f;
 
         void Update()
@@ -76,6 +84,18 @@ namespace IdleBlacksmith.Core
                 if (stroller != null && Random.value < 0.55f)
                 {
                     Speak(stroller.position, Pick(FairLines), Gold);
+                    return;
+                }
+            }
+
+            // In a shower whoever's about remarks on the weather.
+            if (rain == null) rain = FindFirstObjectByType<RainWeather>();
+            if (rain != null && rain.IsRaining)
+            {
+                CustomerController wet = gm.customerSpawner != null ? gm.customerSpawner.Current : null;
+                if (wet != null && Random.value < 0.35f)
+                {
+                    Speak(wet.transform.position, Pick(RainLines), Mist);
                     return;
                 }
             }
