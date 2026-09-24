@@ -35,6 +35,7 @@ namespace IdleBlacksmith.UI
         public BouncyButton menuButton;
         public GameObject dungeonBadge;
         public GameObject questBadge;
+        public GameObject prestigeBadge;
         public PulseLoop complexButtonPulse;
         public BouncyButton upgradesButton;
         public PulseLoop upgradesButtonPulse;
@@ -392,6 +393,9 @@ namespace IdleBlacksmith.UI
                     if (questBadge != null && gm.quests != null)
                         questBadge.SetActive(gm.quests.IsComplete);
                     int gold = gm.economy != null ? gm.economy.Gold : 0;
+                    if (prestigeBadge != null)
+                        prestigeBadge.SetActive(gm.prestige != null && gm.prestige.CanPrestige
+                            && (prestigePanel == null || !prestigePanel.IsOpen));
                     if (complexButtonPulse != null && complexPanel != null)
                         complexButtonPulse.SetActive(!complexPanel.IsOpen && (!complexSeen || AnyBuildingAffordable(gm, gold)));
                     if (upgradesButtonPulse != null && upgradePanel != null)

@@ -139,6 +139,13 @@ namespace IdleBlacksmith.EditorTools
             upgradesPulse.startStopped = true;
             BouncyButton achBtn = RailButton(railGo, "AchievementsButton", "trophy", Hex(0xC99638), out _);
             BouncyButton prestBtn = RailButton(railGo, "PrestigeButton", "ember", Hex(0xD95F4E), out _);
+            // rekindle-ready badge on the prestige button
+            var pBadgeGo = Box("Badge", prestBtn.transform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(6, 6), new Vector2(52, 52));
+            var pBadgeImg = pBadgeGo.gameObject.AddComponent<Image>();
+            pBadgeImg.sprite = circle; pBadgeImg.type = Image.Type.Sliced; pBadgeImg.color = Hex(0xE25B4E);
+            var pBadgeTxtGo = Box("Mark", pBadgeGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(44, 44));
+            Txt(pBadgeTxtGo, "!", 34, Color.white, TextAlignmentOptions.Center, titleFont);
+            pBadgeGo.gameObject.SetActive(false);
             BouncyButton muteBtn = RailButton(railGo, "MuteButton", "sound_on", Cream, out Image muteIcon);
 
             // ---------------- bottom bar: Complex / Forge / Dungeon / Quest
@@ -240,6 +247,7 @@ namespace IdleBlacksmith.EditorTools
             ui.questButton = questBtn;
             ui.questPanel = questPanel;
             ui.questBadge = qBadgeGo.gameObject;
+            ui.prestigeBadge = pBadgeGo.gameObject;
             ui.menuButton = menuBtn;
             ui.metaPanel = metaPanel;
             ui.prestigePanel = prestigePanel;
