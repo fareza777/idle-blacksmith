@@ -24,6 +24,9 @@ namespace IdleBlacksmith.Gameplay
         Material rainMat;
         AudioSource rainSrc;
         float rainClipGain = 1f;
+        Transform bolt;
+        Material boltMat;
+        float boltHide;
         float nextShower;
         float showerEnd;
         float intensity; // 0..1 ease
@@ -74,6 +77,24 @@ namespace IdleBlacksmith.Gameplay
                     break;
                 }
             }
+
+            // A jagged sky-bolt: three offset slivers flashed for a blink during thunder.
+            boltMat = new Material(sh);
+            boltMat.SetColor("_BaseColor", new Color(0.95f, 0.97f, 1f));
+            var boltGo = new GameObject("Bolt");
+            boltGo.transform.SetParent(transform, false);
+            bolt = boltGo.transform;
+            for (int i = 0; i < 3; i++)
+            {
+                var seg = Primitives.Create(PrimitiveType.Cube);
+                seg.transform.SetParent(bolt, false);
+                seg.transform.localPosition = new Vector3(i * 0.22f - 0.22f, -i * 0.55f, 0f);
+                seg.transform.localRotation = Quaternion.Euler(0f, 0f, i % 2 == 0 ? 22f : -18f);
+                seg.transform.localScale = new Vector3(0.06f, 0.8f, 0.06f);
+                seg.GetComponent<MeshRenderer>().material = boltMat;
+                seg.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
+            bolt.localScale = Vector3.zero;
         }
 
         void ResetDrop(int i, bool randomY)
@@ -97,12 +118,20 @@ namespace IdleBlacksmith.Gameplay
             if (rainSrc != null)
                 rainSrc.volume = intensity * rainClipGain;
 
-            // Heavy showers carry the odd rolling clap — with the flash that comes first.
+            // Heavy showers carry the odd rolling clap — bolt streak, then the flash.
             if (intensity > 0.6f && now >= nextRumble)
             {
                 nextRumble = now + Random.Range(7f, 16f);
                 UIManager.Instance?.FlashScreen(new Color(0.82f, 0.86f, 1f), 0.22f, 0.35f);
                 AudioManager.Play("thunder", volumeScale: 0.8f);
+                bolt.position = new Vector3(Random.Range(-7f, 7f), Random.Range(9.5f, 12f), 12f);
+                bolt.localScale = Vector3.one * Random.Range(1.4f, 2.2f);
+                boltHide = now + 0.13f;
+            }
+            if (boltHide > 0f && now >= boltHide)
+            {
+                boltHide = 0f;
+                bolt.localScale = Vector3.zero;
             }
             if (target == 0f && intensity <= 0.001f)
             {
