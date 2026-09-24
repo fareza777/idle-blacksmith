@@ -27,7 +27,7 @@ namespace IdleBlacksmith.Gameplay
         {
             var go = GameObject.Find("Plot_" + requiresBuilding);
             if (go != null) plot = go.transform;
-            var sh = Shader.Find("Universal Render Pipeline/Unlit");
+            var sh = Shader.Find("Universal Render Pipeline/Particles/Unlit");
             if (sh != null)
             {
                 shardMat = new Material(sh);

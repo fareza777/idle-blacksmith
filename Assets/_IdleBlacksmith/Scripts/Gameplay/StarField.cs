@@ -24,7 +24,7 @@ namespace IdleBlacksmith.Gameplay
 
         void Start()
         {
-            var sh = Shader.Find("Universal Render Pipeline/Unlit");
+            var sh = Shader.Find("Universal Render Pipeline/Particles/Unlit");
             starMat = new Material(sh);
             starMat.SetColor("_BaseColor", new Color(0.92f, 0.95f, 1f));
 

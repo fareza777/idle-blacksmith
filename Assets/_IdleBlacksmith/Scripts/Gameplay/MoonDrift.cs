@@ -22,7 +22,7 @@ namespace IdleBlacksmith.Gameplay
 
         void Start()
         {
-            var sh = Shader.Find("Universal Render Pipeline/Unlit");
+            var sh = Shader.Find("Universal Render Pipeline/Particles/Unlit");
             moonMat = new Material(sh);
             moonMat.SetColor("_BaseColor", new Color(0.88f, 0.92f, 1f));
             haloMat = new Material(sh);

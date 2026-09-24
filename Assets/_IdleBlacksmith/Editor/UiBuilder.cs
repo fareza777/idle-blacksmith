@@ -864,9 +864,11 @@ namespace IdleBlacksmith.EditorTools
             tileIcon.raycastTarget = false;
             tileIcon.preserveAspect = true;
 
-            var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(156, -18), new Vector2(360, 46));
+            var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(156, -18), new Vector2(250, 46));
             var nameLabel = Txt(nameGo, "Dungeon", 36, Brown, TextAlignmentOptions.Left, titleFont);
-            var durGo = Box("Duration", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(420, -26), new Vector2(160, 36));
+            // Smaller size + narrower box keep "The Frozen Depth" clear of the duration.
+            nameLabel.fontSize = 30f;
+            var durGo = Box("Duration", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(436, -26), new Vector2(160, 36));
             var durLabel = Txt(durGo, "2 min", 26, Teal, TextAlignmentOptions.Left, titleFont);
             var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(156, -66), new Vector2(470, 34));
             var descLabel = Txt(descGo, "Description", 24, Secondary, TextAlignmentOptions.Left, bodyFont);
@@ -943,7 +945,7 @@ namespace IdleBlacksmith.EditorTools
         {
             var root = new GameObject("FloatingText", typeof(RectTransform), typeof(CanvasGroup));
             var rt = (RectTransform)root.transform;
-            rt.sizeDelta = new Vector2(240, 90);
+            rt.sizeDelta = new Vector2(460, 90);
             var label = root.AddComponent<TextMeshProUGUI>();
             label.text = "+10";
             label.fontSize = 48;

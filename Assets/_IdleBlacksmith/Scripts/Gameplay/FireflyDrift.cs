@@ -22,7 +22,7 @@ namespace IdleBlacksmith.Gameplay
 
         void Start()
         {
-            var sh = Shader.Find("Universal Render Pipeline/Unlit");
+            var sh = Shader.Find("Universal Render Pipeline/Particles/Unlit");
             int n = Mathf.Max(1, count);
             moteT = new Transform[n];
             moteHome = new Vector3[n];

@@ -89,7 +89,7 @@ namespace IdleBlacksmith.Core
             ui.dialoguePanel.Play(playing, () =>
             {
                 playing = null;
-                timer = 0.4f; // breathe between queued beats
+                timer = 2.8f; // breathe between queued beats — boot unlocks several at once
             });
         }
 

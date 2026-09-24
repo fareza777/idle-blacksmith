@@ -27,7 +27,7 @@ namespace IdleBlacksmith.Gameplay
 
         void Start()
         {
-            var sh = Shader.Find("Universal Render Pipeline/Unlit");
+            var sh = Shader.Find("Universal Render Pipeline/Particles/Unlit");
             rainMat = new Material(sh);
             rainMat.SetColor("_BaseColor", new Color(0.62f, 0.7f, 0.85f));
 
@@ -44,9 +44,9 @@ namespace IdleBlacksmith.Gameplay
                 c.transform.localScale = new Vector3(0.018f, 0.34f, 0.018f);
                 c.transform.rotation = Quaternion.Euler(0f, 0f, 9f); // light slant
                 dropSeed[i] = Random.value;
-                ResetDrop(i, true);
                 drops[i] = c.transform;
                 drops[i].localScale = Vector3.zero;
+                ResetDrop(i, true);
             }
             nextShower = Time.time + Random.Range(gap.x, gap.y) * 0.4f; // first one comes early
             showerEnd = 0f;

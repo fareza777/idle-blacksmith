@@ -92,6 +92,11 @@ namespace IdleBlacksmith.UI
         readonly Queue<FloatingText> pool = new Queue<FloatingText>();
         bool launched;
         float badgeCheckTimer;
+        // Static on purpose: this build pipeline corrupts level0 when extra instance
+        // fields get serialized onto scene MonoBehaviours.
+        static Vector2 lastFloaterPos;
+        static float lastFloaterAt = -10f;
+        static int floaterStreak;
 
         void Awake()
         {
@@ -479,6 +484,19 @@ namespace IdleBlacksmith.UI
             Camera uiCam = canvas != null && canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : mainCamera;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 floatingTextLayer, screen, uiCam, out Vector2 local);
+
+            // Burst stagger: several floaters hitting the same anchor at once fan
+            // upward/sideways instead of stacking into one unreadable blob.
+            bool burst = Time.unscaledTime - lastFloaterAt < 0.9f
+                && (local - lastFloaterPos).sqrMagnitude < 14400f;
+            floaterStreak = burst ? floaterStreak + 1 : 0;
+            lastFloaterAt = Time.unscaledTime;
+            lastFloaterPos = local;
+            if (floaterStreak > 0)
+            {
+                local.y += floaterStreak * 40f;
+                local.x += ((floaterStreak & 1) == 0 ? 1f : -1f) * floaterStreak * 30f;
+            }
 
             FloatingText ft = pool.Count > 0 ? pool.Dequeue() : Instantiate(floatingTextPrefab, floatingTextLayer);
             ft.Play(local, text, color, f => pool.Enqueue(f));

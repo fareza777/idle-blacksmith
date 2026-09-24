@@ -28,9 +28,18 @@ namespace IdleBlacksmith.UI
             {
                 label.text = text;
                 label.color = color;
+                // Shrink long floaters (tool names) so they stay inside the box.
+                label.fontSize = text.Length > 18 ? 26f : (text.Length > 12 ? 34f : 48f);
             }
             if (rt == null) rt = transform as RectTransform;
-            rt.anchoredPosition = anchoredPos + new Vector2(Random.Range(-28f, 28f), 0f);
+            Vector2 p0 = anchoredPos + new Vector2(Random.Range(-28f, 28f), 0f);
+            // Floaters spawned near the screen edge get nudged back inside the layer.
+            if (rt.parent is RectTransform pr)
+            {
+                float halfW = pr.rect.width * 0.5f;
+                p0.x = Mathf.Clamp(p0.x, -halfW + 170f, halfW - 170f);
+            }
+            rt.anchoredPosition = p0;
             cg.alpha = 1f;
             transform.localScale = Vector3.one * 0.4f;
 

@@ -132,7 +132,7 @@ namespace IdleBlacksmith.Gameplay
             var r = c.GetComponent<MeshRenderer>();
             if (r != null)
             {
-                var sh = Shader.Find("Universal Render Pipeline/Unlit");
+                var sh = Shader.Find("Universal Render Pipeline/Particles/Unlit");
                 var m = new Material(sh);
                 m.SetColor("_BaseColor", new Color(1f, 0.66f, 0.22f));
                 r.material = m;
