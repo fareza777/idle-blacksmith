@@ -74,6 +74,8 @@ namespace IdleBlacksmith.UI
         }
 
         public bool IntroPlaying => introCinematic != null && introCinematic.IsPlaying;
+        /// <summary>True once the menu's Play button finished routing — guards against modals racing the fade.</summary>
+        public bool HasLaunched => launched;
 
         [Header("HUD chrome")]
         public HudTicker ticker;
@@ -211,25 +213,35 @@ namespace IdleBlacksmith.UI
             if (launched) return;
             launched = true;
 
-            if (hudGroup != null) hudGroup.alpha = 1f;
-
             // The cinematic belongs to a fresh forge; returning players never see it twice.
+            // The HUD stays dark underneath it so pills never bleed through the letterbox.
             if (introCinematic != null && gm != null && gm.Data != null && !gm.Data.introSeen)
             {
+                if (hudGroup != null) hudGroup.alpha = 0f;
                 introCinematic.Play(() => AfterIntro(gm));
                 return;
             }
+            if (hudGroup != null) hudGroup.alpha = 1f;
             AfterIntro(gm);
         }
 
         void AfterIntro(GameManager gm)
         {
+            RevealHud();
             if (gm != null && !gm.HasSeenOnboarding && onboardingPanel != null)
             {
+                onboardingPanel.onFinished = () => ShowWelcomeBack(gm);
                 onboardingPanel.Show();
                 return;
             }
             ShowWelcomeBack(gm);
+        }
+
+        /// <summary>HUD fades in once the story overlays are done — never during the cinematic.</summary>
+        void RevealHud()
+        {
+            if (hudGroup == null || hudGroup.alpha > 0.99f) return;
+            Tween.Alpha(hudGroup, 1f, 0.5f, Ease.OutQuad);
         }
 
         /// <summary>Offline payout sheet, shown once per launch when there is something to collect.</summary>
@@ -287,7 +299,12 @@ namespace IdleBlacksmith.UI
         {
             if (introCinematic == null || introCinematic.IsPlaying) return;
             AudioManager.PlayMusic("music_intro", 0.6f);
-            introCinematic.Play(() => AudioManager.PlayMusic(ThemeId(), 1.5f));
+            if (hudGroup != null) hudGroup.alpha = 0f;
+            introCinematic.Play(() =>
+            {
+                RevealHud();
+                AudioManager.PlayMusic(ThemeId(), 1.5f);
+            });
         }
 
         /// <summary>The workshop theme this save should hear — deep-forge from smithy tier three.</summary>
@@ -386,7 +403,11 @@ namespace IdleBlacksmith.UI
 
         void HandleOreChanged(int ore)
         {
-            if (oreLabel != null) oreLabel.text = ore.ToString();
+            if (oreLabel != null)
+            {
+                oreLabel.text = ore.ToString();
+                Tween.PunchScale(oreLabel.transform, Vector3.one * 0.14f, 0.3f);
+            }
         }
 
         void HandleMetalOreChanged(int ore, int capacity)

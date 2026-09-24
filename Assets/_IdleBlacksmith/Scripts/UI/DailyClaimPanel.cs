@@ -46,7 +46,7 @@ namespace IdleBlacksmith.UI
         {
             if (!mgr.ClaimAvailable) return;
             var ui = UIManager.Instance;
-            if (ui == null || ui.AnyPanelOpen || ui.IntroPlaying) return;
+            if (ui == null || !ui.HasLaunched || ui.AnyPanelOpen || ui.IntroPlaying) return;
 
             int day = mgr.NextDay;
             mgr.RewardsFor(day, out int gold, out int relic);

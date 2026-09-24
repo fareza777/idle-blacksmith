@@ -731,9 +731,10 @@ namespace IdleBlacksmith.EditorTools
 
         // ------------------------------------------------------------ main menu
 
-        /// <summary>Small pill button on the menu: label centred, caller picks the tint.</summary>
+        /// <summary>Small pill button on the menu: label centred, caller picks the tint.
+        /// iconName (Art/Icons/Raw) puts a monochrome glyph on the pill's left edge.</summary>
         static BouncyButton MenuPill(RectTransform parent, string name, string label, Vector2 pos, Vector2 size,
-            Color fill, Color labelColor, int fontSize, out TMP_Text labelText)
+            Color fill, Color labelColor, int fontSize, out TMP_Text labelText, string iconName = null)
         {
             var go = Box(name, parent, new Vector2(0.5f, 0), new Vector2(0.5f, 0), pos, size);
             var btn = go.gameObject.AddComponent<BouncyButton>();
@@ -742,6 +743,16 @@ namespace IdleBlacksmith.EditorTools
             btn.targetGraphic = img;
             SetButtonColors(btn);
             SoftShadow(go.gameObject, -4f, 0.3f);
+            if (iconName != null)
+            {
+                float side = size.y * 0.52f;
+                var iconGo = Box("Icon", go, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(14, 0), new Vector2(side, side));
+                var iconImg = iconGo.gameObject.AddComponent<Image>();
+                iconImg.sprite = AssetFactory.LoadIcon(iconName);
+                iconImg.color = labelColor;
+                iconImg.preserveAspect = true;
+                iconImg.raycastTarget = false;
+            }
             var txtGo = Box("Label", go, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, size - new Vector2(20, 30));
             labelText = Txt(txtGo, label, fontSize, labelColor, TextAlignmentOptions.Center, titleFont);
             return btn;
@@ -797,15 +808,15 @@ namespace IdleBlacksmith.EditorTools
 
             // secondary row
             var settingsBtn = MenuPill(root, "SettingsButton", "SETTINGS", new Vector2(-160, 216), new Vector2(280, 92),
-                new Color(0.78f, 0.72f, 0.64f), Brown, 30, out _);
+                new Color(0.78f, 0.72f, 0.64f), Brown, 30, out _, "settings");
             var aboutBtn = MenuPill(root, "AboutButton", "ABOUT", new Vector2(160, 216), new Vector2(280, 92),
-                new Color(0.78f, 0.72f, 0.64f), Brown, 30, out _);
+                new Color(0.78f, 0.72f, 0.64f), Brown, 30, out _, "scroll");
 
             // store row — quieter ghost pills
             var shareBtn = MenuPill(root, "ShareButton", "SHARE", new Vector2(-160, 110), new Vector2(280, 84),
-                new Color(0.42f, 0.30f, 0.20f, 0.88f), Cream, 28, out _);
-            var rateBtn = MenuPill(root, "RateButton", "RATE ★", new Vector2(160, 110), new Vector2(280, 84),
-                new Color(0.42f, 0.30f, 0.20f, 0.88f), Hex(0xFFD966), 28, out _);
+                new Color(0.42f, 0.30f, 0.20f, 0.88f), Cream, 28, out _, "share");
+            var rateBtn = MenuPill(root, "RateButton", "RATE", new Vector2(160, 110), new Vector2(280, 84),
+                new Color(0.42f, 0.30f, 0.20f, 0.88f), Hex(0xFFD966), 28, out _, "star");
 
             // credits overlay (About)
             var creditsPanel = StretchBox("Credits", root);

@@ -122,6 +122,15 @@ namespace IdleBlacksmith.UI
             {
                 emblem.transform.localScale = Vector3.one * 0.7f;
                 Tween.Scale(emblem.transform, Vector3.one, 0.6f, Ease.OutBack);
+                // The emblem floats gently forever after it lands — a live title screen.
+                // Started once: a second infinite yoyo on re-Show would fight the first.
+                if (!bobStarted)
+                {
+                    bobStarted = true;
+                    var ert = emblem.rectTransform;
+                    Tween.UIAnchoredPosition(ert, ert.anchoredPosition + Vector2.up * 9f, 1.9f,
+                        Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo, startDelay: 0.6f);
+                }
             }
         }
 
@@ -148,6 +157,7 @@ namespace IdleBlacksmith.UI
         }
 
         bool lastHasSave;
+        bool bobStarted;
 
         void Update()
         {
@@ -183,7 +193,8 @@ namespace IdleBlacksmith.UI
         void Play(bool newGame)
         {
             AudioManager.Play("unlock");
-            IsOpen = false;
+            // IsOpen stays true through the fade so the daily-claim poller never fires
+            // inside this gap and stacks a card under whatever opens next.
             if (group != null)
             {
                 group.blocksRaycasts = false;
@@ -191,12 +202,14 @@ namespace IdleBlacksmith.UI
                 Tween.Alpha(group, 0f, 0.35f, Ease.InQuad)
                     .OnComplete(() =>
                     {
+                        IsOpen = false;
                         gameObject.SetActive(false);
                         onPlay?.Invoke(newGame);
                     });
             }
             else
             {
+                IsOpen = false;
                 gameObject.SetActive(false);
                 onPlay?.Invoke(newGame);
             }
