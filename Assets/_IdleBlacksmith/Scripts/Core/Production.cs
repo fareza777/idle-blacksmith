@@ -59,7 +59,7 @@ namespace IdleBlacksmith.Core
             OreCapacityBonus = 0;
             OrePerSecondFlat = 0f;
             ExpeditionSlots = 1;
-            RuneMaxLevel = 4;
+            RuneMaxLevel = 0;
             RuneCostMult = 1f;
             LuckBonus = 0f;
             OfflineRate = c != null ? c.offlineRate : 0.5f;
