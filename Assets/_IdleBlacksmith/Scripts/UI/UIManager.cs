@@ -552,6 +552,7 @@ namespace IdleBlacksmith.UI
                 img.gameObject.SetActive(false);
                 coinPool.Enqueue(img);
                 goldCounter.Punch();
+                AudioManager.Play("blip", volumeScale: 0.35f);
             });
         }
 
