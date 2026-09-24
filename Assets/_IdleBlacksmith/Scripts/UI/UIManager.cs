@@ -118,6 +118,7 @@ namespace IdleBlacksmith.UI
                 gm.resources.OnOreChanged += HandleMetalOreChanged;
                 HandleMetalOreChanged(gm.resources.Ore, gm.resources.OreCapacity);
             }
+            if (gm != null && gm.recipes != null) gm.recipes.OnRecipeUnlocked += HandleRecipeUnlocked;
 
             WireButtons();
             InitPanels();
@@ -426,6 +427,17 @@ namespace IdleBlacksmith.UI
                     ? new Color(1f, 0.72f, 0.4f)
                     : new Color(0.78f, 0.86f, 0.90f);
             }
+        }
+
+        /// <summary>Announces a fresh recipe unlock over the smithy — SFX plus a banner floater.</summary>
+        void HandleRecipeUnlocked(string id)
+        {
+            RecipeDef r = GameManager.Instance != null && GameManager.Instance.recipes != null
+                ? GameManager.Instance.recipes.Get(id) : null;
+            AudioManager.Play("unlock");
+            SpawnFloatingText(new Vector3(0f, 3.1f, 0f),
+                "New recipe: " + (r != null ? r.displayName : id) + "!",
+                new Color(0.55f, 0.9f, 1f));
         }
 
         public void SetDungeonBadge(bool on)
