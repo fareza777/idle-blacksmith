@@ -23,6 +23,7 @@ namespace IdleBlacksmith.UI
         public TMP_Text lockedLabel;
         public GameObject activeBadge;
         public GameObject dailyBadge;
+        public GameObject newBadge;
         public CanvasGroup content;
 
         RecipeDef def;
@@ -65,10 +66,13 @@ namespace IdleBlacksmith.UI
             bool unlocked = gm.recipes.IsAvailable(def);
             bool active = gm.recipes.ActiveId == def.id;
             bool afford = gm.resources == null || gm.resources.Ore >= def.oreCost;
+            StatBlock stats = gm.Data != null ? gm.Data.stats : null;
+            int forgedCount = stats != null ? stats.ForgedCount(def.id) : 0;
 
             if (lockedBadge != null) lockedBadge.SetActive(!unlocked);
             if (activeBadge != null) activeBadge.SetActive(active && unlocked);
             if (dailyBadge != null) dailyBadge.SetActive(gm.RecipeOfTheDay() == def);
+            if (newBadge != null) newBadge.SetActive(unlocked && forgedCount == 0);
             if (lockedLabel != null && !unlocked)
             {
                 var parts = new System.Collections.Generic.List<string>();
@@ -91,12 +95,10 @@ namespace IdleBlacksmith.UI
 
             if (forgedLabel != null)
             {
-                StatBlock st = gm.Data != null ? gm.Data.stats : null;
-                int forged = st != null ? st.ForgedCount(def.id) : 0;
-                int best = st != null ? st.BestRarityOf(def.id) : -1;
-                if (forged > 0 && best >= 0)
+                int best = stats != null ? stats.BestRarityOf(def.id) : -1;
+                if (forgedCount > 0 && best >= 0)
                 {
-                    forgedLabel.text = forged + " forged  ·  best " + RarityInfo.NameOf((Rarity)best);
+                    forgedLabel.text = forgedCount + " forged  ·  best " + RarityInfo.NameOf((Rarity)best);
                     int tier = gm.MasteryTierOf(def.id);
                     if (tier > 0) forgedLabel.text += "  ·  mastery +" + tier * 4 + "%";
                     forgedLabel.color = RarityInfo.TextColor((Rarity)best);

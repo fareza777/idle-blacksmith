@@ -348,6 +348,12 @@ namespace IdleBlacksmith.EditorTools
             Txt(dailyGo, "TODAY +30%", 19, new Color(0.35f, 0.22f, 0.05f), TextAlignmentOptions.Center, bodyFont);
             dailyBadge.gameObject.SetActive(false);
 
+            // Green tag while a recipe is unlocked but has never been forged once.
+            var newBadge = Chip("NewBadge", rt, new Vector2(1, 1), new Vector2(-14, -48), new Vector2(96, 38), Hex(0x5BA86B));
+            var newGo = StretchBox("Label", newBadge);
+            Txt(newGo, "NEW", 19, Color.white, TextAlignmentOptions.Center, bodyFont);
+            newBadge.gameObject.SetActive(false);
+
             var card = root.AddComponent<RecipeCard>();
             card.icon = icon;
             card.frame = frameImg;
@@ -362,6 +368,7 @@ namespace IdleBlacksmith.EditorTools
             card.lockedLabel = lockedLabel;
             card.activeBadge = activeBadge.gameObject;
             card.dailyBadge = dailyBadge.gameObject;
+            card.newBadge = newBadge.gameObject;
             card.content = content;
 
             return SavePrefabRow(root, RecipeCardPrefabPath);
