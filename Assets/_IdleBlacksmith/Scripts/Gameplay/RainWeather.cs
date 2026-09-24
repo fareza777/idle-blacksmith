@@ -97,10 +97,11 @@ namespace IdleBlacksmith.Gameplay
             if (rainSrc != null)
                 rainSrc.volume = intensity * rainClipGain;
 
-            // Heavy showers carry the odd rolling clap.
+            // Heavy showers carry the odd rolling clap — with the flash that comes first.
             if (intensity > 0.6f && now >= nextRumble)
             {
                 nextRumble = now + Random.Range(7f, 16f);
+                UIManager.Instance?.FlashScreen(new Color(0.82f, 0.86f, 1f), 0.22f, 0.35f);
                 AudioManager.Play("thunder", volumeScale: 0.8f);
             }
             if (target == 0f && intensity <= 0.001f)
