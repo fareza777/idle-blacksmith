@@ -44,6 +44,7 @@ namespace IdleBlacksmith.Core
         public AchievementManager achievements;
         public OrderManager orders;
         public RushHourManager rush;
+        public MarketFairManager marketFair;
         public DailyRewardManager daily;
 
         [Header("Scene stations")]
@@ -85,6 +86,7 @@ namespace IdleBlacksmith.Core
             float mult = RarityInfo.MultiplierOf(item != null ? item.rarity : Rarity.Common)
                        * oreMult * Production.PriceMult * Production.GoldMult
                        * (rush != null ? rush.PriceMult : 1f)
+                       * (marketFair != null ? marketFair.PriceMult : 1f)
                        * MasteryMultOf(recipe != null ? recipe.id : null);
             return Mathf.Max(1, Mathf.RoundToInt(baseValue * mult));
         }
@@ -123,6 +125,7 @@ namespace IdleBlacksmith.Core
             int price = PriceOf(item);
             Data.stats.swordsSold++;
             Data.stats.customersServed++;
+            if (marketFair != null && marketFair.Active) Data.stats.fairSales++;
             Data.stats.goldEarned += price;
             Data.runEarned += price;
         }
@@ -180,6 +183,7 @@ namespace IdleBlacksmith.Core
             prestige = Ensure<PrestigeManager>(prestige);
             quests = Ensure<QuestManager>(quests);
             achievements = Ensure<AchievementManager>(achievements);
+            marketFair = Ensure<MarketFairManager>(marketFair);
 
             Data = SaveSystem.Load();
             economy.Init(Data.gold, Data.totalEarned);
@@ -231,6 +235,7 @@ namespace IdleBlacksmith.Core
             prestige = Ensure<PrestigeManager>(prestige);
             quests = Ensure<QuestManager>(quests);
             achievements = Ensure<AchievementManager>(achievements);
+            marketFair = Ensure<MarketFairManager>(marketFair);
             production.config = config;
 
             Data = new SaveData();
@@ -388,6 +393,10 @@ namespace IdleBlacksmith.Core
             // Rain showers roll over the village every few minutes.
             var rainGo = new GameObject("RainWeather");
             rainGo.AddComponent<RainWeather>();
+
+            // Bunting over the forecourt, raised only on market-fair days.
+            var buntingGo = new GameObject("FairBunting");
+            buntingGo.AddComponent<FairBunting>();
         }
 
         // ------------------------------------------------------------ shop expansion

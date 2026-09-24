@@ -836,6 +836,17 @@ MonoBehaviour:
     oreReward: 0
     relicReward: 0
     shardReward: 0
+  - id: q_fair1
+    title: Market Day
+    body: "Every fifth dawn the village holds a market fair \u2014 bunting up, crowds
+      in, prices up too. Sell swords while the fair runs."
+    goal: 21
+    targetId: 
+    target: 8
+    goldReward: 2500
+    oreReward: 0
+    relicReward: 8
+    shardReward: 0
   - id: q_smithy4
     title: Mithril Works
     body: Grow the Smithy to level 4 and unlock mithril.
@@ -1278,6 +1289,15 @@ MonoBehaviour:
     targetId: 
     target: 15
     bonusKind: 5
+    bonus: 0.05
+  - id: a_fair25
+    displayName: Fair Favorite
+    description: Sell 25 swords on market-fair days
+    icon: {fileID: 21300000, guid: 9356777743c664e428d46d89a23f8b34, type: 3}
+    goal: 21
+    targetId: 
+    target: 25
+    bonusKind: 0
     bonus: 0.05
   workerPrefab: {fileID: 1208270762283020123, guid: 25182fd6a6fc62348aa8bb3ada4eda28, type: 3}
   helperPrefab: {fileID: 5151690350410580974, guid: 083b0901ccd174747a41c075f0565afa, type: 3}

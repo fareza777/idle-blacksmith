@@ -482,6 +482,8 @@ namespace IdleBlacksmith.EditorTools
                 QuestGoal.MasterRecipe, 2, gold: 1500, shard: 1),
             Q("q_dawns", "Many Mornings", "Five dawns over the forge. The village wakes to the smell of fresh steel now.",
                 QuestGoal.DaysPassed, 5, gold: 1800),
+            Q("q_fair1", "Market Day", "Every fifth dawn the village holds a market fair — bunting up, crowds in, prices up too. Sell swords while the fair runs.",
+                QuestGoal.FairSales, 8, gold: 2500, relic: 8),
             Q("q_smithy4", "Mithril Works", "Grow the Smithy to level 4 and unlock mithril.",
                 QuestGoal.UpgradeBuilding, 4, gold: 8000, targetId: BuildingId.Smithy),
             Q("q_rare", "Something Rare", "Forge a Rare sword. Luck, the Sanctum and the Lucky Anvil all help.",
@@ -552,6 +554,7 @@ namespace IdleBlacksmith.EditorTools
             A("a_master3", "Signature Blade", "Reach mastery tier 3 on any recipe", QuestGoal.MasterRecipe, 3, AchBonus.Price, 0.03f, "craft"),
             A("a_master5", "Grandmaster Smith", "Reach mastery tier 5 on any recipe", QuestGoal.MasterRecipe, 5, AchBonus.Price, 0.05f, "trophy"),
             A("a_dawns15", "Seasoned Hearth", "See 15 dawns over the forge", QuestGoal.DaysPassed, 15, AchBonus.Offline, 0.05f, "star"),
+            A("a_fair25", "Fair Favorite", "Sell 25 swords on market-fair days", QuestGoal.FairSales, 25, AchBonus.Gold, 0.05f, "coin"),
         };
 
         // ------------------------------------------------------------ config asset

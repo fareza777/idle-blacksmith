@@ -42,6 +42,8 @@ namespace IdleBlacksmith.Gameplay
                 pace *= GameManager.Instance.upgrades.CustomerIntervalMult;
             if (GameManager.Instance.rush != null)
                 pace *= GameManager.Instance.rush.PaceMult;
+            if (GameManager.Instance.marketFair != null)
+                pace *= GameManager.Instance.marketFair.PaceMult;
             timer = Random.Range(config.minCustomerInterval, config.maxCustomerInterval) * Mathf.Max(0.15f, pace);
 
             if (rack.Stock <= 0) return;

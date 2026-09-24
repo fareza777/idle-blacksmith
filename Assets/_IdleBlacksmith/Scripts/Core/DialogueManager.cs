@@ -119,6 +119,7 @@ namespace IdleBlacksmith.Core
                 case "daily": return s != null && s.dailyClaims >= 2;
                 case "nightfall": return DayCycle.Night >= 0.6f;
                 case "dawns": return s != null && s.dayCycles >= 3;
+                case "fair": return gm.marketFair != null && gm.marketFair.Active;
                 case "ember_lore": return s != null && s.embersCaught == 0 && s.playSeconds >= 240f;
                 case "ember_caught": return s != null && s.embersCaught >= 1;
                 case "mastery": return Goals.Progress(QuestGoal.MasterRecipe, null) >= 1;
@@ -301,6 +302,11 @@ namespace IdleBlacksmith.Core
             Seq("dawns",
                 Line("Petra Flint", "petra", "Third dawn since the reopening, keeper. I counted — the village rooster crows at the smoke now, not the sun."),
                 Line("Bram Ironroot", "bram", "Days stack up like ingots, Flint. Every sunrise the forge is still warm is one the Ember kept its promise.")),
+
+            Seq("fair",
+                Line("Petra Flint", "petra", "Fair day, keeper! Bunting's up and the square's full — every trader in the valley walks past our door today."),
+                Line("Sable", "sable", "And every purse in the valley opens a little wider, darling. Price it boldly — a fair forgives a premium."),
+                Line("Bram Ironroot", "bram", "Crowds mean blades, and blades mean the hammer can't rest. Give 'em something worth carrying home, lad.")),
 
             Seq("mastery",
                 Line("Bram Ironroot", "bram", "Watch this — same swing, same steel, but my hands already know the shape. That's a smith's signature."),

@@ -44,6 +44,7 @@ namespace IdleBlacksmith.Core
                         bestTier = Mathf.Max(bestTier, gm.MasteryTierOf(r.id));
                     return bestTier;
                 case QuestGoal.DaysPassed: return st != null ? st.dayCycles : 0;
+                case QuestGoal.FairSales: return st != null ? st.fairSales : 0;
             }
             return 0;
         }
@@ -74,6 +75,7 @@ namespace IdleBlacksmith.Core
                 case QuestGoal.CatchEmber: return $"Catch {target} lucky embers";
                 case QuestGoal.MasterRecipe: return $"Reach mastery tier {target} on any recipe";
                 case QuestGoal.DaysPassed: return $"See {target} dawns over the forge";
+                case QuestGoal.FairSales: return $"Sell {target} swords on market-fair days";
             }
             return "Progress";
         }

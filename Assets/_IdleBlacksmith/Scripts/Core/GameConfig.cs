@@ -301,6 +301,7 @@ namespace IdleBlacksmith.Core
         CatchEmber,
         MasterRecipe,
         DaysPassed,
+        FairSales,
     }
 
     [System.Serializable]

@@ -90,6 +90,16 @@ namespace IdleBlacksmith.EditorTools
             cam.orthographicSize = 1.9f;
             Render(cam, 1080, 1080, "_Screenshots/6_closeup.png");
 
+            // Market-fair day: spawn the bunting over the forecourt and frame it from the street.
+            var fairGo = new GameObject("FairBuntingPreview");
+            var fair = fairGo.AddComponent<IdleBlacksmith.Gameplay.FairBunting>();
+            fair.PreviewBuild();
+            cam.transform.position = new Vector3(0f, 2.6f, -6.4f);
+            cam.transform.LookAt(new Vector3(0f, 1.6f, -0.5f));
+            cam.orthographicSize = 2.6f;
+            Render(cam, 1080, 1080, "_Screenshots/19_fair.png");
+            Object.DestroyImmediate(fairGo);
+
             // Remaining sheets all render in overlay mode against a frozen camera.
             canvas.renderMode = RenderMode.ScreenSpaceCamera;
             canvas.worldCamera = cam;
