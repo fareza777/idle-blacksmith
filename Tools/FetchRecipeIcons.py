@@ -41,6 +41,18 @@ ART = [
     {"name": "dragonsteel",
      "prompt": STYLE + "a massive dragonsteel greatsword, deep red blade veined with "
                "glowing ember cracks, heavy black crossguard, imposing silhouette"},
+    {"name": "gate",
+     "prompt": STYLE.replace("weapon icon", "building icon") +
+               "a mysterious stone dungeon gate on a grassy mound, twin pillars flanking a "
+               "glowing blue portal doorway, small torches burning, cobbled path"},
+    {"name": "dungeon",
+     "prompt": STYLE.replace("weapon icon", "scene icon") +
+               "three flickering torch flames in front of a dark dungeon archway, deep shadows, "
+               "teal-cyan torchlight, moody adventurer's entrance"},
+    {"name": "ember",
+     "prompt": STYLE.replace("weapon icon", "relic icon") +
+               "a single warm glowing ember flame sprite, living spark of orange-gold fire with "
+               "a soft radiant heart, wisps of heat rising"},
 ]
 
 
