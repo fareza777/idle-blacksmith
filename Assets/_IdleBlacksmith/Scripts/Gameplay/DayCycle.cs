@@ -1,4 +1,5 @@
 using IdleBlacksmith.Core;
+using IdleBlacksmith.UI;
 using UnityEngine;
 
 namespace IdleBlacksmith.Gameplay
@@ -63,8 +64,19 @@ namespace IdleBlacksmith.Gameplay
             if (phase < prev)
             {
                 // A dawn has come and gone — count it for the Day chip and quests.
-                var d = GameManager.Instance != null ? GameManager.Instance.Data : null;
-                if (d != null && d.stats != null) d.stats.dayCycles++;
+                var gm = GameManager.Instance;
+                var d = gm != null ? gm.Data : null;
+                if (d != null && d.stats != null)
+                {
+                    d.stats.dayCycles++;
+                    // The daily special rotates at dawn — tell the player what pays today.
+                    var daily = gm.RecipeOfTheDay();
+                    if (daily != null)
+                        UIManager.Instance?.SpawnFloatingText(
+                            new Vector3(0f, 2.9f, 0.5f),
+                            "Today's special: " + daily.displayName + " +30%!",
+                            new Color(0.45f, 0.85f, 0.95f));
+                }
             }
             Apply(phase);
 

@@ -241,6 +241,7 @@ namespace IdleBlacksmith.EditorTools
             bool oreRatePositive = false;
             int forgedSeen = 0;
             bool fairSeen = false;
+            bool dailyRight = false;
             bool fairPriceUp = false;
             bool fairBuntingUp = false;
             bool fairCrowdUp = false;
@@ -301,6 +302,9 @@ namespace IdleBlacksmith.EditorTools
                     if (bun != null) fairBuntingUp = true;
                     var crowd = Object.FindFirstObjectByType<IdleBlacksmith.Gameplay.FairCrowd>();
                     if (crowd != null && crowd.transform.childCount > 0) fairCrowdUp = true;
+                    // dayCycles was poked to 4 — the daily recipe must have rotated there too.
+                    var all = gmNow.recipes != null ? gmNow.recipes.All : null;
+                    if (all != null && all.Count > 4 && gmNow.RecipeOfTheDay() == all[4]) dailyRight = true;
                 }
 
                 if (gameSeconds >= TargetGameSeconds || frames >= FrameSafetyCap)
@@ -318,7 +322,8 @@ namespace IdleBlacksmith.EditorTools
                     // and the forge loop must actually turn: ore moves and a sword comes out.
                     bool ok = gm != null && econ != null && worker != null && rack != null
                               && buildings != null && recipes != null && quests != null && prestige != null
-                              && oreRatePositive && oreChanged && forgedSeen > 0 && fairSeen && exceptions == 0;
+                              && oreRatePositive && oreChanged && forgedSeen > 0 && fairSeen
+                              && dailyRight && exceptions == 0;
 
                     int smithyLevel = buildings != null ? buildings.GetLevel(IdleBlacksmith.Core.BuildingId.Smithy) : -1;
                     int recipesOpen = recipes != null ? recipes.AvailableCount : -1;
@@ -347,7 +352,7 @@ namespace IdleBlacksmith.EditorTools
                             + $"forged={forgedSeen} smithy={smithyLevel} recipesOpen={recipesOpen} rackStock={rackStock} "
                             + $"questsDone={questsClaimed}/{questsTotal} exceptions={exceptions}");
                     Debug.Log($"[Smoke] {craft} phase={phase} oreCap={oreCap} {prod} workerPos={wpos}");
-                    Debug.Log($"[Smoke] fairSeen={fairSeen} fairPriceUp={fairPriceUp} fairBuntingUp={fairBuntingUp} fairCrowdUp={fairCrowdUp}");
+                    Debug.Log($"[Smoke] fairSeen={fairSeen} fairPriceUp={fairPriceUp} fairBuntingUp={fairBuntingUp} fairCrowdUp={fairCrowdUp} dailyRight={dailyRight}");
 
                     if (!oreRatePositive) Debug.LogWarning("[Smoke] ore production rate is zero");
                     if (!oreChanged) Debug.LogWarning("[Smoke] ore never moved during the run");

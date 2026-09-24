@@ -342,6 +342,12 @@ namespace IdleBlacksmith.EditorTools
             var lockedLabel = Txt(lockedGo, "Needs Smithy 2", 20, Color.white, TextAlignmentOptions.Center, bodyFont);
             lockedBadge.gameObject.SetActive(false);
 
+            // Gold corner tag marking today's featured recipe (+30% sale price).
+            var dailyBadge = Chip("DailyBadge", rt, new Vector2(1, 1), new Vector2(-14, -8), new Vector2(172, 38), Hex(0xE8B84B));
+            var dailyGo = StretchBox("Label", dailyBadge);
+            Txt(dailyGo, "TODAY +30%", 19, new Color(0.35f, 0.22f, 0.05f), TextAlignmentOptions.Center, bodyFont);
+            dailyBadge.gameObject.SetActive(false);
+
             var card = root.AddComponent<RecipeCard>();
             card.icon = icon;
             card.frame = frameImg;
@@ -355,6 +361,7 @@ namespace IdleBlacksmith.EditorTools
             card.lockedBadge = lockedBadge.gameObject;
             card.lockedLabel = lockedLabel;
             card.activeBadge = activeBadge.gameObject;
+            card.dailyBadge = dailyBadge.gameObject;
             card.content = content;
 
             return SavePrefabRow(root, RecipeCardPrefabPath);

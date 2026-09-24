@@ -22,6 +22,7 @@ namespace IdleBlacksmith.UI
         public GameObject lockedBadge;
         public TMP_Text lockedLabel;
         public GameObject activeBadge;
+        public GameObject dailyBadge;
         public CanvasGroup content;
 
         RecipeDef def;
@@ -67,6 +68,7 @@ namespace IdleBlacksmith.UI
 
             if (lockedBadge != null) lockedBadge.SetActive(!unlocked);
             if (activeBadge != null) activeBadge.SetActive(active && unlocked);
+            if (dailyBadge != null) dailyBadge.SetActive(gm.RecipeOfTheDay() == def);
             if (lockedLabel != null && !unlocked)
             {
                 var parts = new System.Collections.Generic.List<string>();

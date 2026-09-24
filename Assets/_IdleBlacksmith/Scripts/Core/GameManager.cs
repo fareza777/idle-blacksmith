@@ -87,8 +87,24 @@ namespace IdleBlacksmith.Core
                        * oreMult * Production.PriceMult * Production.GoldMult
                        * (rush != null ? rush.PriceMult : 1f)
                        * (marketFair != null ? marketFair.PriceMult : 1f)
+                       * DailyBonusMult(recipe)
                        * MasteryMultOf(recipe != null ? recipe.id : null);
             return Mathf.Max(1, Mathf.RoundToInt(baseValue * mult));
+        }
+
+        /// <summary>Today's featured recipe — rotates through the catalog one slot per dawn.</summary>
+        public RecipeDef RecipeOfTheDay()
+        {
+            var all = recipes != null ? recipes.All : null;
+            if (all == null || all.Count == 0) return null;
+            int days = Data != null && Data.stats != null ? Data.stats.dayCycles : 0;
+            return all[Mathf.Abs(days) % all.Count];
+        }
+
+        /// <summary>+30% sale bonus while a recipe is today's feature.</summary>
+        public float DailyBonusMult(RecipeDef r)
+        {
+            return r != null && r == RecipeOfTheDay() ? 1.3f : 1f;
         }
 
         static readonly int[] masterySteps = { 10, 25, 60, 120, 250 };
