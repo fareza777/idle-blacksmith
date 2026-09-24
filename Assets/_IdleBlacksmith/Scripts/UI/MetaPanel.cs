@@ -295,12 +295,12 @@ namespace IdleBlacksmith.UI
 
         public void Toggle() { if (IsOpen) Close(); else Open(); }
 
-        public void PreviewOpenForScreenshot(bool stats = false)
+        public void PreviewOpenForScreenshot(int page = 0)
         {
             BuildRows();
             gameObject.SetActive(true);
             IsOpen = true;
-            ShowPage(stats ? 1 : 0);
+            ShowPage(page);
             if (sheet != null) sheet.anchoredPosition = new Vector2(sheet.anchoredPosition.x, openY);
             if (backdrop != null) backdrop.alpha = 1f;
         }

@@ -225,12 +225,15 @@ namespace IdleBlacksmith.EditorTools
 
             if (ui.metaPanel != null)
             {
-                ui.metaPanel.PreviewOpenForScreenshot(false);
+                ui.metaPanel.PreviewOpenForScreenshot(0);
                 Canvas.ForceUpdateCanvases();
                 Render(cam, w, h, "_Screenshots/11_achievements.png");
                 ui.metaPanel.ShowPage(1);
                 Canvas.ForceUpdateCanvases();
                 Render(cam, w, h, "_Screenshots/12_stats.png");
+                ui.metaPanel.ShowPage(2);
+                Canvas.ForceUpdateCanvases();
+                Render(cam, w, h, "_Screenshots/18_codex.png");
                 ui.metaPanel.PreviewClose();
             }
 
