@@ -38,6 +38,7 @@ namespace IdleBlacksmith.EditorTools
             Try("amb_fire", AmbFire());
             Try("amb_night", AmbNight());
             Try("music_deep", MusicDeep());
+            Try("music_fair", MusicFair());
         }
 
         static void Try(string name, float[] samples)
@@ -417,6 +418,46 @@ namespace IdleBlacksmith.EditorTools
             }
 
             // Fold the tail into the head so the loop wraps without a click.
+            int xn = (int)(SR * 0.4f);
+            for (int i = 0; i < xn; i++)
+                s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
+            return s;
+        }
+
+        // A jaunty market-day tune: bright bells on a bouncing root-fifth bass with
+        // tambourine ticks. Twelve seconds, folded tail so it loops without a click.
+        static float[] MusicFair()
+        {
+            const float seconds = 12f;
+            const float step = 0.4f;
+            float[] melody =
+            {
+                440f, 554.37f, 659.25f, 880f, 659.25f,
+                554.37f, 587.33f, 739.99f, 880f, 739.99f,
+                659.25f, 587.33f, 554.37f, 659.25f, 440f,
+                554.37f, 493.88f, 440f, 415.30f, 440f,
+                493.88f, 554.37f, 587.33f, 554.37f, 493.88f,
+                440f, 329.63f, 440f, 493.88f, 440f,
+            };
+            float[] roots = { 110f, 110f, 110f, 110f, 110f, 82.41f, 82.41f, 82.41f, 82.41f, 82.41f,
+                              146.83f, 146.83f, 146.83f, 146.83f, 146.83f, 110f, 110f, 110f, 110f, 110f,
+                              82.41f, 82.41f, 82.41f, 82.41f, 82.41f, 110f, 110f, 110f, 110f, 110f };
+            int n = (int)(SR * seconds);
+            var s = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float x = i / (float)SR;
+                int stepIdx = (int)(x / step) % melody.Length;
+                float lt = x % step;
+                float v = 0f;
+                v += (Sin(melody[stepIdx], lt) + Sin(melody[stepIdx] * 2f, lt) * 0.3f)
+                     * 0.20f * Mathf.Exp(-lt * 5.5f);
+                float root = roots[stepIdx];
+                v += Sin(stepIdx % 2 == 0 ? root : root * 1.5f, lt) * 0.13f * Mathf.Exp(-lt * 4f);
+                float tt = (x + step * 0.5f) % step;
+                v += (Mathf.PerlinNoise(x * 9000f, 0.7f) - 0.5f) * 0.10f * Mathf.Exp(-tt * 40f);
+                s[i] = Mathf.Clamp(v * 0.85f, -1f, 1f);
+            }
             int xn = (int)(SR * 0.4f);
             for (int i = 0; i < xn; i++)
                 s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);

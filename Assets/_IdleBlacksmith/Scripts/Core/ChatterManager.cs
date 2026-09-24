@@ -34,10 +34,18 @@ namespace IdleBlacksmith.Core
             "The forge sings today!",
         };
 
+        static readonly string[] FairLines =
+        {
+            "Best prices all season!", "What a crowd today!",
+            "Saved all month for this!", "Bunting's up — purses out!",
+            "Smell that festival air!", "The fair's worth the walk!",
+        };
+
         static readonly Color Warm = new Color(1f, 0.92f, 0.78f);
         static readonly Color Gold = new Color(1f, 0.84f, 0.4f);
 
         WorkerController worker;
+        FairCrowd crowd;
         float nextAt = 8f;
 
         void Update()
@@ -58,6 +66,18 @@ namespace IdleBlacksmith.Core
             {
                 Speak(patron.transform.position, Pick(PatronLines), Gold);
                 return;
+            }
+
+            // On fair days the browsing villagers chatter about the festival.
+            if (gm.marketFair != null && gm.marketFair.Active)
+            {
+                if (crowd == null) crowd = FindFirstObjectByType<FairCrowd>();
+                Transform stroller = crowd != null ? crowd.RandomStroller : null;
+                if (stroller != null && Random.value < 0.55f)
+                {
+                    Speak(stroller.position, Pick(FairLines), Gold);
+                    return;
+                }
             }
 
             CustomerController shopper = gm.customerSpawner != null ? gm.customerSpawner.Current : null;

@@ -32,6 +32,21 @@ namespace IdleBlacksmith.Gameplay
         GameObject[] villagers;
         Coroutine[] routines;
 
+        /// <summary>A random browsing villager, or null while the fair is off — chatter uses this.</summary>
+        public Transform RandomStroller
+        {
+            get
+            {
+                if (villagers == null || villagers.Length == 0) return null;
+                for (int tries = 0; tries < villagers.Length; tries++)
+                {
+                    var g = villagers[Random.Range(0, villagers.Length)];
+                    if (g != null) return g.transform;
+                }
+                return null;
+            }
+        }
+
         void Update()
         {
             var gm = GameManager.Instance;

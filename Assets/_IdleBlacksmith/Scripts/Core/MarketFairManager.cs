@@ -43,6 +43,8 @@ namespace IdleBlacksmith.Core
                 UI.SettingsPanel.Buzz();
                 AudioManager.Play("ember_whoosh", 0.045f, 0.85f);
             }
+            // The festival gets its own tune; the forge theme comes back at close.
+            AudioManager.PlayMusic(Active ? "music_fair" : UIManager.ThemeId(), 2f);
             OnChanged?.Invoke();
         }
     }
