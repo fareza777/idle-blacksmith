@@ -102,6 +102,10 @@ namespace IdleBlacksmith.Gameplay
                 flags[i] = f.transform;
             }
 
+            // Two market stalls flank the forecourt on fair days.
+            Stall(new Vector3(-3.7f, 0f, -1.3f), 0);
+            Stall(new Vector3(3.7f, 0f, -1.3f), 2);
+
             root.gameObject.SetActive(false);
         }
 
@@ -122,6 +126,75 @@ namespace IdleBlacksmith.Gameplay
             var rc = cap.GetComponent<MeshRenderer>();
             rc.material = poleMat;
             rc.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        }
+
+        // A simple market stall: table with goods, two awning poles, striped canopy.
+        void Stall(Vector3 basePos, int colorOffset)
+        {
+            var sh = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+            var wood = new Material(sh); wood.SetColor("_BaseColor", new Color(0.45f, 0.30f, 0.18f));
+            var woodDark = new Material(sh); woodDark.SetColor("_BaseColor", new Color(0.32f, 0.21f, 0.13f));
+            var awningA = flagMats[colorOffset % flagMats.Length];
+            var awningB = flagMats[(colorOffset + 1) % flagMats.Length];
+
+            // Counter top + two side boards.
+            var top = Primitives.Create(PrimitiveType.Cube);
+            top.transform.SetParent(root, false);
+            top.transform.position = basePos + new Vector3(0f, 0.52f, 0f);
+            top.transform.localScale = new Vector3(1.15f, 0.08f, 0.62f);
+            top.GetComponent<MeshRenderer>().material = wood;
+            foreach (float sx in new[] { -0.5f, 0.5f })
+            {
+                var board = Primitives.Create(PrimitiveType.Cube);
+                board.transform.SetParent(root, false);
+                board.transform.position = basePos + new Vector3(sx, 0.25f, 0f);
+                board.transform.localScale = new Vector3(0.08f, 0.5f, 0.58f);
+                board.GetComponent<MeshRenderer>().material = woodDark;
+            }
+
+            // Goods on the counter: a crate, two round wares, a folded cloth.
+            var crate = Primitives.Create(PrimitiveType.Cube);
+            crate.transform.SetParent(root, false);
+            crate.transform.position = basePos + new Vector3(-0.32f, 0.66f, 0.05f);
+            crate.transform.localScale = new Vector3(0.28f, 0.20f, 0.30f);
+            crate.GetComponent<MeshRenderer>().material = woodDark;
+            var round = Primitives.Create(PrimitiveType.Sphere);
+            round.transform.SetParent(root, false);
+            round.transform.position = basePos + new Vector3(0.02f, 0.65f, 0.02f);
+            round.transform.localScale = Vector3.one * 0.18f;
+            round.GetComponent<MeshRenderer>().material = flagMats[(colorOffset + 2) % flagMats.Length];
+            var round2 = Primitives.Create(PrimitiveType.Sphere);
+            round2.transform.SetParent(root, false);
+            round2.transform.position = basePos + new Vector3(0.24f, 0.64f, -0.08f);
+            round2.transform.localScale = Vector3.one * 0.14f;
+            round2.GetComponent<MeshRenderer>().material = flagMats[(colorOffset + 3) % flagMats.Length];
+            var cloth = Primitives.Create(PrimitiveType.Cube);
+            cloth.transform.SetParent(root, false);
+            cloth.transform.position = basePos + new Vector3(0.36f, 0.63f, 0.12f);
+            cloth.transform.rotation = Quaternion.Euler(0f, 18f, 0f);
+            cloth.transform.localScale = new Vector3(0.24f, 0.08f, 0.20f);
+            cloth.GetComponent<MeshRenderer>().material = flagMats[colorOffset % flagMats.Length];
+
+            // Awning poles at the back corners.
+            foreach (float sx in new[] { -0.55f, 0.55f })
+            {
+                var pole = Primitives.Create(PrimitiveType.Cylinder);
+                pole.transform.SetParent(root, false);
+                pole.transform.position = basePos + new Vector3(sx, 0.85f, -0.25f);
+                pole.transform.localScale = new Vector3(0.05f, 0.85f, 0.05f);
+                pole.GetComponent<MeshRenderer>().material = wood;
+            }
+
+            // Striped canopy: five strips alternating stall colors, tilted toward the street.
+            for (int i = 0; i < 5; i++)
+            {
+                var strip = Primitives.Create(PrimitiveType.Cube);
+                strip.transform.SetParent(root, false);
+                strip.transform.position = basePos + new Vector3(-0.48f + i * 0.24f, 1.62f, 0.02f);
+                strip.transform.rotation = Quaternion.Euler(-16f, 0f, 0f);
+                strip.transform.localScale = new Vector3(0.23f, 0.03f, 0.85f);
+                strip.GetComponent<MeshRenderer>().material = i % 2 == 0 ? awningA : awningB;
+            }
         }
 
         Vector3 Catenary(Vector3 a, Vector3 b, float t)

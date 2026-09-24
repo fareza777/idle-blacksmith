@@ -95,9 +95,9 @@ namespace IdleBlacksmith.EditorTools
             var fairGo = new GameObject("FairBuntingPreview");
             var fair = fairGo.AddComponent<IdleBlacksmith.Gameplay.FairBunting>();
             fair.PreviewBuild();
-            cam.transform.position = new Vector3(0f, 2.6f, -6.4f);
-            cam.transform.LookAt(new Vector3(0f, 1.6f, -0.5f));
-            cam.orthographicSize = 2.6f;
+            cam.transform.position = new Vector3(0f, 3.4f, -8.6f);
+            cam.transform.LookAt(new Vector3(0f, 1.2f, -0.6f));
+            cam.orthographicSize = 4.4f;
             Render(cam, 1080, 1080, "_Screenshots/19_fair.png");
             Object.DestroyImmediate(fairGo);
 
