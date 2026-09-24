@@ -997,6 +997,7 @@ namespace IdleBlacksmith.EditorTools
             cfg.customerPrefabA = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CustomerAPrefab);
             cfg.customerPrefabB = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CustomerBPrefab);
             cfg.customerPrefabC = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CustomerCPrefab);
+            cfg.customerPrefabD = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CustomerDPrefab);
             cfg.vendorPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.VendorPrefab);
             cfg.mysticPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.MysticPrefab);
             cfg.stokerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.StokerPrefab);

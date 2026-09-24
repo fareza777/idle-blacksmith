@@ -17,6 +17,7 @@ namespace IdleBlacksmith.EditorTools
         public const string CustomerAPrefab = Paths.Prefabs + "/CustomerA.prefab";
         public const string CustomerBPrefab = Paths.Prefabs + "/CustomerB.prefab";
         public const string CustomerCPrefab = Paths.Prefabs + "/CustomerC.prefab";
+        public const string CustomerDPrefab = Paths.Prefabs + "/CustomerD.prefab";
         public const string VendorPrefab = Paths.Prefabs + "/Vendor.prefab";
         public const string MysticPrefab = Paths.Prefabs + "/Mystic.prefab";
         public const string StokerPrefab = Paths.Prefabs + "/Stoker.prefab";
@@ -143,12 +144,13 @@ namespace IdleBlacksmith.EditorTools
             BuildCharacter("CustomerA", Palette.ShirtOrange, Palette.HairBrown, false, Hat.Straw, Palette.PlumDark);
             BuildCharacter("CustomerB", Palette.Teal, Palette.HairBlack, false, Hat.Buns, Palette.PlumDark);
             BuildCharacter("CustomerC", Palette.ShirtPurple, Palette.HairBlond, false, Hat.Feather, Palette.PlumDark);
+            BuildCharacter("CustomerD", Palette.RedAccent, Palette.HairBlond, false, Hat.Bonnet, Palette.Pants);
             BuildCharacter("Vendor", Palette.ClothCream, Palette.HairBrown, true, Hat.Cap, Palette.Pants);
             BuildCharacter("Mystic", Palette.PlumDark, Palette.HairBlack, false, Hat.Hood, Palette.PlumDark);
             BuildCharacter("Stoker", Palette.ShirtOrange, Palette.HairBlack, true, Hat.Headband, Palette.Coal);
         }
 
-        enum Hat { Cap, Straw, Buns, Headband, Feather, Hood }
+        enum Hat { Cap, Straw, Buns, Headband, Feather, Hood, Bonnet }
 
         static void BuildCharacter(string name, int shirt, int hair, bool apron, Hat hat, int pants)
         {
@@ -210,6 +212,13 @@ namespace IdleBlacksmith.EditorTools
                     b.Box(new Vector3(0, 0.30f, -0.225f), new Vector3(0.52f, 0.36f, 0.07f), Palette.PlumDark);
                     b.Box(new Vector3(-0.25f, 0.36f, -0.02f), new Vector3(0.07f, 0.30f, 0.46f), Palette.PlumDark);
                     b.Box(new Vector3(0.25f, 0.36f, -0.02f), new Vector3(0.07f, 0.30f, 0.46f), Palette.PlumDark);
+                    break;
+                case Hat.Bonnet:
+                    // peddler's bonnet: pink cap, back drape, brim fold and a little chin bow
+                    b.Box(new Vector3(0, 0.47f, -0.04f), new Vector3(0.50f, 0.13f, 0.46f), Palette.FlowerPink);
+                    b.Box(new Vector3(0, 0.35f, -0.22f), new Vector3(0.46f, 0.26f, 0.08f), Palette.FlowerPink);
+                    b.Box(new Vector3(0, 0.42f, 0.19f), new Vector3(0.48f, 0.06f, 0.10f), Palette.FlowerPink);
+                    b.Box(new Vector3(0, 0.23f, 0.20f), new Vector3(0.10f, 0.06f, 0.06f), Palette.FlowerPink);
                     break;
             }
             Mesh headMesh = SaveMesh(b, name + "_Head");

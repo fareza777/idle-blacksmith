@@ -54,9 +54,19 @@ namespace IdleBlacksmith.Gameplay
         {
             // Rare golden visitor: a distinct noble when the model exists, else a gilded regular.
             bool vip = Random.value < vipChance;
-            GameObject prefab = vip && config.customerPrefabC != null
-                ? config.customerPrefabC
-                : (Random.value < 0.5f ? config.customerPrefabA : config.customerPrefabB);
+            GameObject prefab;
+            if (vip && config.customerPrefabC != null)
+            {
+                prefab = config.customerPrefabC;
+            }
+            else
+            {
+                // Three regular villagers: the bonneted peddler joins the farmer and the seamstress.
+                float roll = Random.value;
+                prefab = roll < 0.36f ? config.customerPrefabA
+                     : roll < 0.72f ? config.customerPrefabB
+                     : (config.customerPrefabD != null ? config.customerPrefabD : config.customerPrefabA);
+            }
             if (prefab == null || spawnPoint == null) return;
 
             GameObject go = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation, transform);

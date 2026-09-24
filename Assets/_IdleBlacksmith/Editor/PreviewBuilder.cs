@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using IdleBlacksmith.Core;
 using IdleBlacksmith.UI;
@@ -99,6 +100,27 @@ namespace IdleBlacksmith.EditorTools
             cam.orthographicSize = 2.6f;
             Render(cam, 1080, 1080, "_Screenshots/19_fair.png");
             Object.DestroyImmediate(fairGo);
+
+            // Customer lineup: every shopper model side by side for a visual pass on the cast.
+            var lineup = new List<GameObject>();
+            if (preload != null && preload.config != null)
+            {
+                var cfg = preload.config;
+                var prefabs = new[] { cfg.customerPrefabA, cfg.customerPrefabB, cfg.customerPrefabC, cfg.customerPrefabD };
+                for (int i = 0; i < prefabs.Length; i++)
+                {
+                    if (prefabs[i] == null) continue;
+                    var inst = (GameObject)PrefabUtility.InstantiatePrefab(prefabs[i]);
+                    inst.transform.position = new Vector3(-1.4f + i * 0.95f, 0f, -6.2f);
+                    inst.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+                    lineup.Add(inst);
+                }
+                cam.transform.position = new Vector3(0f, 1.4f, -9.0f);
+                cam.transform.LookAt(new Vector3(0f, 0.7f, -6.2f));
+                cam.orthographicSize = 1.3f;
+                Render(cam, 1080, 1080, "_Screenshots/20_customers.png");
+                foreach (GameObject g in lineup) Object.DestroyImmediate(g);
+            }
 
             // Remaining sheets all render in overlay mode against a frozen camera.
             canvas.renderMode = RenderMode.ScreenSpaceCamera;

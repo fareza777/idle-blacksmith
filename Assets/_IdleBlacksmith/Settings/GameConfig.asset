@@ -1304,6 +1304,7 @@ MonoBehaviour:
   customerPrefabA: {fileID: 6717537910521031009, guid: 1d08f49f91edf184283cde0f1e58c8bc, type: 3}
   customerPrefabB: {fileID: 1825171781917545765, guid: 15f74a505191f8340bba110430fe5493, type: 3}
   customerPrefabC: {fileID: 8669693862358168829, guid: 993883b5ad55dcc8c9c8123fff5fe638, type: 3}
+  customerPrefabD: {fileID: 6179872581722397717, guid: bb8189231f52b83119fd9e7aaa38b53f, type: 3}
   vendorPrefab: {fileID: 6053979202876858400, guid: 6d7d08a0f097d76048fda04221994604, type: 3}
   mysticPrefab: {fileID: 5109953914527540470, guid: d5dc71b6608fe3f9f9f8f78285b55380, type: 3}
   stokerPrefab: {fileID: 847840825305347185, guid: 787be21057add4f4b9cc5137e944168c, type: 3}
