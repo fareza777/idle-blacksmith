@@ -501,5 +501,69 @@ namespace IdleBlacksmith.UI
             FloatingText ft = pool.Count > 0 ? pool.Dequeue() : Instantiate(floatingTextPrefab, floatingTextLayer);
             ft.Play(local, text, color, f => pool.Enqueue(f));
         }
+
+        // ------------------------------------------------------------ coin flight
+
+        readonly Queue<Image> coinPool = new Queue<Image>();
+        Sprite coinSprite;
+
+        /// <summary>A coin arcs from a world-space sale point to the gold pill — the money beat.</summary>
+        public void FlyCoin(Vector3 worldPos)
+        {
+            if (floatingTextLayer == null || goldCounter == null) return;
+            if (mainCamera == null) mainCamera = Camera.main;
+            if (mainCamera == null) return;
+
+            Vector3 screen = mainCamera.WorldToScreenPoint(worldPos);
+            if (screen.z < 0f) return;
+
+            Canvas canvas = floatingTextLayer.GetComponentInParent<Canvas>();
+            Camera uiCam = canvas != null && canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : mainCamera;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                floatingTextLayer, screen, uiCam, out Vector2 from);
+
+            if (coinSprite == null && goldCounter.coinIcon != null)
+                coinSprite = goldCounter.coinIcon.GetComponentInChildren<Image>()?.sprite;
+
+            // Both elements share the canvas, so InverseTransformPoint lands in the
+            // layer's anchor space without caring about the canvas render mode.
+            Vector3 iconWorld = goldCounter.coinIcon != null
+                ? goldCounter.coinIcon.position
+                : goldCounter.transform.position;
+            Vector2 to = floatingTextLayer.InverseTransformPoint(iconWorld);
+
+            Image img = coinPool.Count > 0 ? coinPool.Dequeue() : SpawnCoin();
+            if (img == null) return;
+            img.sprite = coinSprite;
+            img.gameObject.SetActive(true);
+            var rt = img.rectTransform;
+            rt.anchoredPosition = from;
+            rt.localScale = Vector3.one;
+
+            float arc = 110f + Random.Range(0f, 70f);
+            Tween.Custom(0f, 1f, 0.55f, p =>
+            {
+                Vector2 pos = Vector2.LerpUnclamped(from, to, p);
+                pos.y += Mathf.Sin(p * Mathf.PI) * arc;
+                rt.anchoredPosition = pos;
+                rt.localScale = Vector3.one * (1f - p * 0.5f);
+            }, Ease.InQuad).OnComplete(() =>
+            {
+                img.gameObject.SetActive(false);
+                coinPool.Enqueue(img);
+                goldCounter.Punch();
+            });
+        }
+
+        Image SpawnCoin()
+        {
+            var go = new GameObject("FlyCoin", typeof(RectTransform), typeof(Image));
+            var rt = (RectTransform)go.transform;
+            rt.SetParent(floatingTextLayer, false);
+            rt.sizeDelta = new Vector2(46f, 46f);
+            var img = go.GetComponent<Image>();
+            img.raycastTarget = false;
+            return img;
+        }
     }
 }

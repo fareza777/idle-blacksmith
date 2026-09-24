@@ -75,6 +75,7 @@ namespace IdleBlacksmith.Gameplay
                     swordPos + Vector3.up * 0.4f,
                     isVip ? "VIP +" + price : "+" + price,
                     isVip ? new Color(1f, 0.86f, 0.3f) : RarityInfo.TextColor(item.rarity));
+                UIManager.Instance?.FlyCoin(swordPos);
                 AudioManager.Play("coin");
                 GameManager.Instance.Save();
                 yield return new WaitForSeconds(0.75f);
