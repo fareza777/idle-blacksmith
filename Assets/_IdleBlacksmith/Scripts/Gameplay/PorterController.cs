@@ -97,8 +97,7 @@ namespace IdleBlacksmith.Gameplay
 
         GameObject BuildCrate()
         {
-            var c = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            Destroy(c.GetComponent<Collider>());
+            var c = Primitives.Create(PrimitiveType.Cube);
             c.transform.SetParent(transform, false);
             c.transform.localScale = Vector3.one * crateSize;
             var r = c.GetComponent<MeshRenderer>();

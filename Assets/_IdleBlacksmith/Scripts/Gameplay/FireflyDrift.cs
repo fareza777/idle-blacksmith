@@ -30,9 +30,7 @@ namespace IdleBlacksmith.Gameplay
             moteSpeed = new float[n];
             for (int i = 0; i < n; i++)
             {
-                var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                var col = go.GetComponent<Collider>();
-                if (col != null) Destroy(col);
+                var go = Primitives.Create(PrimitiveType.Sphere);
                 go.transform.SetParent(transform, false);
                 go.transform.localScale = Vector3.zero;
                 var r = go.GetComponent<MeshRenderer>();

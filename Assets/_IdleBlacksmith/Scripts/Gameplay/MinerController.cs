@@ -113,8 +113,7 @@ namespace IdleBlacksmith.Gameplay
 
         GameObject BuildChunk()
         {
-            var c = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            Destroy(c.GetComponent<Collider>());
+            var c = Primitives.Create(PrimitiveType.Cube);
             c.transform.SetParent(npc != null ? npc : transform, false);
             c.transform.localScale = new Vector3(0.20f, 0.15f, 0.24f);
             var r = c.GetComponent<MeshRenderer>();

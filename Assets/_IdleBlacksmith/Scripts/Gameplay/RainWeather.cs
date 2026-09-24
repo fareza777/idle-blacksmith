@@ -35,8 +35,7 @@ namespace IdleBlacksmith.Gameplay
             dropSeed = new float[streaks];
             for (int i = 0; i < streaks; i++)
             {
-                var c = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                Destroy(c.GetComponent<Collider>());
+                var c = Primitives.Create(PrimitiveType.Cube);
                 c.transform.SetParent(transform, false);
                 var r = c.GetComponent<MeshRenderer>();
                 r.material = rainMat;

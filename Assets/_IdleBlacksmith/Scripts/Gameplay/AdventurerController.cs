@@ -173,8 +173,7 @@ namespace IdleBlacksmith.Gameplay
 
         GameObject BuildSack()
         {
-            var c = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            Destroy(c.GetComponent<Collider>());
+            var c = Primitives.Create(PrimitiveType.Sphere);
             c.transform.SetParent(npc != null ? npc : transform, false);
             c.transform.localScale = new Vector3(0.30f, 0.24f, 0.30f);
             var r = c.GetComponent<MeshRenderer>();

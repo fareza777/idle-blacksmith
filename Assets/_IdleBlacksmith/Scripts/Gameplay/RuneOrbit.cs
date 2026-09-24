@@ -65,9 +65,7 @@ namespace IdleBlacksmith.Gameplay
 
         Transform MakeShard()
         {
-            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            var col = go.GetComponent<Collider>();
-            if (col != null) Destroy(col);
+            var go = Primitives.Create(PrimitiveType.Cube);
             go.transform.localScale = new Vector3(0.13f, 0.22f, 0.13f);
             go.transform.localRotation = Quaternion.Euler(35f, 30f, 20f);
             var r = go.GetComponent<MeshRenderer>();

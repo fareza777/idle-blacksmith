@@ -258,6 +258,38 @@ For a Play-ready build, switch to a release keystore and enable AAB in
 
 ---
 
+## Player-build pitfalls (learned the hard way)
+
+The IL2CPP/Android packaging pipeline has failure modes that only show up in
+device builds — never in the editor:
+
+- **Every `MonoBehaviour` must be the primary class of its file** (filename ==
+  class name). A component declared as a *secondary* class gets an *embedded*
+  MonoScript reference whose name-resolution fails non-deterministically at build
+  time; when it fails the component serializes as an empty 32-byte stub and the
+  player crashes with `level0 corrupted`. (Root cause of the recurring crash —
+  fixed by moving `ProductionManager` into `ProductionManager.cs`.)
+- **Only `Shader.Find` shaders that ship via serialized materials.** Shaders
+  referenced *only* from runtime code get stripped: `new Material(null)` throws in
+  `Start()` and every dependent system silently dies (all ambient effects were
+  invisible on device for several builds). Use `URP/Particles/Unlit` — it stays
+  bundled — never `URP/Unlit`.
+- **Collider classes are stripped** (no code references them).
+  `GameObject.CreatePrimitive` still builds the visual but logs
+  `class X doesn't exist` — use `Primitives.Create` (collider-free) instead.
+- **Nested types inside a `MonoBehaviour` corrupt scene serialization** — keep
+  helper types at file top level.
+- **Never edit files while a Unity build is running** — it poisons Library/Bee
+  caches and every subsequent package carries corrupted bytes.
+- **Kill the emulator before building** (`adb emu kill`) — IL2CPP plus a running
+  emulator OOMs and the build worker dies mid-package → corrupt APK/AAB.
+- **Keep scene-component serialized field sets stable** — risky in this pipeline;
+  ephemeral state goes `static` (see `UIManager`'s floater-burst fields).
+- **Emulator note:** swiftshader renders ~1 fps and injected taps may not reach
+  Unity's input pipeline — verify interactability statically or on a real device.
+
+---
+
 ## Tuning
 
 Everything gameplay-related lives on **`Assets/_IdleBlacksmith/Settings/GameConfig.asset`**:

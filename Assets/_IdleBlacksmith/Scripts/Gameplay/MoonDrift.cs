@@ -28,15 +28,13 @@ namespace IdleBlacksmith.Gameplay
             haloMat = new Material(sh);
             haloMat.SetColor("_BaseColor", new Color(0.55f, 0.62f, 0.9f, 0.35f));
 
-            var h = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            Destroy(h.GetComponent<Collider>());
+            var h = Primitives.Create(PrimitiveType.Sphere);
             h.transform.SetParent(transform, false);
             h.GetComponent<MeshRenderer>().material = haloMat;
             h.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             halo = h.transform;
 
-            var m = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            Destroy(m.GetComponent<Collider>());
+            var m = Primitives.Create(PrimitiveType.Sphere);
             m.transform.SetParent(transform, false);
             m.GetComponent<MeshRenderer>().material = moonMat;
             m.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;

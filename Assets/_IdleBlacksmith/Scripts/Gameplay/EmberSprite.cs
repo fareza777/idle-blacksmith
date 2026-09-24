@@ -126,8 +126,7 @@ namespace IdleBlacksmith.Gameplay
 
         Transform BuildSprite()
         {
-            var c = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            Destroy(c.GetComponent<Collider>());
+            var c = Primitives.Create(PrimitiveType.Sphere);
             c.transform.SetParent(transform, false);
             var r = c.GetComponent<MeshRenderer>();
             if (r != null)

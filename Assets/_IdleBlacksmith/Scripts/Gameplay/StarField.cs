@@ -33,8 +33,7 @@ namespace IdleBlacksmith.Gameplay
             starSize = new float[count];
             for (int i = 0; i < count; i++)
             {
-                var c = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                Destroy(c.GetComponent<Collider>());
+                var c = Primitives.Create(PrimitiveType.Sphere);
                 c.transform.SetParent(transform, false);
                 var r = c.GetComponent<MeshRenderer>();
                 r.material = starMat;
