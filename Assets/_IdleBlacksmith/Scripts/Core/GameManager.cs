@@ -397,6 +397,10 @@ namespace IdleBlacksmith.Core
             // Bunting over the forecourt, raised only on market-fair days.
             var buntingGo = new GameObject("FairBunting");
             buntingGo.AddComponent<FairBunting>();
+
+            // Strolling villagers who only show up for the fair.
+            var crowdGo = new GameObject("FairCrowd");
+            crowdGo.AddComponent<FairCrowd>();
         }
 
         // ------------------------------------------------------------ shop expansion

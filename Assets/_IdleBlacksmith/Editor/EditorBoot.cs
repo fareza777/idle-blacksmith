@@ -243,6 +243,7 @@ namespace IdleBlacksmith.EditorTools
             bool fairSeen = false;
             bool fairPriceUp = false;
             bool fairBuntingUp = false;
+            bool fairCrowdUp = false;
             Application.logMessageReceived += OnLog;
             EditorApplication.update += Tick;
             EditorApplication.EnterPlaymode();
@@ -298,6 +299,8 @@ namespace IdleBlacksmith.EditorTools
                     if (gmNow.marketFair.PriceMult > 1f) fairPriceUp = true;
                     var bun = Object.FindFirstObjectByType<IdleBlacksmith.Gameplay.FairBunting>();
                     if (bun != null) fairBuntingUp = true;
+                    var crowd = Object.FindFirstObjectByType<IdleBlacksmith.Gameplay.FairCrowd>();
+                    if (crowd != null && crowd.transform.childCount > 0) fairCrowdUp = true;
                 }
 
                 if (gameSeconds >= TargetGameSeconds || frames >= FrameSafetyCap)
@@ -344,7 +347,7 @@ namespace IdleBlacksmith.EditorTools
                             + $"forged={forgedSeen} smithy={smithyLevel} recipesOpen={recipesOpen} rackStock={rackStock} "
                             + $"questsDone={questsClaimed}/{questsTotal} exceptions={exceptions}");
                     Debug.Log($"[Smoke] {craft} phase={phase} oreCap={oreCap} {prod} workerPos={wpos}");
-                    Debug.Log($"[Smoke] fairSeen={fairSeen} fairPriceUp={fairPriceUp} fairBuntingUp={fairBuntingUp}");
+                    Debug.Log($"[Smoke] fairSeen={fairSeen} fairPriceUp={fairPriceUp} fairBuntingUp={fairBuntingUp} fairCrowdUp={fairCrowdUp}");
 
                     if (!oreRatePositive) Debug.LogWarning("[Smoke] ore production rate is zero");
                     if (!oreChanged) Debug.LogWarning("[Smoke] ore never moved during the run");

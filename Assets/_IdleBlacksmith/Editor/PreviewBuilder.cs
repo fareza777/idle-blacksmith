@@ -95,10 +95,27 @@ namespace IdleBlacksmith.EditorTools
             var fairGo = new GameObject("FairBuntingPreview");
             var fair = fairGo.AddComponent<IdleBlacksmith.Gameplay.FairBunting>();
             fair.PreviewBuild();
+            // A couple of strollers browsing the stalls, like FairCrowd spawns at runtime.
+            var fairCfg = preload != null ? preload.config : null;
+            var strollers = new List<GameObject>();
+            if (fairCfg != null)
+            {
+                var spots = new[] { new Vector3(-2.0f, 0f, -1.15f), new Vector3(1.9f, 0f, -1.35f), new Vector3(0.1f, 0f, -1.9f) };
+                var pool = new[] { fairCfg.customerPrefabD, fairCfg.customerPrefabA, fairCfg.customerPrefabB };
+                for (int i = 0; i < spots.Length; i++)
+                {
+                    if (pool[i] == null) continue;
+                    var inst = (GameObject)PrefabUtility.InstantiatePrefab(pool[i]);
+                    inst.transform.position = spots[i];
+                    inst.transform.rotation = Quaternion.Euler(0f, i == 0 ? 160f : (i == 1 ? 200f : 180f), 0f);
+                    strollers.Add(inst);
+                }
+            }
             cam.transform.position = new Vector3(0f, 3.4f, -8.6f);
             cam.transform.LookAt(new Vector3(0f, 1.2f, -0.6f));
             cam.orthographicSize = 4.4f;
             Render(cam, 1080, 1080, "_Screenshots/19_fair.png");
+            foreach (GameObject g in strollers) Object.DestroyImmediate(g);
             Object.DestroyImmediate(fairGo);
 
             // Customer lineup: every shopper model side by side for a visual pass on the cast.
