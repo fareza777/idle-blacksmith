@@ -169,14 +169,14 @@ namespace IdleBlacksmith.EditorTools
                     b.Box(new Vector3(0, 0, -0.115f), new Vector3(0.046f, 0.046f, 0.19f), grip);
                     b.Box(new Vector3(0, 0, -0.235f), new Vector3(0.08f, 0.08f, 0.05f), guard);        // heavy dark pommel
                     break;
-                case RecipeId.Starforged: // celestial longsword: luminous straight blade, star crossguard
-                    b.Box(new Vector3(0, 0, 0.32f), new Vector3(0.046f, 0.013f, 0.56f), blade);
-                    b.Box(new Vector3(0, 0, 0.615f), new Vector3(0.018f, 0.013f, 0.07f), blade);
-                    b.Box(Vector3.zero, new Vector3(0.17f, 0.030f, 0.040f), guard);   // crossbar
-                    b.Box(new Vector3(0, 0.052f, 0.005f), new Vector3(0.030f, 0.072f, 0.038f), guard); // star point up
-                    b.Box(new Vector3(0, -0.052f, 0.005f), new Vector3(0.030f, 0.072f, 0.038f), guard); // star point down
-                    b.Box(new Vector3(0, 0, -0.075f), new Vector3(0.040f, 0.040f, 0.12f), grip);
-                    b.Box(new Vector3(0, 0, -0.15f), new Vector3(0.055f, 0.055f, 0.055f), guard);      // star pommel
+                case RecipeId.Starforged: // celestial longsword — shares the void greatblade silhouette (custom mesh pending)
+                    b.Box(new Vector3(0, 0, 0.30f), new Vector3(0.085f, 0.016f, 0.48f), blade);
+                    b.Box(new Vector3(-0.028f, 0, 0.575f), new Vector3(0.038f, 0.016f, 0.09f), blade); // left prong
+                    b.Box(new Vector3(0.028f, 0, 0.575f), new Vector3(0.038f, 0.016f, 0.09f), blade);  // right prong
+                    b.Box(new Vector3(0, 0, 0.545f), new Vector3(0.018f, 0.016f, 0.05f), guard);        // void gap notch
+                    b.Box(Vector3.zero, new Vector3(0.20f, 0.036f, 0.040f), guard);
+                    b.Box(new Vector3(0, 0, -0.115f), new Vector3(0.046f, 0.046f, 0.19f), grip);
+                    b.Box(new Vector3(0, 0, -0.235f), new Vector3(0.08f, 0.08f, 0.05f), guard);        // heavy dark pommel
                     break;
                 case RecipeId.Dragonsteel: // greatsword: wide blade, parry hooks, two-hand grip
                     b.Box(new Vector3(0, 0, 0.30f), new Vector3(0.075f, 0.016f, 0.52f), blade);
