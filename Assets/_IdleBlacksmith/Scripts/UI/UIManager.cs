@@ -97,6 +97,7 @@ namespace IdleBlacksmith.UI
         static Vector2 lastFloaterPos;
         static float lastFloaterAt = -10f;
         static int floaterStreak;
+        static bool complexSeen;
 
         void Awake()
         {
@@ -159,7 +160,7 @@ namespace IdleBlacksmith.UI
                 complexButton.onClick.AddListener(() =>
                 {
                     OpenExclusive(complexPanel);
-                    if (complexButtonPulse != null) complexButtonPulse.Stop();
+                    complexSeen = true;
                 });
             if (forgeButton != null && forgePanel != null)
                 forgeButton.onClick.AddListener(() => OpenExclusive(forgePanel));
@@ -172,11 +173,7 @@ namespace IdleBlacksmith.UI
             if (questButton != null && questPanel != null)
                 questButton.onClick.AddListener(() => OpenExclusive(questPanel));
             if (upgradesButton != null && upgradePanel != null)
-                upgradesButton.onClick.AddListener(() =>
-                {
-                    OpenExclusive(upgradePanel);
-                    if (upgradesButtonPulse != null) upgradesButtonPulse.Stop();
-                });
+                upgradesButton.onClick.AddListener(() => OpenExclusive(upgradePanel));
         }
 
         void InitPanels()
@@ -394,6 +391,11 @@ namespace IdleBlacksmith.UI
                     SetDungeonBadge(gm.expeditions != null && gm.expeditions.ReadyToClaim);
                     if (questBadge != null && gm.quests != null)
                         questBadge.SetActive(gm.quests.IsComplete);
+                    int gold = gm.economy != null ? gm.economy.Gold : 0;
+                    if (complexButtonPulse != null && complexPanel != null)
+                        complexButtonPulse.SetActive(!complexPanel.IsOpen && (!complexSeen || AnyBuildingAffordable(gm, gold)));
+                    if (upgradesButtonPulse != null && upgradePanel != null)
+                        upgradesButtonPulse.SetActive(!upgradePanel.IsOpen && AnyUpgradeAffordable(gm, gold));
                 }
             }
         }
@@ -468,6 +470,22 @@ namespace IdleBlacksmith.UI
                 ft.gameObject.SetActive(false);
                 pool.Enqueue(ft);
             }
+        }
+
+        static bool AnyBuildingAffordable(GameManager gm, int gold)
+        {
+            if (gm.buildings == null || gm.config == null || gm.config.buildings == null) return false;
+            foreach (BuildingDef def in gm.config.buildings)
+                if (def != null && gm.buildings.CanUpgrade(def.id, gold)) return true;
+            return false;
+        }
+
+        static bool AnyUpgradeAffordable(GameManager gm, int gold)
+        {
+            if (gm.upgrades != null && gm.config != null && gm.config.upgrades != null)
+                foreach (UpgradeDef def in gm.config.upgrades)
+                    if (def != null && gm.upgrades.CanAfford(def, gold)) return true;
+            return !gm.HelperUnlocked && gm.config != null && gold >= gm.config.helperCost;
         }
 
         /// <summary>Full-screen color pulse — the rekindle flash, a soft daily-claim glow.</summary>

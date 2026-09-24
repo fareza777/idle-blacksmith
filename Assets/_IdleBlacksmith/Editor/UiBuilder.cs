@@ -134,6 +134,9 @@ namespace IdleBlacksmith.EditorTools
 
             BouncyButton menuBtn = RailButton(railGo, "MenuButton", "settings", Cream, out Image _);
             BouncyButton upBtn = RailButton(railGo, "UpgradesButton", "craft", Orange, out _);
+            // Starts stopped — the HUD tick pulses it only while something is affordable.
+            var upgradesPulse = upBtn.gameObject.AddComponent<PulseLoop>();
+            upgradesPulse.startStopped = true;
             BouncyButton achBtn = RailButton(railGo, "AchievementsButton", "trophy", Hex(0xC99638), out _);
             BouncyButton prestBtn = RailButton(railGo, "PrestigeButton", "ember", Hex(0xD95F4E), out _);
             BouncyButton muteBtn = RailButton(railGo, "MuteButton", "sound_on", Cream, out Image muteIcon);
@@ -224,6 +227,7 @@ namespace IdleBlacksmith.EditorTools
             ui.soundOnSprite = AssetFactory.LoadIcon("sound_on");
             ui.soundOffSprite = AssetFactory.LoadIcon("sound_off");
             ui.upgradesButton = upBtn;
+            ui.upgradesButtonPulse = upgradesPulse;
             ui.upgradePanel = panel;
             ui.dungeonButton = dgBtn;
             ui.dungeonPanel = dungeonPanel;
