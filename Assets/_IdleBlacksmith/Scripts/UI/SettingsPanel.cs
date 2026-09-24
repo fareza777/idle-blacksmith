@@ -208,7 +208,8 @@ namespace IdleBlacksmith.UI
                 var img = resetButton.targetGraphic as Image;
                 if (img != null) img.color = resetArmed ? new Color(0.89f, 0.36f, 0.31f) : new Color(0.80f, 0.62f, 0.55f);
             }
-            if (savePathLabel != null) savePathLabel.text = "Save file: " + SaveSystem.PathForLog;
+            if (savePathLabel != null)
+                savePathLabel.text = "Progress saves automatically · " + System.IO.Path.GetFileName(SaveSystem.PathForLog);
         }
 
         public void Open()
