@@ -401,6 +401,10 @@ namespace IdleBlacksmith.Core
             // Strolling villagers who only show up for the fair.
             var crowdGo = new GameObject("FairCrowd");
             crowdGo.AddComponent<FairCrowd>();
+
+            // Butterflies over the front garden while the sun is up.
+            var flyGo = new GameObject("ButterflyDrift");
+            flyGo.AddComponent<ButterflyDrift>();
         }
 
         // ------------------------------------------------------------ shop expansion
