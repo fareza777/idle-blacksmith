@@ -12,6 +12,7 @@ namespace IdleBlacksmith.UI
         [Header("Refs")]
         public Image icon;
         public Image frame;
+        public Image accent;
         public TMP_Text nameLabel;
         public TMP_Text statLabel;
         public TMP_Text forgedLabel;
@@ -27,6 +28,21 @@ namespace IdleBlacksmith.UI
 
         static readonly Color Active = new Color(0.36f, 0.62f, 0.35f);
         static readonly Color LockedTint = new Color(0.62f, 0.60f, 0.58f);
+
+        // metal-tier accent colors, matching config recipe order
+        static readonly Color[] TierAccents =
+        {
+            new Color(0.80f, 0.45f, 0.28f), // copper
+            new Color(0.55f, 0.60f, 0.68f), // iron
+            new Color(0.62f, 0.74f, 0.86f), // steel
+            new Color(1.00f, 0.58f, 0.26f), // emberaxe
+            new Color(0.78f, 0.85f, 0.95f), // silver
+            new Color(0.42f, 0.80f, 0.92f), // frostbrand
+            new Color(0.42f, 0.86f, 0.80f), // mithril
+            new Color(0.90f, 0.40f, 0.34f), // dragonsteel
+            new Color(0.62f, 0.42f, 0.90f), // voidreaver
+            new Color(0.98f, 0.78f, 0.30f), // starforged
+        };
 
         public void Bind(RecipeDef recipeDef)
         {
@@ -90,6 +106,13 @@ namespace IdleBlacksmith.UI
             }
 
             if (frame != null) frame.color = active ? Active : unlocked ? Color.white : LockedTint;
+            if (accent != null)
+            {
+                int idx = gm.config != null && gm.config.recipes != null
+                    ? System.Array.IndexOf(gm.config.recipes, def) : -1;
+                Color tier = TierAccents[Mathf.Clamp(idx, 0, TierAccents.Length - 1)];
+                accent.color = unlocked ? tier : Color.Lerp(tier, LockedTint, 0.55f);
+            }
             if (content != null) content.alpha = unlocked ? (afford ? 1f : 0.75f) : 0.55f;
         }
 

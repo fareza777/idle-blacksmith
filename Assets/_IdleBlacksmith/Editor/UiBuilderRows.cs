@@ -313,6 +313,12 @@ namespace IdleBlacksmith.EditorTools
             // keep the frame behind the content it outlines
             frameGo.SetAsFirstSibling();
 
+            // tier accent: a thin strip on the left edge, tinted per recipe metal
+            var accentGo = Box("Accent", rt, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(8, 0), new Vector2(16, 140));
+            var accentImg = accentGo.gameObject.AddComponent<Image>();
+            accentImg.sprite = bar; accentImg.type = Image.Type.Sliced;
+            accentImg.raycastTarget = false;
+
             Image icon = RowIcon(rt, null);
 
             var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -14), new Vector2(420, 42));
@@ -339,6 +345,7 @@ namespace IdleBlacksmith.EditorTools
             var card = root.AddComponent<RecipeCard>();
             card.icon = icon;
             card.frame = frameImg;
+            card.accent = accentImg;
             card.nameLabel = nameLabel;
             card.statLabel = statLabel;
             card.forgedLabel = forgedLabel;

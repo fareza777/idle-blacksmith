@@ -35,6 +35,9 @@ ART = [
     {"name": "mithril",
      "prompt": STYLE + "a mystical mint-teal mithril katana, softly glowing pale edge, "
                "dark wrapped handle, slim elegant curve"},
+    {"name": "emberaxe",
+     "prompt": STYLE + "a large ember-forged war axe filling the frame diagonally, broad "
+               "glowing orange crescent blade with ember cracks, dark wrapped handle"},
     {"name": "dragonsteel",
      "prompt": STYLE + "a massive dragonsteel greatsword, deep red blade veined with "
                "glowing ember cracks, heavy black crossguard, imposing silhouette"},
