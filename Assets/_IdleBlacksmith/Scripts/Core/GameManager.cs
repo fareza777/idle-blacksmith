@@ -421,6 +421,10 @@ namespace IdleBlacksmith.Core
             // Butterflies over the front garden while the sun is up.
             var flyGo = new GameObject("ButterflyDrift");
             flyGo.AddComponent<ButterflyDrift>();
+
+            // The sun crossing the sky through the daylight stretch.
+            var sunGo = new GameObject("SunDrift");
+            sunGo.AddComponent<SunDrift>();
         }
 
         // ------------------------------------------------------------ shop expansion
