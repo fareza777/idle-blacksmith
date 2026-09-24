@@ -37,6 +37,7 @@ namespace IdleBlacksmith.EditorTools
             Try("ember_whoosh", EmberWhoosh());
             Try("amb_fire", AmbFire());
             Try("amb_night", AmbNight());
+            Try("amb_rain", AmbRain());
             Try("music_deep", MusicDeep());
             Try("music_fair", MusicFair());
         }
@@ -384,6 +385,55 @@ namespace IdleBlacksmith.EditorTools
             }
 
             int xn = (int)(SR * 0.25f);
+            for (int i = 0; i < xn; i++)
+                s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
+            return s;
+        }
+
+        /// <summary>
+        /// Rain-shower bed: a two-octave hiss wash for the steady downpour plus scattered
+        /// droplet pings and a few heavier splashes. 10s, folded at the wrap.
+        /// </summary>
+        static float[] AmbRain()
+        {
+            const float seconds = 10f;
+            var rng = new System.Random(1041);
+
+            // Fine patter — short bright taps with a fast decay, dense across the loop.
+            var pings = new List<(float at, float freq, float amp, float decay)>();
+            float pt = 0.02f;
+            while (pt < seconds)
+            {
+                pings.Add((pt, 1500f + (float)rng.NextDouble() * 2400f,
+                           0.05f + (float)rng.NextDouble() * 0.11f,
+                           130f + (float)rng.NextDouble() * 220f));
+                pt += 0.07f + (float)rng.NextDouble() * 0.22f;
+            }
+            // Occasional heavier splash — lower tone, slower decay.
+            for (int i = 0; i < 12; i++)
+                pings.Add(((float)rng.NextDouble() * seconds,
+                           420f + (float)rng.NextDouble() * 300f,
+                           0.14f + (float)rng.NextDouble() * 0.1f, 70f));
+
+            int n = (int)(SR * seconds);
+            var s = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float x = i / (float)SR;
+                // The wash: fast octave reads as hiss, slow octave swells the shower.
+                float v = (Mathf.PerlinNoise(x * 85f, 4.2f) - 0.5f) * 0.26f
+                        + (Mathf.PerlinNoise(x * 19f, 7.7f) - 0.5f) * 0.15f;
+                foreach (var p in pings)
+                {
+                    float d = x - p.at;
+                    if (d < 0f) d += seconds; // tail pings wrap into the head
+                    if (d < 0.09f)
+                        v += p.amp * Sin(p.freq, d) * Mathf.Exp(-d * p.decay);
+                }
+                s[i] = Mathf.Clamp(v, -1f, 1f) * 0.8f;
+            }
+
+            int xn = (int)(SR * 0.3f);
             for (int i = 0; i < xn; i++)
                 s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
             return s;

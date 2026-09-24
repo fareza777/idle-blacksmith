@@ -1,3 +1,4 @@
+using IdleBlacksmith.Core;
 using IdleBlacksmith.UI;
 using UnityEngine;
 
@@ -21,6 +22,8 @@ namespace IdleBlacksmith.Gameplay
         Transform[] drops;
         float[] dropSeed;
         Material rainMat;
+        AudioSource rainSrc;
+        float rainClipGain = 1f;
         float nextShower;
         float showerEnd;
         float intensity; // 0..1 ease
@@ -49,6 +52,24 @@ namespace IdleBlacksmith.Gameplay
             }
             nextShower = Time.time + Random.Range(gap.x, gap.y) * 0.4f; // first one comes early
             showerEnd = 0f;
+
+            // Own channel for the patter — the day/night bed keeps its source to itself.
+            if (AudioManager.Instance != null && AudioManager.Instance.clips != null)
+            {
+                foreach (var nc in AudioManager.Instance.clips)
+                {
+                    if (nc == null || nc.id != "amb_rain" || nc.clip == null) continue;
+                    rainSrc = gameObject.AddComponent<AudioSource>();
+                    rainSrc.clip = nc.clip;
+                    rainSrc.loop = true;
+                    rainSrc.playOnAwake = false;
+                    rainSrc.spatialBlend = 0f;
+                    rainSrc.volume = 0f;
+                    rainClipGain = nc.volume;
+                    rainSrc.Play();
+                    break;
+                }
+            }
         }
 
         void ResetDrop(int i, bool randomY)
@@ -69,6 +90,8 @@ namespace IdleBlacksmith.Gameplay
             // entirely — the drop pool just stays empty.
             float target = (showerEnd > now && !SettingsPanel.ReduceFX) ? 1f : 0f;
             intensity = Mathf.MoveTowards(intensity, target, Time.deltaTime / 3f);
+            if (rainSrc != null)
+                rainSrc.volume = intensity * rainClipGain;
             if (target == 0f && intensity <= 0.001f)
             {
                 nextShower = now + Random.Range(gap.x, gap.y);
