@@ -27,6 +27,7 @@ namespace IdleBlacksmith.Gameplay
         float nextShower;
         float showerEnd;
         float intensity; // 0..1 ease
+        float nextRumble = 4f;
 
         /// <summary>True once a shower is meaningfully underway — lets chatter react to weather.</summary>
         public bool IsRaining => intensity > 0.5f;
@@ -95,6 +96,13 @@ namespace IdleBlacksmith.Gameplay
             intensity = Mathf.MoveTowards(intensity, target, Time.deltaTime / 3f);
             if (rainSrc != null)
                 rainSrc.volume = intensity * rainClipGain;
+
+            // Heavy showers carry the odd rolling clap.
+            if (intensity > 0.6f && now >= nextRumble)
+            {
+                nextRumble = now + Random.Range(7f, 16f);
+                AudioManager.Play("thunder", volumeScale: 0.8f);
+            }
             if (target == 0f && intensity <= 0.001f)
             {
                 nextShower = now + Random.Range(gap.x, gap.y);

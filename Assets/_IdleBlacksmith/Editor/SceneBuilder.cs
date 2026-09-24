@@ -150,7 +150,7 @@ namespace IdleBlacksmith.EditorTools
                 Clip("quest_done", 0.9f), Clip("achievement", 0.9f), Clip("prestige", 1f),
                 Clip("unlock", 0.9f), Clip("levelup", 0.9f), Clip("whoosh", 0.7f),
                 Clip("blip", 0.9f), Clip("ember_whoosh", 0.9f), Clip("amb_fire", 0.4f),
-                Clip("amb_night", 0.45f), Clip("amb_rain", 0.55f),
+                Clip("amb_night", 0.45f), Clip("amb_rain", 0.55f), Clip("thunder", 0.7f),
             };
             audio.musicClips = new[]
             {

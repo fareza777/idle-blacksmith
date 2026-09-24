@@ -35,6 +35,7 @@ namespace IdleBlacksmith.EditorTools
             Try("whoosh", Whoosh());
             Try("blip", Blip());
             Try("ember_whoosh", EmberWhoosh());
+            Try("thunder", Thunder());
             Try("amb_fire", AmbFire());
             Try("amb_night", AmbNight());
             Try("amb_rain", AmbRain());
@@ -290,6 +291,18 @@ namespace IdleBlacksmith.EditorTools
             float low = Sin(Mathf.Lerp(140f, 520f, p * p), t) * 0.3f;
             float spark = (Mathf.PerlinNoise(t * 7000f, 8.3f) - 0.5f) * 2f * Mathf.Exp(-t * 8f);
             return (rush * 0.5f + low) * env * 0.8f + spark * 0.4f;
+        });
+
+        /// <summary>Low rolling thunderclap — sub-bass swell over a fading noise crack.</summary>
+        static float[] Thunder() => Render(2.6f, t =>
+        {
+            float p = t / 2.6f;
+            float env = Mathf.Sin(Mathf.PI * Mathf.Clamp01(p * 1.25f)) * Mathf.Exp(-t * 1.6f);
+            float rumble = Sin(38f + 14f * Mathf.Exp(-t * 2f), t) * 0.5f
+                         + Sin(55f + 20f * Mathf.Exp(-t * 3f), t) * 0.3f;
+            float crack = (Mathf.PerlinNoise(t * 2200f, 4.7f) - 0.5f) * 2f
+                        * Mathf.Exp(-t * 6f) * 0.5f;
+            return (rumble + crack) * env;
         });
 
         /// <summary>Seamless forge-bed loop: warm rumble under sparse wrap-around pops.</summary>
