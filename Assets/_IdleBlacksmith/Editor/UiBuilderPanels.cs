@@ -223,8 +223,11 @@ namespace IdleBlacksmith.EditorTools
 
             var titleGo = Box("Title", s.sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, -24), new Vector2(620, 56));
             var titleLabel = Txt(titleGo, "Achievements", 52, Brown, TextAlignmentOptions.Left, titleFont);
-            var counterGo = Box("Counter", s.sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(42, -76), new Vector2(700, 34));
+            var counterGo = Box("Counter", s.sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(42, -76), new Vector2(430, 34));
             var counterLabel = Txt(counterGo, "0 / 0", 26, Secondary, TextAlignmentOptions.Left, bodyFont);
+            counterLabel.enableAutoSizing = true;
+            counterLabel.fontSizeMin = 18f;
+            counterLabel.fontSizeMax = 26f;
 
             var barBg = Box("AchBarBg", s.sheet, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-120, -78), new Vector2(400, 22));
             var barBgImg = barBg.gameObject.AddComponent<Image>();
@@ -522,6 +525,10 @@ namespace IdleBlacksmith.EditorTools
             SetButtonColors(resetBtn);
             var resetTxtGo = Box("Label", resetGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(880, 70));
             var resetLabel = Txt(resetTxtGo, "RESET SAVE", 34, Color.white, TextAlignmentOptions.Center, titleFont);
+            y -= 112f;
+
+            var verGo = Box("Version", s.sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, y), new Vector2(920, 40));
+            Txt(verGo, $"v{Application.version}  ·  Emberforge: Idle Blacksmith", 22, Secondary, TextAlignmentOptions.Center, bodyFont);
 
             // credits overlay
             var credits = StretchBox("Credits", s.sheet);
@@ -788,16 +795,16 @@ namespace IdleBlacksmith.EditorTools
             shadeBottomImg.raycastTarget = false;
 
             var block = Box("TitleBlock", root, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 240), new Vector2(960, 560));
-            var emblemGo = Box("Emblem", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -10), new Vector2(280, 280));
+            var emblemGo = Box("Emblem", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -10), new Vector2(320, 320));
             var emblemImg = emblemGo.gameObject.AddComponent<Image>();
-            emblemImg.sprite = AssetFactory.LoadMenuArt("emblem");
+            emblemImg.sprite = AssetFactory.LoadMenuArt("menu_badge") ?? AssetFactory.LoadMenuArt("emblem");
             emblemImg.preserveAspect = true;
             emblemImg.raycastTarget = false;
-            var titleGo = Box("Title", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -330), new Vector2(980, 110));
+            var titleGo = Box("Title", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -352), new Vector2(980, 110));
             var titleLabel = Txt(titleGo, "EMBERFORGE", 84, GoldText, TextAlignmentOptions.Center, titleFont);
-            var tagGo = Box("Tagline", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -412), new Vector2(960, 44));
+            var tagGo = Box("Tagline", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -432), new Vector2(960, 44));
             var taglineLabel = Txt(tagGo, "an idle blacksmith tale", 32, new Color(1f, 0.93f, 0.80f, 0.92f), TextAlignmentOptions.Center, bodyFont);
-            var progGo = Box("Progress", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -470), new Vector2(940, 44));
+            var progGo = Box("Progress", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -492), new Vector2(940, 44));
             var progressLabel = Txt(progGo, "", 28, new Color(0.92f, 0.88f, 0.78f), TextAlignmentOptions.Center, bodyFont);
 
             // primary actions
