@@ -19,8 +19,11 @@ namespace IdleBlacksmith.Gameplay
         [Range(0f, 0.4f)] public float vipChance = 0.08f;
         [Tooltip("Price multiplier a VIP pays")]
         public float vipPriceMult = 5f;
+        [Tooltip("Folks stay home in a storm — customer gap multiplier while it rains")]
+        public float rainSlowMult = 1.45f;
 
         CustomerController current;
+        RainWeather rain;
         float timer = 2.5f;
 
         /// <summary>The shopper currently in the shop, if any — read by the chatter system.</summary>
@@ -44,6 +47,9 @@ namespace IdleBlacksmith.Gameplay
                 pace *= GameManager.Instance.rush.PaceMult;
             if (GameManager.Instance.marketFair != null)
                 pace *= GameManager.Instance.marketFair.PaceMult;
+            if (rain == null) rain = FindFirstObjectByType<RainWeather>();
+            if (rain != null && rain.IsRaining)
+                pace *= rainSlowMult;
             timer = Random.Range(config.minCustomerInterval, config.maxCustomerInterval) * Mathf.Max(0.15f, pace);
 
             if (rack.Stock <= 0) return;
