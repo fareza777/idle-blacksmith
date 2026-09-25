@@ -60,21 +60,53 @@ namespace IdleBlacksmith.Gameplay
         }
 
         /// <summary>
-        /// The plot the active quest points at, or null when the quest has no building goal.
-        /// Only building quests get a marker — the rest already say where to look in words.
+        /// The building the active quest happens at, or null when the quest has no
+        /// physical location. Nearly every actionable goal maps to a building so the
+        /// player always knows where to look next; passive goals (time, dailies,
+        /// cat, ember) get no marker since they complete on their own.
         /// </summary>
         Transform ResolveTarget()
         {
             if (gm == null || gm.quests == null || plots == null) return null;
             var q = gm.quests.Active;
-            if (q == null || q.goal != QuestGoal.UpgradeBuilding || string.IsNullOrEmpty(q.targetId))
-                return null;
-            if (gm.buildings != null && gm.buildings.GetLevel(q.targetId) >= q.target)
-                return null;
+            if (q == null || gm.quests.IsComplete) return null;
+            string id = GoalLocation(q);
+            if (id == null) return null;
             for (int i = 0; i < plots.Length; i++)
-                if (plots[i] != null && plots[i].buildingId == q.targetId)
+                if (plots[i] != null && plots[i].buildingId == id)
                     return plots[i].transform;
             return null;
+        }
+
+        static string GoalLocation(QuestDef q)
+        {
+            switch (q.goal)
+            {
+                case QuestGoal.UpgradeBuilding:
+                    return string.IsNullOrEmpty(q.targetId) ? null : q.targetId;
+                case QuestGoal.ClaimExpedition:
+                    return BuildingId.Gate;
+                case QuestGoal.BuildRunes:
+                    return BuildingId.Sanctum;
+                case QuestGoal.ReachOre:
+                    return BuildingId.Mine;
+                case QuestGoal.ReachGold:
+                    return BuildingId.Market;
+                case QuestGoal.ForgeSwords:
+                case QuestGoal.SellSwords:
+                case QuestGoal.EarnGoldRun:
+                case QuestGoal.OwnRarity:
+                case QuestGoal.MasterRecipe:
+                case QuestGoal.UseTools:
+                case QuestGoal.ServeOrders:
+                case QuestGoal.RushOrders:
+                case QuestGoal.FairSales:
+                case QuestGoal.HireHelper:
+                case QuestGoal.UnlockRecipe:
+                    return BuildingId.Smithy;
+                default:
+                    return null;
+            }
         }
     }
 }
