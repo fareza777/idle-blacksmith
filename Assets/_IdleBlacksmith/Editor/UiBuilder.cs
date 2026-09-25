@@ -1029,10 +1029,15 @@ namespace IdleBlacksmith.EditorTools
             fill.color = Orange;
             fill.raycastTarget = false;
 
+            // Recipe name floating over the bar so the current craft reads at a glance.
+            var nameGo = Box("Label", rt, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, 12), new Vector2(340, 30));
+            var nameTxt = Txt(nameGo, "", 22, new Color(1f, 0.93f, 0.78f), TextAlignmentOptions.Center, bodyFont);
+
             var barComp = go.GetComponent<WorldProgressBar>();
             barComp.canvasGroup = cg;
             barComp.fill = fill;
             barComp.root = rt;
+            barComp.label = nameTxt;
             return barComp;
         }
 

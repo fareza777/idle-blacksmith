@@ -79,6 +79,8 @@ namespace IdleBlacksmith.Gameplay
             onComplete = onCraftComplete;
             LastForged = null;
             pendingRecipe = recipe;
+            if (progressBar != null && progressBar.label != null)
+                progressBar.label.text = recipe != null ? recipe.displayName : "";
 
             if (hotSwordVisual != null)
             {
