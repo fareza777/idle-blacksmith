@@ -1051,12 +1051,14 @@ namespace IdleBlacksmith.EditorTools
             // soft dim behind the card — keeps the world visible but mutes it.
             // Visual only: must NOT eat raycasts or every other panel is dead
             // while a dialogue is open (advance happens via the card button).
-            var dim = StretchBox("Dim", root);
+            // A bottom band, not fullscreen: the card floats above the nav rail, so the
+            // world, HUD and nav stay lit and tappable — nothing looks disabled.
+            var dim = Box("Dim", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 190), new Vector2(1200, 410));
             var dimImg = dim.gameObject.AddComponent<Image>();
-            dimImg.color = new Color(0.08f, 0.05f, 0.03f, 0.35f);
+            dimImg.color = new Color(0.08f, 0.05f, 0.03f, 0.38f);
             dimImg.raycastTarget = false;
 
-            var card = Box("Card", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 26), new Vector2(1000, 360));
+            var card = Box("Card", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 210), new Vector2(1000, 360));
             var cardImg = card.gameObject.AddComponent<Image>();
             cardImg.sprite = rounded; cardImg.type = Image.Type.Sliced;
             cardImg.color = new Color(0.16f, 0.11f, 0.07f, 0.97f);
@@ -1107,7 +1109,7 @@ namespace IdleBlacksmith.EditorTools
             panel.cardButton = cardBtn;
             panel.nextHint = hintCg;
             panel.pageLabel = pageLabel;
-            panel.openY = 26f;
+            panel.openY = 210f;
             panel.closedY = -460f;
             root.gameObject.SetActive(false);
             return panel;
