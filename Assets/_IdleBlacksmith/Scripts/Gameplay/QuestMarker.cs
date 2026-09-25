@@ -52,8 +52,11 @@ namespace IdleBlacksmith.Gameplay
                 return;
             }
 
-            float h = target == gm.environmentRoot ? 3.6f : 2.3f; // smithy roof is taller
-            anchor = target.position + new Vector3(0f, h, 0f);
+            // Smithy anchor floats above the front of the building so it clears the
+            // roofline and reads clearly from the dollhouse camera.
+            anchor = target == gm.environmentRoot
+                ? target.position + new Vector3(0f, 4.1f, -1.4f)
+                : target.position + new Vector3(0f, 2.3f, 0f);
             if (diamond == null) return;
             if (!diamond.activeSelf) diamond.SetActive(true);
             diamond.transform.position = anchor + new Vector3(0f, Mathf.Sin(t * 2.2f) * 0.18f, 0f);
