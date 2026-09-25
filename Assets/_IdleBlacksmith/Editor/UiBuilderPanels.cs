@@ -1023,11 +1023,13 @@ namespace IdleBlacksmith.EditorTools
             cg.blocksRaycasts = true;
             cg.interactable = true;
 
-            // soft dim behind the card — keeps the world visible but mutes it
+            // soft dim behind the card — keeps the world visible but mutes it.
+            // Visual only: must NOT eat raycasts or every other panel is dead
+            // while a dialogue is open (advance happens via the card button).
             var dim = StretchBox("Dim", root);
             var dimImg = dim.gameObject.AddComponent<Image>();
             dimImg.color = new Color(0.08f, 0.05f, 0.03f, 0.35f);
-            dimImg.raycastTarget = true;
+            dimImg.raycastTarget = false;
 
             var card = Box("Card", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 26), new Vector2(1000, 360));
             var cardImg = card.gameObject.AddComponent<Image>();
