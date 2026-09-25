@@ -196,7 +196,7 @@ MonoBehaviour:
     offlineBonus: 0
   - id: gate
     displayName: Dungeon Gate
-    description: Opens the way below. Higher levels send more parties and pay better.
+    description: "Opens the way below \u2014 parties return with gold and relic ore."
     icon: {fileID: 21300000, guid: 3f49287ce5233fc468b2ad66b7ff3805, type: 3}
     startLevel: 0
     maxLevel: 5
@@ -268,8 +268,7 @@ MonoBehaviour:
     offlineBonus: 0
   - id: storehouse
     displayName: Storehouse
-    description: Cargo under lock and lantern. Every level keeps more of what the
-      complex earns while you are away.
+    description: "Guarded cargo \u2014 every level banks more of your offline earnings."
     icon: {fileID: 21300000, guid: e8c7874a722f30141ada4f7a4d915908, type: 3}
     startLevel: 0
     maxLevel: 5
