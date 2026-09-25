@@ -52,7 +52,8 @@ namespace IdleBlacksmith.Gameplay
                 return;
             }
 
-            anchor = target.position + new Vector3(0f, 2.3f, 0f);
+            float h = target == gm.environmentRoot ? 3.6f : 2.3f; // smithy roof is taller
+            anchor = target.position + new Vector3(0f, h, 0f);
             if (diamond == null) return;
             if (!diamond.activeSelf) diamond.SetActive(true);
             diamond.transform.position = anchor + new Vector3(0f, Mathf.Sin(t * 2.2f) * 0.18f, 0f);
@@ -72,6 +73,10 @@ namespace IdleBlacksmith.Gameplay
             if (q == null || gm.quests.IsComplete) return null;
             string id = GoalLocation(q);
             if (id == null) return null;
+            // The smithy is the environment building itself, not a BuildingVisuals plot —
+            // point at the environment root so forge/sell quests still get their marker.
+            if (id == BuildingId.Smithy)
+                return gm.environmentRoot;
             for (int i = 0; i < plots.Length; i++)
                 if (plots[i] != null && plots[i].buildingId == id)
                     return plots[i].transform;
