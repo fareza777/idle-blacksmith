@@ -63,6 +63,7 @@ namespace IdleBlacksmith.Core
         public GameObject[] environmentPrefabs;
         [Tooltip("Font for the forge name board hung over the shop door")]
         public TMP_FontAsset signFont;
+        static Material signBoardMat;
 
         public SaveData Data { get; private set; }
         public bool HelperUnlocked { get; private set; }
@@ -473,22 +474,62 @@ namespace IdleBlacksmith.Core
         /// <summary>
         /// The forge's current stage name hung over the front door — the legible proof
         /// that upgrading the smithy changed the building: the board literally wears it.
+        /// Public so the editor preview renders the same board.
         /// </summary>
-        void SpawnForgeSign(int tier)
+        public void SpawnForgeSign(int tier)
         {
             if (signFont == null) return;
+            // Free-standing shop sign post beside the entrance path — always readable
+            // from the dollhouse camera, never occluded by the awning.
+            if (signBoardMat == null)
+            {
+                var sh = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+                if (sh != null)
+                {
+                    signBoardMat = new Material(sh);
+                    signBoardMat.color = new Color(0.16f, 0.10f, 0.07f);
+                }
+            }
+            var yaw = Quaternion.Euler(0f, 147f, 0f);
+            var board = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            board.name = "ForgeSignBoard";
+            board.transform.SetParent(environmentRoot, false);
+            board.transform.localPosition = new Vector3(2.15f, 1.05f, -4.55f);
+            board.transform.localRotation = yaw;
+            board.transform.localScale = new Vector3(1.9f, 0.42f, 0.08f);
+            if (signBoardMat != null)
+                board.GetComponent<Renderer>().sharedMaterial = signBoardMat;
+            var col = board.GetComponent<Collider>();
+            if (col != null) Destroy(col);
+            for (int leg = -1; leg <= 1; leg += 2)
+            {
+                var lg = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                lg.name = "ForgeSignLeg" + (leg < 0 ? "L" : "R");
+                lg.transform.SetParent(environmentRoot, false);
+                lg.transform.localPosition = board.transform.localPosition + yaw * new Vector3(leg * 0.8f, 0f, 0f) + new Vector3(0f, -0.63f, 0f);
+                lg.transform.localRotation = yaw;
+                lg.transform.localScale = new Vector3(0.06f, 0.84f, 0.06f);
+                if (signBoardMat != null)
+                    lg.GetComponent<Renderer>().sharedMaterial = signBoardMat;
+                var lgCol = lg.GetComponent<Collider>();
+                if (lgCol != null) Destroy(lgCol);
+            }
+
             var go = new GameObject("ForgeSign");
             go.transform.SetParent(environmentRoot, false);
             var tmp = go.AddComponent<TextMeshPro>();
             tmp.font = signFont;
             tmp.text = ForgeTierName(tier).ToUpperInvariant();
-            tmp.fontSize = 1.05f;
+            tmp.fontSize = 3.2f;
+            tmp.enableAutoSizing = true;
+            tmp.fontSizeMin = 1.2f;
+            tmp.fontSizeMax = 3.2f;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = new Color(1f, 0.87f, 0.58f);
             var rt = go.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(3.4f, 0.5f);
-            go.transform.localPosition = new Vector3(0.8f, 2.02f, -3.62f);
-            go.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+            rt.sizeDelta = new Vector2(1.80f, 0.38f);
+            go.transform.localPosition = board.transform.localPosition + yaw * new Vector3(0f, 0f, 0.06f);
+            go.transform.localRotation = Quaternion.Euler(0f, 147f + 180f, 0f);
         }
 
         string ForgeTierName(int tier)

@@ -230,6 +230,7 @@ namespace IdleBlacksmith.EditorTools
 
             var inst = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
             inst.transform.SetParent(gm.environmentRoot, false);
+            gm.SpawnForgeSign(level);
         }
 
         /// <summary>
