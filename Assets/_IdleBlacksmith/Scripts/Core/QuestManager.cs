@@ -90,15 +90,40 @@ namespace IdleBlacksmith.Core
             }
         }
 
-        /// <summary>Objective text for the HUD ticker, e.g. "Forge 12/25 swords".</summary>
+        /// <summary>Objective text for the HUD ticker, e.g. "Forge 12/25 swords · +60g".</summary>
         public string TickerText
         {
             get
             {
                 QuestDef q = Active;
                 if (q == null) return "All quests complete — the forge is legendary";
-                return $"{q.title}: {Goals.Describe(q.goal, q.targetId, q.target)}  ({Mathf.Min(Progress, q.target)}/{q.target})";
+                string text = $"{q.title}: {Goals.Describe(q.goal, q.targetId, q.target)}  ({Mathf.Min(Progress, q.target)}/{q.target}";
+                string reward = RewardSuffix(q);
+                return text + (reward.Length > 0 ? " · " + reward : "") + ")";
             }
+        }
+
+        /// <summary>"+60g" style compact reward tag for the ticker — answers "why do this?".</summary>
+        static string RewardSuffix(QuestDef q)
+        {
+            var sb = new System.Text.StringBuilder();
+            if (q.goldReward > 0) { sb.Append('+').Append(q.goldReward).Append('g'); }
+            if (q.oreReward > 0)
+            {
+                if (sb.Length > 0) sb.Append(' ');
+                sb.Append('+').Append(q.oreReward).Append(" ore");
+            }
+            if (q.relicReward > 0)
+            {
+                if (sb.Length > 0) sb.Append(' ');
+                sb.Append('+').Append(q.relicReward).Append(" relic");
+            }
+            if (q.shardReward > 0)
+            {
+                if (sb.Length > 0) sb.Append(' ');
+                sb.Append('+').Append(q.shardReward).Append(" shard");
+            }
+            return sb.ToString();
         }
 
         /// <summary>
