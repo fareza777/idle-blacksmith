@@ -1,5 +1,6 @@
 using IdleBlacksmith.Core;
 using IdleBlacksmith.Gameplay;
+using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -96,12 +97,12 @@ namespace IdleBlacksmith.EditorTools
             Vector3 shopCentre = V(0.15f, 0f, -0.55f);
             BuildingVisuals[] plots =
             {
-                MakePlot(plotsRoot, BuildingId.Mine, V(-6.0f, 0, 1.4f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Market, V(6.0f, 0, 1.4f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Gate, V(-3.4f, 0, -5.4f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Sanctum, V(5.4f, 0, 6.6f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Furnace, V(-5.6f, 0, 6.4f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Storehouse, V(-6.3f, 0, -2.3f), shopCentre),
+                MakePlot(plotsRoot, BuildingId.Mine, V(-6.0f, 0, 1.4f), shopCentre, "ORE MINE"),
+                MakePlot(plotsRoot, BuildingId.Market, V(6.0f, 0, 1.4f), shopCentre, "TRADING POST"),
+                MakePlot(plotsRoot, BuildingId.Gate, V(-3.4f, 0, -5.4f), shopCentre, "DUNGEON GATE"),
+                MakePlot(plotsRoot, BuildingId.Sanctum, V(5.4f, 0, 6.6f), shopCentre, "SANCTUM"),
+                MakePlot(plotsRoot, BuildingId.Furnace, V(-5.6f, 0, 6.4f), shopCentre, "BLAST FURNACE"),
+                MakePlot(plotsRoot, BuildingId.Storehouse, V(-6.3f, 0, -2.3f), shopCentre, "STOREHOUSE"),
             };
 
             Transform helperSpawn = Marker("HelperSpawn", V(1.3f, 0, 0.85f));
@@ -283,8 +284,8 @@ namespace IdleBlacksmith.EditorTools
             return go.transform;
         }
 
-        /// <summary>A building plot: owns the id, the per-level prefabs and the facing.</summary>
-        static BuildingVisuals MakePlot(GameObject parent, string id, Vector3 pos, Vector3 lookAt)
+        /// <summary>A building plot: owns the id, the per-level prefabs, the facing and the sign text.</summary>
+        static BuildingVisuals MakePlot(GameObject parent, string id, Vector3 pos, Vector3 lookAt, string signText)
         {
             var go = new GameObject("Plot_" + id);
             go.transform.SetParent(parent.transform, false);
@@ -310,9 +311,32 @@ namespace IdleBlacksmith.EditorTools
                     bv.emptyMarker = (GameObject)PrefabUtility.InstantiatePrefab(marker);
                     bv.emptyMarker.transform.SetParent(go.transform, false);
                     bv.emptyMarker.transform.localPosition = Vector3.zero;
+                    LabelPlotSign(bv.emptyMarker.transform, signText);
                 }
             }
             return bv;
+        }
+
+        /// <summary>Paints the building's name on the survey sign, so the plot tells you what it wants to be.</summary>
+        static void LabelPlotSign(Transform marker, string signText)
+        {
+            var font = AssetDatabase.LoadAssetAtPath<TMPro.TMP_FontAsset>(AssetFactory.FontTitlePath);
+            if (font == null || string.IsNullOrEmpty(signText)) return;
+            var go = new GameObject("PlotName");
+            go.transform.SetParent(marker, false);
+            var tmp = go.AddComponent<TextMeshPro>();
+            tmp.font = font;
+            tmp.text = signText;
+            tmp.fontSize = 1.35f;
+            tmp.enableAutoSizing = true;
+            tmp.fontSizeMin = 0.55f;
+            tmp.fontSizeMax = 1.35f;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.color = new Color(0.28f, 0.18f, 0.10f);
+            var rt = go.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(0.70f, 0.38f);
+            go.transform.localPosition = new Vector3(0f, 1.42f, 0.10f);
+            go.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
         }
 
         static AudioManager.NamedClip Clip(string id, float volume)
