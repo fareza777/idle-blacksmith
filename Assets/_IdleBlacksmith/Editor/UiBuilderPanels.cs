@@ -1,3 +1,4 @@
+using IdleBlacksmith.Core;
 using IdleBlacksmith.UI;
 using TMPro;
 using UnityEngine;
@@ -184,6 +185,8 @@ namespace IdleBlacksmith.EditorTools
             var progressLabel = Txt(progressGo, "0 / 5", 30, Brown, TextAlignmentOptions.Right, titleFont);
             var rewardGo = Box("Reward", card, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 30), new Vector2(820, 56));
             var rewardLabel = Txt(rewardGo, "Rewards", 28, Hex(0x5BA86B), TextAlignmentOptions.Center, titleFont);
+            var nextGo = Box("Next", card, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 96), new Vector2(820, 44));
+            var nextLabel = Txt(nextGo, "Up next: ...", 24, Secondary, TextAlignmentOptions.Center, bodyFont);
 
             var achGo = Box("AchievementsButton", s.sheet, new Vector2(0, 0), new Vector2(0, 0), new Vector2(40, 30), new Vector2(420, 96));
             var achBtn = achGo.gameObject.AddComponent<BouncyButton>();
@@ -205,6 +208,7 @@ namespace IdleBlacksmith.EditorTools
             panel.bodyLabel = bodyLabel;
             panel.progressLabel = progressLabel;
             panel.rewardLabel = rewardLabel;
+            panel.nextLabel = nextLabel;
             panel.counterLabel = counterLabel;
             panel.fill = fillImg;
             panel.achievementsButton = achBtn;
@@ -294,6 +298,27 @@ namespace IdleBlacksmith.EditorTools
             codexVlg.childControlHeight = false;
             codexVlg.childForceExpandWidth = true;
             codexVlg.childForceExpandHeight = false;
+
+            // The rarity ladder sits on top so the tier names stop being a mystery:
+            // each coloured gem pairs its name with what it pays over a Common blade.
+            var legendGo = Box("RarityLegend", codexPage, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(920, 110));
+            var legendImg = legendGo.gameObject.AddComponent<Image>();
+            legendImg.sprite = roundedSmall; legendImg.type = Image.Type.Sliced; legendImg.color = new Color(1f, 1f, 1f, 0.85f);
+            legendGo.gameObject.AddComponent<LayoutElement>().preferredHeight = 110f;
+            var legendTxtGo = StretchBox("Label", legendGo);
+            legendTxtGo.offsetMin = new Vector2(16, 8);
+            legendTxtGo.offsetMax = new Vector2(-16, -8);
+            var legend = Txt(legendTxtGo, "", 26, Secondary, TextAlignmentOptions.Center, bodyFont, true);
+            var lb = new System.Text.StringBuilder("every blade rolls a quality — rarer sells for more\n");
+            for (int i = 0; i < RarityInfo.Count; i++)
+            {
+                // The tier name itself carries the colour — the Baloo font has no filled-dot glyph.
+                lb.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(RarityInfo.TextColor((Rarity)i))).Append(">");
+                lb.Append(RarityInfo.DisplayName[i]).Append(" ×").Append(RarityInfo.Multiplier[i].ToString("0.#"));
+                lb.Append("</color>");
+                if (i < RarityInfo.Count - 1) lb.Append("    ·    ");
+            }
+            legend.text = lb.ToString();
             codexPage.gameObject.SetActive(false);
 
             panel.sheet = s.sheet;

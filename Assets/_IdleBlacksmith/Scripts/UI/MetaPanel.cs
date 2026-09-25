@@ -210,14 +210,17 @@ namespace IdleBlacksmith.UI
 
         static string Pips(int mask)
         {
+            // Baloo has no filled/empty dot glyph, so each tier's initial carries the
+            // colour instead: a glowing initial means that rarity has been rolled.
             var sb = new System.Text.StringBuilder();
             for (int i = 0; i < 5; i++)
             {
                 bool hit = (mask & (1 << i)) != 0;
                 if (hit)
-                    sb.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(RarityInfo.TextColor((Rarity)i))).Append(">●</color>");
+                    sb.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(RarityInfo.TextColor((Rarity)i)))
+                      .Append(">").Append(RarityInfo.DisplayName[i][0]).Append("</color>");
                 else
-                    sb.Append("○");
+                    sb.Append("<color=#B9AE9F>·</color>");
                 if (i < 4) sb.Append(' ');
             }
             return sb.ToString();

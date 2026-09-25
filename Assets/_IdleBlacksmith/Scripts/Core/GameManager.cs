@@ -446,6 +446,14 @@ namespace IdleBlacksmith.Core
             {
                 OnShopTierChanged?.Invoke(ShopTier);
                 SpawnEnvironment(ShopTier);
+                // Golden embers rise around the shop while the new tier settles in —
+                // the moment reads as a transformation, not a model pop.
+                if (environmentRoot != null)
+                {
+                    var reveal = environmentRoot.gameObject.AddComponent<Gameplay.UpgradeReveal>();
+                    float r = 3.2f + ShopTier * 0.3f;
+                    reveal.Begin(r, 3.0f + ShopTier * 0.4f);
+                }
                 // The rebuilt environment brings fresh decorative emitters.
                 UI.SettingsPanel.ApplyFxSetting(UI.SettingsPanel.ReduceFX);
                 UI.UIManager.Instance?.SpawnFloatingText(

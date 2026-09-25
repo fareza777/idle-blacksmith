@@ -43,6 +43,27 @@ namespace IdleBlacksmith.Core
             }
         }
 
+        /// <summary>The quest waiting behind the active one — shown as the road ahead.</summary>
+        public QuestDef Next
+        {
+            get
+            {
+                if (config == null || config.quests == null) return null;
+                GameManager gm = GameManager.Instance;
+                List<string> claimed = gm != null && gm.Data != null ? gm.Data.questsClaimed : null;
+                bool pastActive = false;
+
+                foreach (QuestDef q in config.quests)
+                {
+                    if (q == null) continue;
+                    if (claimed != null && claimed.Contains(q.id)) continue;
+                    if (pastActive) return q;
+                    pastActive = true;
+                }
+                return null;
+            }
+        }
+
         public int ClaimedCount
         {
             get

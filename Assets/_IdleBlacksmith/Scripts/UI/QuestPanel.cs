@@ -21,6 +21,7 @@ namespace IdleBlacksmith.UI
         public TMP_Text bodyLabel;
         public TMP_Text progressLabel;
         public TMP_Text rewardLabel;
+        public TMP_Text nextLabel;
         public TMP_Text counterLabel;
         public Image fill;
         public Button achievementsButton;
@@ -55,8 +56,15 @@ namespace IdleBlacksmith.UI
                 if (bodyLabel != null) bodyLabel.text = "Every quest is done. Rekindle for ember shards, or keep forging for a Legendary sword.";
                 if (progressLabel != null) progressLabel.text = "";
                 if (rewardLabel != null) rewardLabel.text = "";
+                if (nextLabel != null) nextLabel.text = "";
                 if (fill != null) fill.fillAmount = 1f;
                 return;
+            }
+
+            if (nextLabel != null)
+            {
+                QuestDef next = gm.quests.Next;
+                nextLabel.text = next != null ? $"Up next: {next.title}" : "Final quest — the road ends in legend";
             }
 
             if (titleLabel != null) titleLabel.text = q.title;
