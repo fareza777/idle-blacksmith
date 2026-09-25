@@ -98,6 +98,10 @@ namespace IdleBlacksmith.EditorTools
             Img(metalIconGo.gameObject, AssetFactory.LoadIcon("ore"), Color.white).raycastTarget = false;
             var metalLabelGo = Box("Label", metalPill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(68, 0), new Vector2(100, 50));
             var metalOreLabel = Txt(metalLabelGo, "0", 38, Color.white, TextAlignmentOptions.Left, titleFont);
+            // count shows "ore/cap" — autosize so wide counts like "60/65" fit the pill.
+            metalOreLabel.enableAutoSizing = true;
+            metalOreLabel.fontSizeMin = 26f;
+            metalOreLabel.fontSizeMax = 38f;
             var metalPerSecGo = Box("Rate", metalPill, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-14, 0), new Vector2(86, 46));
             var metalRateLabel = Txt(metalPerSecGo, "+0/s", 24, new Color(0.78f, 0.86f, 0.90f), TextAlignmentOptions.Right, bodyFont);
 

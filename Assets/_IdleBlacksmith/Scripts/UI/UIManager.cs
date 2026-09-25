@@ -424,7 +424,9 @@ namespace IdleBlacksmith.UI
 
         void HandleMetalOreChanged(int ore, int capacity)
         {
-            if (metalOreLabel != null) metalOreLabel.text = ore.ToString();
+            // "40/40" — a capped count explains why ore stops growing and
+            // points the player at the mine's storage perk.
+            if (metalOreLabel != null) metalOreLabel.text = capacity > 0 ? $"{ore}/{capacity}" : ore.ToString();
             if (metalOreRateLabel != null)
             {
                 ResourceManager res = GameManager.Instance != null ? GameManager.Instance.resources : null;
