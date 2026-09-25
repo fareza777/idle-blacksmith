@@ -76,7 +76,7 @@ namespace IdleBlacksmith.Core
             {
                 QuestDef q = Active;
                 if (q == null) return "All quests complete — the forge is legendary";
-                return $"{Goals.Describe(q.goal, q.targetId, q.target)}   ({Mathf.Min(Progress, q.target)}/{q.target})";
+                return $"{q.title}: {Goals.Describe(q.goal, q.targetId, q.target)}  ({Mathf.Min(Progress, q.target)}/{q.target})";
             }
         }
 

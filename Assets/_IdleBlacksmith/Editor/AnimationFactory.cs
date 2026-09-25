@@ -32,6 +32,12 @@ namespace IdleBlacksmith.EditorTools
             AssignController(ModelFactory.HelperPrefab, worker);
             AssignController(ModelFactory.CustomerAPrefab, customer);
             AssignController(ModelFactory.CustomerBPrefab, customer);
+            AssignController(ModelFactory.CustomerCPrefab, customer);
+            AssignController(ModelFactory.CustomerDPrefab, customer);
+            // Ambient villagers share the idle/walk clips so nobody stands statue-still.
+            AssignController(ModelFactory.VendorPrefab, customer);
+            AssignController(ModelFactory.MysticPrefab, customer);
+            AssignController(ModelFactory.StokerPrefab, customer);
             AssetDatabase.SaveAssets();
         }
 

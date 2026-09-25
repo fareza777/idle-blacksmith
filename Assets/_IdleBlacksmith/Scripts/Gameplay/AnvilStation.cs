@@ -162,7 +162,7 @@ namespace IdleBlacksmith.Gameplay
             bool legendary = rarity >= Rarity.Legendary;
             UI.UIManager.Instance?.SpawnFloatingText(
                 where + Vector3.up * 0.7f,
-                RarityInfo.NameOf(rarity).ToUpperInvariant() + "!",
+                RarityInfo.NameOf(rarity).ToUpperInvariant() + "!  x" + RarityInfo.MultiplierOf(rarity).ToString("0.#"),
                 RarityInfo.TextColor(rarity));
             AudioManager.Play(legendary ? "fanfare" : "levelup", 0.05f, legendary ? 0.9f : 0.55f);
             if (legendary)
@@ -202,11 +202,16 @@ namespace IdleBlacksmith.Gameplay
             Strike(0.55f);
             UI.SettingsPanel.Buzz();
             Tween.PunchScale(transform, Vector3.one * 0.04f, 0.2f);
-            Vector3 where = craftPoint != null ? craftPoint.position : transform.position + Vector3.up;
-            bool hot = tapCombo >= 3;
-            UIManager.Instance?.SpawnFloatingText(
-                where, hot ? "CLANG! x" + tapCombo : "CLANG!",
-                hot ? new Color(1f, 0.52f, 0.18f) : new Color(1f, 0.76f, 0.32f));
+            // A floater only earns its place once a combo is rolling — single taps get
+            // the punch and the ring, so the forge stays readable instead of chatty.
+            if (tapCombo >= 2)
+            {
+                Vector3 where = craftPoint != null ? craftPoint.position : transform.position + Vector3.up;
+                bool hot = tapCombo >= 3;
+                UIManager.Instance?.SpawnFloatingText(
+                    where, "CLANG! x" + tapCombo,
+                    hot ? new Color(1f, 0.52f, 0.18f) : new Color(1f, 0.76f, 0.32f));
+            }
         }
 
         /// <summary>Number of hammer blows landed on the current/last craft — drives the smoke test.</summary>

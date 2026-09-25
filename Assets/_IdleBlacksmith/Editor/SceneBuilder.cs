@@ -209,6 +209,7 @@ namespace IdleBlacksmith.EditorTools
             gm.environmentPrefabs = new GameObject[ModelFactory.EnvironmentTierPrefabs.Length];
             for (int i = 0; i < ModelFactory.EnvironmentTierPrefabs.Length; i++)
                 gm.environmentPrefabs[i] = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.EnvironmentTierPrefabs[i]);
+            gm.signFont = AssetDatabase.LoadAssetAtPath<TMPro.TMP_FontAsset>(AssetFactory.FontTitlePath);
 
             anvil.GetComponent<AnvilStation>().progressBar = ui.anvilBar;
             var apprenticeStation = apprentice.GetComponent<AnvilStation>();

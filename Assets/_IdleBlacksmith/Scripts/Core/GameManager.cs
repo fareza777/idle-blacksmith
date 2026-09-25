@@ -1,4 +1,5 @@
 using IdleBlacksmith.Gameplay;
+using TMPro;
 using UnityEngine;
 
 namespace IdleBlacksmith.Core
@@ -60,6 +61,8 @@ namespace IdleBlacksmith.Core
         [Header("Environment (shop growth stages, tier 1..3)")]
         public Transform environmentRoot;
         public GameObject[] environmentPrefabs;
+        [Tooltip("Font for the forge name board hung over the shop door")]
+        public TMP_FontAsset signFont;
 
         public SaveData Data { get; private set; }
         public bool HelperUnlocked { get; private set; }
@@ -464,6 +467,43 @@ namespace IdleBlacksmith.Core
             for (int i = environmentRoot.childCount - 1; i >= 0; i--)
                 Destroy(environmentRoot.GetChild(i).gameObject);
             Instantiate(prefab, Vector3.zero, Quaternion.identity, environmentRoot);
+            SpawnForgeSign(tier);
+        }
+
+        /// <summary>
+        /// The forge's current stage name hung over the front door — the legible proof
+        /// that upgrading the smithy changed the building: the board literally wears it.
+        /// </summary>
+        void SpawnForgeSign(int tier)
+        {
+            if (signFont == null) return;
+            var go = new GameObject("ForgeSign");
+            go.transform.SetParent(environmentRoot, false);
+            var tmp = go.AddComponent<TextMeshPro>();
+            tmp.font = signFont;
+            tmp.text = ForgeTierName(tier).ToUpperInvariant();
+            tmp.fontSize = 1.05f;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.color = new Color(1f, 0.87f, 0.58f);
+            var rt = go.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(3.4f, 0.5f);
+            go.transform.localPosition = new Vector3(0.8f, 2.02f, -3.62f);
+            go.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+        }
+
+        string ForgeTierName(int tier)
+        {
+            var def = buildings != null ? buildings.Def(BuildingId.Smithy) : null;
+            if (def != null && def.levelPerks != null && tier - 1 >= 0 && tier - 1 < def.levelPerks.Length)
+            {
+                string p = def.levelPerks[tier - 1];
+                int cut = p.IndexOf('\u2014'); // em dash in "Village Smithy — +2 rack…"
+                if (cut > 0) return p.Substring(0, cut).Trim();
+                cut = p.IndexOf('-');
+                if (cut > 0) return p.Substring(0, cut).Trim();
+                if (!string.IsNullOrEmpty(p)) return p;
+            }
+            return def != null ? def.displayName : "The Smithy";
         }
 
         // ------------------------------------------------------------ relic ore

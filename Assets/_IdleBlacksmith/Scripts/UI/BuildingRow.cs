@@ -67,7 +67,12 @@ namespace IdleBlacksmith.UI
             if (levelLabel != null) levelLabel.color = built ? LevelGood : Secondary;
 
             if (perkLabel != null)
-                perkLabel.text = maxed ? "Fully upgraded — " + Perk(level) : Perk(built ? level + 1 : 1);
+            {
+                // Unbuilt rows sell the building's purpose; owned rows sell the next level.
+                if (maxed) perkLabel.text = "Fully upgraded — " + Perk(level);
+                else if (!built) perkLabel.text = def.description;
+                else perkLabel.text = Perk(level + 1);
+            }
 
             if (maxBadge != null) maxBadge.SetActive(maxed);
             if (lockedBadge != null) lockedBadge.SetActive(!maxed && !afford);

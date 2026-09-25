@@ -12,7 +12,7 @@ namespace IdleBlacksmith.Core
     public class ChatterManager : MonoBehaviour
     {
         [Tooltip("Seconds between lines")]
-        public Vector2 interval = new Vector2(14f, 26f);
+        public Vector2 interval = new Vector2(28f, 48f);
         [Tooltip("Height of the bubble above the speaker's feet")]
         public float headHeight = 2.1f;
 

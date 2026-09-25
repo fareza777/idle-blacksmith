@@ -169,7 +169,7 @@ namespace IdleBlacksmith.UI
                 totalRecipes++;
                 if (gm.Data.stats.ForgedCount(r.id) > 0) found++;
             }
-            return $"{found} / {totalRecipes} recipes forged   ·   pips show rarity tiers hit";
+            return $"{found} / {totalRecipes} recipes forged   ·   each blade rolls a rarity — rarer sells for more";
         }
 
         static float CodexFill(GameManager gm)
