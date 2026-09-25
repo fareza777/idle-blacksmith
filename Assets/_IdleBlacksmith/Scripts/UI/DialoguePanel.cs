@@ -57,6 +57,7 @@ namespace IdleBlacksmith.UI
         int lineLength;
         float shownChars;
         bool typing;
+        bool ducked;
         System.Action onComplete;
 
         public void Play(DialogueSequence seq, System.Action done)
@@ -69,6 +70,7 @@ namespace IdleBlacksmith.UI
             sequence = seq;
             onComplete = done;
             IsOpen = true;
+            ducked = false;
             lineIndex = 0;
             gameObject.SetActive(true);
             if (cardButton != null)
@@ -115,6 +117,18 @@ namespace IdleBlacksmith.UI
 
         void Update()
         {
+            // While a modal sheet owns the screen the card docks itself out of the way
+            // instead of stacking underneath it; it glides back when the sheet closes.
+            var ui = UIManager.Instance;
+            bool shouldDuck = IsOpen && ui != null && ui.AnyPanelOpen;
+            if (shouldDuck != ducked && card != null)
+            {
+                ducked = shouldDuck;
+                float target = ducked ? closedY : openY;
+                Tween.UIAnchoredPosition(card, new Vector2(card.anchoredPosition.x, target),
+                    0.32f, ducked ? Ease.InBack : Ease.OutBack);
+            }
+
             if (!typing || bodyLabel == null) return;
             shownChars += charsPerSecond * Time.unscaledDeltaTime;
             int want = Mathf.Min(lineLength, Mathf.FloorToInt(shownChars));
