@@ -193,6 +193,9 @@ namespace IdleBlacksmith.EditorTools
             ftCg.interactable = false;
 
             // ------------------------------------------------ panels
+            // Dialogue builds first so every sheet draws above the strip — one focus at
+            // a time; a sheet opening mid-beat simply covers it until the sheet closes.
+            var dialogue = BuildDialogue(canvasGo.transform);
             var panel = BuildUpgradePanel(canvasGo.transform, upgradeRowPrefab);
             var dungeonPanel = BuildDungeonPanel(canvasGo.transform, dungeonRowPrefab);
             var complexPanel = BuildComplexPanel(canvasGo.transform, buildingRowPrefab, runeRowPrefab);
@@ -203,7 +206,6 @@ namespace IdleBlacksmith.EditorTools
             var settingsPanel = BuildSettingsPanel(canvasGo.transform);
             var welcomeBack = BuildWelcomeBack(canvasGo.transform);
             var dailyClaim = BuildDailyClaim(canvasGo.transform);
-            var dialogue = BuildDialogue(canvasGo.transform);
             var mainMenu = BuildMainMenu(canvasGo.transform);
             var onboarding = BuildOnboarding(canvasGo.transform);
             var intro = BuildIntro(canvasGo.transform);
