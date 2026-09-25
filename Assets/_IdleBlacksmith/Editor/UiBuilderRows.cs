@@ -85,7 +85,7 @@ namespace IdleBlacksmith.EditorTools
             Txt(titleGo, title, 52, Brown, TextAlignmentOptions.Left, titleFont);
             var subGo = Box("Subtitle", sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(42, -76), new Vector2(640, 38));
             subLabel = Txt(subGo, subtitle, 26, Secondary, TextAlignmentOptions.Left, bodyFont);
-            subLabel.overflowMode = TextOverflowModes.Ellipsis;
+            subLabel.enableAutoSizing = true; subLabel.fontSizeMin = 15f;
         }
 
         /// <summary>A small pill used for level / cost / state chips on a row.</summary>
@@ -209,8 +209,8 @@ namespace IdleBlacksmith.EditorTools
 
             var perkGo = Box("Perk", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(430, 30));
             var perkLabel = Txt(perkGo, "Effect", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
-            // Longer stage/effect lines end in an ellipsis rather than sliding under the cost pill.
-            perkLabel.overflowMode = TextOverflowModes.Ellipsis;
+            // Longer stage/effect lines shrink to fit rather than sliding under the cost pill.
+            perkLabel.enableAutoSizing = true; perkLabel.fontSizeMin = 15f;
 
             Pips(rt, new Vector2(140, -96), 5, out Image[] levelPips);
 
@@ -271,7 +271,7 @@ namespace IdleBlacksmith.EditorTools
 
             var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(430, 30));
             var descLabel = Txt(descGo, "Effect", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
-            descLabel.overflowMode = TextOverflowModes.Ellipsis;
+            descLabel.enableAutoSizing = true; descLabel.fontSizeMin = 15f;
 
             var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -16), new Vector2(220, 34));
             var levelLabel = Txt(levelGo, "Lv 0/4", 24, Secondary, TextAlignmentOptions.Right, bodyFont);
@@ -330,11 +330,11 @@ namespace IdleBlacksmith.EditorTools
 
             var statGo = Box("Stats", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(430, 30));
             var statLabel = Txt(statGo, "1 ore · 10 gold · 3.2s", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
-            statLabel.overflowMode = TextOverflowModes.Ellipsis;
+            statLabel.enableAutoSizing = true; statLabel.fontSizeMin = 15f;
 
             var forgedGo = Box("Forged", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -92), new Vector2(430, 30));
             var forgedLabel = Txt(forgedGo, "", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
-            forgedLabel.overflowMode = TextOverflowModes.Ellipsis;
+            forgedLabel.enableAutoSizing = true; forgedLabel.fontSizeMin = 15f;
 
             BouncyButton selectBtn = RowAction(rt, "SELECT", Orange, out TMP_Text selectLabel);
 
@@ -403,7 +403,7 @@ namespace IdleBlacksmith.EditorTools
 
             var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(520, 32));
             var descLabel = Txt(descGo, "Requirement", 24, Secondary, TextAlignmentOptions.Left, bodyFont);
-            descLabel.overflowMode = TextOverflowModes.Ellipsis;
+            descLabel.enableAutoSizing = true; descLabel.fontSizeMin = 15f;
 
             var progressGo = Box("Progress", rt, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-18, -22), new Vector2(220, 40));
             var progressLabel = Txt(progressGo, "0 / 1", 26, Secondary, TextAlignmentOptions.Right, bodyFont);
@@ -446,7 +446,7 @@ namespace IdleBlacksmith.EditorTools
 
             var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(430, 30));
             var descLabel = Txt(descGo, "Effect", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
-            descLabel.overflowMode = TextOverflowModes.Ellipsis;
+            descLabel.enableAutoSizing = true; descLabel.fontSizeMin = 15f;
 
             var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -16), new Vector2(220, 34));
             var levelLabel = Txt(levelGo, "Lv 0/5", 24, Secondary, TextAlignmentOptions.Right, bodyFont);
