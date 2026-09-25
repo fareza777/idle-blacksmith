@@ -91,13 +91,16 @@ namespace IdleBlacksmith.Core
             Notify();
         }
 
-        /// <summary>Offline payout: accrues at <see cref="Production.OfflineRate"/> and ignores the cap floor.</summary>
-        public int GrantOffline(float seconds)
+        /// <summary>Offline payout: adds up to <paramref name="amount"/> ore, clamped to free
+        /// stock space, and returns what actually fit. The caller computes the amount with
+        /// every multiplier (offline rate, storehouse) already folded in.</summary>
+        public int GrantOffline(int amount)
         {
-            float raw = OrePerSecond * seconds * Production.OfflineRate;
-            int gained = Mathf.FloorToInt(raw);
+            if (amount <= 0) return 0;
+            int space = Mathf.Max(0, OreCapacity - Ore);
+            int gained = Mathf.Min(amount, space);
             if (gained <= 0) return 0;
-            Ore = Mathf.Min(Ore + gained, OreCapacity);
+            Ore += gained;
             Notify();
             return gained;
         }

@@ -48,7 +48,7 @@ namespace IdleBlacksmith.Core
             float goldRaw = (smithy + market) * gm.config.offlineGoldPerBuildingLevel * seconds * rate * stored;
             int gold = Mathf.FloorToInt(goldRaw);
 
-            if (ore > 0) gm.resources.GrantOffline(seconds);
+            if (ore > 0) ore = gm.resources.GrantOffline(ore);
             if (gold > 0)
             {
                 gm.economy.AddGold(gold);
@@ -61,7 +61,7 @@ namespace IdleBlacksmith.Core
 
             report.valid = ore > 0 || gold > 0 || gm.expeditions.ReadyCount > 0;
             report.elapsedSeconds = (long)seconds;
-            report.oreGained = Mathf.Min(ore, gm.resources.Ore);
+            report.oreGained = ore;
             report.goldGained = gold;
             report.expeditionsReady = gm.expeditions.ReadyCount;
             return report;
