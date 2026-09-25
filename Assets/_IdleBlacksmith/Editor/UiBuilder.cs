@@ -725,7 +725,8 @@ namespace IdleBlacksmith.EditorTools
                     art = LoadPageArt("page_forge", "onboard_forge"),
                     title = "Forge Legendary Swords",
                     body = "Miners dig ore, your smith hammers it on the anvil, and the rack fills up with swords. "
-                         + "Every blade rolls its own quality — from Common all the way to Legendary.",
+                         + "Every blade rolls its own quality — from Common all the way to Legendary. "
+                         + "Tap the anvil to hammer faster.",
                 },
                 new OnboardingPanel.Page
                 {

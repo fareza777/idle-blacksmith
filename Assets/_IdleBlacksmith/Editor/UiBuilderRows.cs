@@ -212,7 +212,7 @@ namespace IdleBlacksmith.EditorTools
             Pips(rt, new Vector2(140, -96), 5, out Image[] levelPips);
 
             // Right column: state, cost, action — laid out horizontally so nothing can overlap.
-            var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -16), new Vector2(220, 34));
+            var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -16), new Vector2(350, 34));
             var levelLabel = Txt(levelGo, "Not built", 24, Secondary, TextAlignmentOptions.Right, bodyFont);
 
             RectTransform costPill = RowCostPill(rt, "coin", Hex(0xF2994A), Color.white, 224f, out TMP_Text costLabel);
