@@ -52,10 +52,10 @@ namespace IdleBlacksmith.Gameplay
                 return;
             }
 
-            // Smithy anchor floats above the front of the building so it clears the
-            // roofline and reads clearly from the dollhouse camera.
+            // Smithy anchor hangs well above the roofline, pulled toward the camera-facing
+            // side so it sits in open sky and can't be lost behind the chimney/tent/awning.
             anchor = target == gm.environmentRoot
-                ? target.position + new Vector3(0f, 4.1f, -1.4f)
+                ? target.position + new Vector3(0f, 5.2f, -2.6f)
                 : target.position + new Vector3(0f, 2.3f, 0f);
             if (diamond == null) return;
             if (!diamond.activeSelf) diamond.SetActive(true);
