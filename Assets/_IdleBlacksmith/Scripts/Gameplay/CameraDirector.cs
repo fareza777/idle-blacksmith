@@ -1,4 +1,5 @@
 using IdleBlacksmith.Core;
+using IdleBlacksmith.UI;
 using UnityEngine;
 
 namespace IdleBlacksmith.Gameplay
@@ -192,8 +193,14 @@ namespace IdleBlacksmith.Gameplay
 
         static bool IsOverUI()
         {
+            // An open sheet owns the gesture — pointer-over checks can miss touches.
+            var ui = UIManager.Instance;
+            if (ui != null && (ui.AnyPanelOpen || ui.IntroPlaying)) return true;
+
             var es = UnityEngine.EventSystems.EventSystem.current;
-            return es != null && es.IsPointerOverGameObject();
+            if (es == null) return false;
+            if (Input.touchCount > 0) return es.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
+            return es.IsPointerOverGameObject();
         }
 
         void HandlePinch()

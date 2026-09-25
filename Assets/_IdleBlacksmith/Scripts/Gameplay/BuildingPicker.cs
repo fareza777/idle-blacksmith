@@ -74,8 +74,7 @@ namespace IdleBlacksmith.Gameplay
             {
                 pressed = true;
                 pressedAt = Input.mousePosition;
-                var es = UnityEngine.EventSystems.EventSystem.current;
-                pressedOverUI = es != null && es.IsPointerOverGameObject();
+                pressedOverUI = IsOverUI();
                 return;
             }
 
@@ -83,6 +82,11 @@ namespace IdleBlacksmith.Gameplay
             pressed = false;
 
             if (pressedOverUI) return;
+
+            // A sheet on screen owns every tap — IsPointerOverGameObject can miss touches,
+            // so the panel state is checked again on release.
+            var mgr = UIManager.Instance;
+            if (mgr != null && (mgr.AnyPanelOpen || mgr.IntroPlaying)) return;
             if (director != null && director.IsDragging) return;
             if (Vector2.Distance(Input.mousePosition, pressedAt) > dragThreshold) return;
 
@@ -170,6 +174,14 @@ namespace IdleBlacksmith.Gameplay
             if (bestDist > tapRadiusNormalized * Screen.height) return;
 
             Open(best.buildingId);
+        }
+
+        static bool IsOverUI()
+        {
+            var es = UnityEngine.EventSystems.EventSystem.current;
+            if (es == null) return false;
+            if (Input.touchCount > 0) return es.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
+            return es.IsPointerOverGameObject();
         }
 
         /// <summary>Opens the complex sheet with this building's row highlighted and scrolled to.</summary>
