@@ -286,6 +286,8 @@ namespace IdleBlacksmith.Core
         void Start()
         {
             SpawnEnvironment(ShopTier);
+            var markerGo = new GameObject("QuestMarker");
+            markerGo.AddComponent<QuestMarker>();
             if (rack != null)
             {
                 rack.SetCapacity(RackCapacityTotal);
