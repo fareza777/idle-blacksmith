@@ -1112,7 +1112,7 @@ namespace IdleBlacksmith.EditorTools
             var hintGo = Box("NextHint", card, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-34, 30), new Vector2(56, 56));
             var hintCg = hintGo.gameObject.AddComponent<CanvasGroup>();
             hintCg.blocksRaycasts = false;
-            Txt(hintGo, "▶", 34, Orange, TextAlignmentOptions.Center, titleFont);
+            Txt(hintGo, "»", 40, Orange, TextAlignmentOptions.Center, titleFont);
 
             var panel = root.gameObject.AddComponent<DialoguePanel>();
             panel.group = cg;
