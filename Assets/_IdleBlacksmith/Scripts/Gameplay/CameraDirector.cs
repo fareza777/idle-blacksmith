@@ -317,6 +317,22 @@ namespace IdleBlacksmith.Gameplay
             userZoom = Mathf.Clamp(userZoom, manualMinSize - autoSize, manualMaxSize - autoSize);
         }
 
+        /// <summary>
+        /// Slides the view so a world point sits near screen center — the quest "show me"
+        /// affordance. Persistent like a manual pan until the player drags or resets.
+        /// </summary>
+        public void FocusOn(Vector3 worldPoint)
+        {
+            EnsureInit();
+            // focus carries the last Frame's pan already; strip it to get the pure auto focus.
+            Vector3 autoFocus = focus - userPan;
+            userPan = worldPoint - autoFocus;
+            userPan.y = 0f;
+            if (userPan.magnitude > panLimit) userPan = userPan.normalized * panLimit;
+            Frame();
+            AudioManager.Play("pop", 0.03f);
+        }
+
         /// <summary>Snaps the view back to the auto-framed shot.</summary>
         public void ResetView()
         {

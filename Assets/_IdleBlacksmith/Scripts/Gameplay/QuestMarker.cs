@@ -94,8 +94,9 @@ namespace IdleBlacksmith.Gameplay
         /// physical location. Nearly every actionable goal maps to a building so the
         /// player always knows where to look next; passive goals (time, dailies,
         /// cat, ember) get no marker since they complete on their own.
+        /// Public so the quest panel's "show" button can pan the camera to the same place.
         /// </summary>
-        Transform ResolveTarget()
+        public Transform ResolveTarget()
         {
             if (gm == null || gm.quests == null || plots == null) return null;
             var q = gm.quests.Active;

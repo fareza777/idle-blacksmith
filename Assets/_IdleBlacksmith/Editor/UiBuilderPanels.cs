@@ -200,6 +200,19 @@ namespace IdleBlacksmith.EditorTools
             var achTxtGo = Box("Label", achGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(26, 0), new Vector2(300, 56));
             Txt(achTxtGo, "ACHIEVEMENTS", 30, Color.white, TextAlignmentOptions.Center, titleFont);
 
+            // "Show me" — drops the sheet and pans the camera to the quest's building.
+            var showGo = Box("ShowButton", s.sheet, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-40, 30), new Vector2(300, 96));
+            var showBtn = showGo.gameObject.AddComponent<BouncyButton>();
+            var showImg = showGo.gameObject.AddComponent<Image>();
+            showImg.sprite = pill; showImg.type = Image.Type.Sliced; showImg.color = Orange;
+            showBtn.targetGraphic = showImg;
+            SetButtonColors(showBtn);
+            SoftShadow(showGo.gameObject, -4f, 0.3f);
+            var showIconGo = Box("Icon", showGo, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(22, 0), new Vector2(60, 60));
+            Img(showIconGo.gameObject, AssetFactory.LoadIcon("gem"), Color.white).raycastTarget = false;
+            var showTxtGo = Box("Label", showGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(20, 0), new Vector2(200, 56));
+            Txt(showTxtGo, "SHOW", 30, Color.white, TextAlignmentOptions.Center, titleFont);
+
             panel.sheet = s.sheet;
             panel.backdrop = s.backdrop;
             panel.backdropButton = s.backdropButton;
@@ -212,6 +225,7 @@ namespace IdleBlacksmith.EditorTools
             panel.counterLabel = counterLabel;
             panel.fill = fillImg;
             panel.achievementsButton = achBtn;
+            panel.showButton = showBtn;
             panel.openY = 26f;
             panel.closedY = s.closedY;
             s.root.gameObject.SetActive(false);
