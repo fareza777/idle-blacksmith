@@ -890,7 +890,7 @@ namespace IdleBlacksmith.EditorTools
             var durLabel = Txt(durGo, "2 min", 26, Teal, TextAlignmentOptions.Left, titleFont);
             var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(156, -66), new Vector2(470, 34));
             var descLabel = Txt(descGo, "Description", 24, Secondary, TextAlignmentOptions.Left, bodyFont);
-            descLabel.enableAutoSizing = true; descLabel.fontSizeMin = 15f; descLabel.fontSizeMax = descLabel.fontSize;
+            descLabel.enableAutoSizing = true; descLabel.fontSizeMin = 12f; descLabel.fontSizeMax = descLabel.fontSize;
             var rewardGo = Box("Reward", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(156, -110), new Vector2(470, 40));
             var rewardLabel = Txt(rewardGo, "+60 gold  +2 relic ore", 26, Hex(0xC99638), TextAlignmentOptions.Left, titleFont);
 

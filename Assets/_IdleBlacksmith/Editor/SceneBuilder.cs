@@ -732,7 +732,7 @@ namespace IdleBlacksmith.EditorTools
                 new BuildingDef
                 {
                     id = BuildingId.Gate, displayName = "Dungeon Gate", startLevel = 0, maxLevel = 5,
-                    description = "Opens the way below. Higher levels send more parties and pay better.",
+                    description = "Opens the way below — parties return with gold and relic ore.",
                     icon = AssetFactory.LoadIcon("gate"),
                     levelCosts = new[] { 400, 2200, 11000, 55000, 240000 },
                     levelPerks = new[]
@@ -780,7 +780,7 @@ namespace IdleBlacksmith.EditorTools
                 new BuildingDef
                 {
                     id = BuildingId.Storehouse, displayName = "Storehouse", startLevel = 0, maxLevel = 5,
-                    description = "Cargo under lock and lantern. Every level keeps more of what the complex earns while you are away.",
+                    description = "Guarded cargo — every level banks more of your offline earnings.",
                     icon = AssetFactory.LoadIcon("chest"),
                     levelCosts = new[] { 450, 2400, 12000, 60000, 260000 },
                     levelPerks = new[]
