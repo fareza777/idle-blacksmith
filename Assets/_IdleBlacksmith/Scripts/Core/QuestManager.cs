@@ -90,16 +90,18 @@ namespace IdleBlacksmith.Core
             }
         }
 
-        /// <summary>Objective text for the HUD ticker, e.g. "Forge 12/25 swords · +60g".</summary>
+        /// <summary>Objective text for the HUD ticker, e.g. "Dig Deeper: Reach Ore Mine level 1  ·  +150g".</summary>
         public string TickerText
         {
             get
             {
                 QuestDef q = Active;
                 if (q == null) return "All quests complete — the forge is legendary";
-                string text = $"{q.title}: {Goals.Describe(q.goal, q.targetId, q.target)}  ({Mathf.Min(Progress, q.target)}/{q.target}";
+                // Count lives on the right-side progress label and the fill bar — the
+                // text stays the readable "what + why" so nothing is shown twice.
+                string text = $"{q.title}: {Goals.Describe(q.goal, q.targetId, q.target)}";
                 string reward = RewardSuffix(q);
-                return text + (reward.Length > 0 ? " · " + reward : "") + ")";
+                return text + (reward.Length > 0 ? "  ·  " + reward : "");
             }
         }
 

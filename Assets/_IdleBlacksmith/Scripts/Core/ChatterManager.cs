@@ -60,6 +60,13 @@ namespace IdleBlacksmith.Core
         {
             if (Time.time < nextAt) return;
             nextAt = Time.time + Random.Range(interval.x, interval.y);
+
+            // Hold ambient lines while the story card or any sheet owns the screen —
+            // two competing text layers at once is clutter, not atmosphere.
+            var ui = UIManager.Instance;
+            if (ui != null && (ui.AnyPanelOpen || ui.IntroPlaying)) return;
+            if (ui != null && ui.dialoguePanel != null && ui.dialoguePanel.IsOpen) return;
+
             Say();
         }
 
