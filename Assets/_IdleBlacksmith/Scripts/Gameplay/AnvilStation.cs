@@ -175,6 +175,17 @@ namespace IdleBlacksmith.Gameplay
                 AudioManager.DuckMusic(0.6f);
                 UI.SettingsPanel.Buzz();
                 UI.UIManager.Instance?.FlashScreen(new Color(1f, 0.75f, 0.3f), 0.32f, 0.7f);
+                // The save's very first legendary deserves to feel like history — the stat
+                // still reads below Legendary here because RegisterForged runs after this.
+                var s = GameManager.Instance != null ? GameManager.Instance.Data : null;
+                if (s != null && s.stats != null && s.stats.bestRarity < (int)Rarity.Legendary)
+                {
+                    UI.UIManager.Instance?.SpawnFloatingText(
+                        where + Vector3.up * 1.4f,
+                        "YOUR FIRST LEGENDARY!",
+                        new Color(1f, 0.85f, 0.35f));
+                    CameraDirector.Instance?.AddShake(0.25f);
+                }
             }
         }
 

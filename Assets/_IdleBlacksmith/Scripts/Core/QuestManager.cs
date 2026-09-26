@@ -165,6 +165,17 @@ namespace IdleBlacksmith.Core
                 }
 
                 OnQuestCompleted?.Invoke(q);
+                // Clearing the whole log is a completionist milestone — one loud beat for it.
+                if (TotalCount > 0 && gm.Data.questsClaimed.Count >= TotalCount)
+                {
+                    UI.UIManager.Instance?.SpawnFloatingText(
+                        new Vector3(0f, 2.7f, 0f), "EVERY QUEST DONE!",
+                        new Color(1f, 0.85f, 0.35f));
+                    AudioManager.Play("fanfare", 0.04f, 0.9f);
+                    AudioManager.DuckMusic(0.6f);
+                    Gameplay.CameraDirector.Instance?.AddShake(0.4f);
+                    UI.SettingsPanel.Buzz();
+                }
                 gm.Save();
             }
             finally
