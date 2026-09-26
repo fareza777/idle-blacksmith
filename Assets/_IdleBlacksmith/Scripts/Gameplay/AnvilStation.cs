@@ -132,6 +132,8 @@ namespace IdleBlacksmith.Gameplay
                 IsCrafting = false;
                 LastForged = RollForged();
                 if (progressBar != null) progressBar.CompleteFlash();
+                // Quench hiss on every finish — Common crafts used to end in silence.
+                AudioManager.Play("whoosh", 0.06f, 0.38f, 0.72f);
                 CelebrateRarity(LastForged.rarity);
                 onComplete?.Invoke();
                 onComplete = null;

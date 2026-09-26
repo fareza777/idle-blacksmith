@@ -101,6 +101,7 @@ namespace IdleBlacksmith.UI
         void HandleUnlocked(AchievementDef def)
         {
             AudioManager.Play("achievement");
+            AudioManager.DuckMusic(0.5f);
             SettingsPanel.Buzz();
             if (UIManager.Instance != null)
                 UIManager.Instance.SpawnFloatingText(

@@ -76,6 +76,7 @@ namespace IdleBlacksmith.Gameplay
             {
                 Tween.PunchScale(Current.transform, Vector3.one * 0.22f, 0.6f);
                 AudioManager.Play("levelup", 0.05f, 0.9f);
+                CameraDirector.Instance?.AddShake(0.3f);
                 UI.SettingsPanel.Buzz();
                 UI.UIManager.Instance?.SpawnFloatingText(
                     transform.position + Vector3.up * 1.6f,

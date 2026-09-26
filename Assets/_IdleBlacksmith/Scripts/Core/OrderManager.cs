@@ -197,6 +197,9 @@ namespace IdleBlacksmith.Core
                 patron + "'s order complete! +" + relic + " relic ore",
                 new Color(0.62f, 0.9f, 1f));
             AudioManager.Play("fanfare");
+            AudioManager.DuckMusic(0.55f);
+            Gameplay.CameraDirector.Instance?.AddShake(0.3f);
+            UI.SettingsPanel.Buzz();
             Active = null;
             ScheduleNext();
             OnChanged?.Invoke();
