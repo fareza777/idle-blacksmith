@@ -80,6 +80,21 @@ namespace IdleBlacksmith.Gameplay
                 GameManager.Instance.Save();
                 yield return new WaitForSeconds(0.75f);
             }
+            else
+            {
+                // Empty rack: they came for nothing — a deflated slump and a note in the
+                // stats so a bare shelf is felt, not just silently walked past.
+                GameManager gm = GameManager.Instance;
+                if (gm != null && gm.Data != null && gm.Data.stats != null)
+                    gm.Data.stats.customersTurnedAway++;
+                UIManager.Instance?.SpawnFloatingText(
+                    transform.position + Vector3.up * 2.0f, "Sold out!",
+                    new Color(0.95f, 0.62f, 0.52f));
+                AudioManager.Play("denied", 0.05f, 0.35f);
+                if (model != null)
+                    Tween.PunchScale(model, new Vector3(-0.05f, -0.09f, -0.05f), 0.4f);
+                yield return new WaitForSeconds(0.5f);
+            }
 
             if (leavePath != null)
                 foreach (Vector3 wp in leavePath)

@@ -56,6 +56,8 @@ namespace IdleBlacksmith.Core
         public int swordsSold;
         public long goldEarned;
         public int customersServed;
+        /// <summary>Customers who found the rack empty and left without buying.</summary>
+        public int customersTurnedAway;
         public int expeditionsClaimed;
         public int prestiges;
         public int buildingsUpgraded;

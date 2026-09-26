@@ -236,6 +236,7 @@ namespace IdleBlacksmith.UI
                 $"Swords sold            {s.swordsSold}",
                 $"Gold earned (lifetime) {GoldCounter.Format(s.goldEarned)}",
                 $"Customers served       {s.customersServed}",
+                $"Turned away (sold out) {s.customersTurnedAway}",
                 $"Expeditions claimed    {s.expeditionsClaimed}",
                 $"Relic ore earned       {s.relicsEarned}",
                 $"Buildings upgraded     {s.buildingsUpgraded}",
