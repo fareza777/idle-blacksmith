@@ -755,6 +755,14 @@ namespace IdleBlacksmith.EditorTools
                 new OnboardingPanel.Page
                 {
                     art = LoadPageArt("page_forge", "onboard_forge"),
+                    title = "Workbench Tricks",
+                    body = "Three tools sit by the anvil: the bellows makes the current craft run hot and fast, "
+                         + "the grindstone rolls the next blade's quality twice and keeps the best, "
+                         + "and the quench trough finishes a sword on the spot.",
+                },
+                new OnboardingPanel.Page
+                {
+                    art = LoadPageArt("page_forge", "onboard_forge"),
                     title = "Look Around",
                     body = "Drag the yard to pan, pinch to zoom, and double-tap to snap back to the forge. "
                          + "Tap the marked plots — or the COMPLEX button — to raise a new building.",
