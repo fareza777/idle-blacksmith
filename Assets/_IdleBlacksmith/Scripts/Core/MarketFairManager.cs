@@ -50,8 +50,9 @@ namespace IdleBlacksmith.Core
                 UIManager.Instance?.SpawnFloatingText(
                     new Vector3(0f, 2.6f, 0f), "The fair packs up…", new Color(0.75f, 0.7f, 0.9f));
             }
-            // The festival gets its own tune; the forge theme comes back at close.
-            AudioManager.PlayMusic(Active ? "music_fair" : UIManager.ThemeId(), 2f);
+            // The festival gets its own tune; CurrentTheme restores whatever fits the
+            // moment it ends — workshop theme by day, lullaby if night fell mid-fair.
+            AudioManager.PlayMusic(UIManager.CurrentTheme(), 2f);
             OnChanged?.Invoke();
         }
     }

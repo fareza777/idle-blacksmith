@@ -132,7 +132,7 @@ namespace IdleBlacksmith.UI
 
             // Music starts under the splash so the menu already has its theme — deep once
             // the smithy has reached the third tier.
-            AudioManager.PlayMusic(gm != null && gm.ShopTier >= 3 ? "music_deep" : "music_forge", 2f);
+            AudioManager.PlayMusic(CurrentTheme(), 2f);
             AudioManager.PlayAmbience("amb_fire", 3f);
 
             // Launch flow: splash, then the title screen, then the intro once, then onboarding.
@@ -307,7 +307,7 @@ namespace IdleBlacksmith.UI
             introCinematic.Play(() =>
             {
                 RevealHud();
-                AudioManager.PlayMusic(ThemeId(), 1.5f);
+                AudioManager.PlayMusic(CurrentTheme(), 1.5f);
             });
         }
 
@@ -316,6 +316,19 @@ namespace IdleBlacksmith.UI
         {
             var gm = GameManager.Instance;
             return gm != null && gm.ShopTier >= 3 ? "music_deep" : "music_forge";
+        }
+
+        /// <summary>
+        /// The theme that should be playing right now — fair-day tune wins, then the night
+        /// lullaby after dark, else the workshop theme. Every music restore should call
+        /// this so a theme change can never leave daylight music playing at night.
+        /// </summary>
+        public static string CurrentTheme()
+        {
+            var gm = GameManager.Instance;
+            if (gm != null && gm.marketFair != null && gm.marketFair.Active) return "music_fair";
+            if (Gameplay.DayCycle.Night > 0.55f) return "music_night";
+            return ThemeId();
         }
 
         /// <summary>Opens the complex sheet with one building's row highlighted (world tap).</summary>

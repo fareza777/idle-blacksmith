@@ -223,7 +223,7 @@ namespace IdleBlacksmith.UI
                 gm.Data.introSeen = true;
                 gm.Save();
             }
-            AudioManager.PlayMusic(UIManager.ThemeId(), 1.4f);
+            AudioManager.PlayMusic(UIManager.CurrentTheme(), 1.4f);
             TweenBars(0f);
 
             if (group != null)

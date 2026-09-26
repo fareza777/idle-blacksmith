@@ -87,12 +87,8 @@ namespace IdleBlacksmith.Gameplay
             {
                 nightAmb = wantNight;
                 AudioManager.PlayAmbience(wantNight ? "amb_night" : "amb_fire", 4f);
-                // Music follows the sun too — a music-box lullaby after dark, then the
-                // workshop (or fair-day) theme comes back with the light.
-                var m = GameManager.Instance;
-                string dayTheme = m != null && m.marketFair != null && m.marketFair.Active
-                    ? "music_fair" : UI.UIManager.ThemeId();
-                AudioManager.PlayMusic(wantNight ? "music_night" : dayTheme, 4f);
+                // Music follows the sun too — CurrentTheme resolves fair > night > workshop.
+                AudioManager.PlayMusic(UI.UIManager.CurrentTheme(), 4f);
             }
         }
 
