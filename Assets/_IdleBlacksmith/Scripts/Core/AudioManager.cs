@@ -117,13 +117,13 @@ namespace IdleBlacksmith.Core
             }
         }
 
-        public static void Play(string id, float pitchJitter = 0.06f, float volumeScale = 1f)
+        public static void Play(string id, float pitchJitter = 0.06f, float volumeScale = 1f, float pitch = 1f)
         {
             if (Instance == null || Muted) return;
             if (!Instance.map.TryGetValue(id, out NamedClip c) || c.clip == null) return;
             AudioSource s = Instance.sfxSource;
             if (s == null) return;
-            s.pitch = 1f + Random.Range(-pitchJitter, pitchJitter);
+            s.pitch = pitch * (1f + Random.Range(-pitchJitter, pitchJitter));
             s.PlayOneShot(c.clip, c.volume * volumeScale);
         }
 

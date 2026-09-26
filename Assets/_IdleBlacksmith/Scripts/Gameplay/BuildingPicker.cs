@@ -143,15 +143,25 @@ namespace IdleBlacksmith.Gameplay
                 }
             }
 
-            // While a sword is on the anvil, a tap on the anvil is a hammer blow, not a menu
-            // open — the active-craft read matters more than opening the smithy row.
-            if (anvil != null && anvil.IsCrafting)
+            if (anvil != null)
             {
                 Vector3 ap = cam.WorldToScreenPoint(anvil.transform.position + Vector3.up * 0.55f);
-                if (ap.z > 0f && Vector2.Distance(ap, screenPos) <= anvilTapRadiusNormalized * Screen.height)
+                bool onAnvil = ap.z > 0f && Vector2.Distance(ap, screenPos) <= anvilTapRadiusNormalized * Screen.height;
+                // While a sword is on the anvil, a tap on the anvil is a hammer blow, not a menu
+                // open — the active-craft read matters more than opening the smithy row.
+                if (onAnvil && anvil.IsCrafting)
                 {
                     anvil.TapBoost();
                     return;
+                }
+                // A cold anvil with an empty pile is the game's one true stall — say why.
+                if (onAnvil && !anvil.IsCrafting)
+                {
+                    GameManager gm = GameManager.Instance;
+                    if (gm != null && gm.resources != null && gm.resources.Ore <= 0)
+                        UIManager.Instance?.SpawnFloatingText(
+                            anvil.transform.position + Vector3.up * 1.1f,
+                            "Pile's empty — tap the ore pile!", new Color(1f, 0.72f, 0.45f));
                 }
             }
 

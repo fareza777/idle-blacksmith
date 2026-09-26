@@ -179,11 +179,11 @@ namespace IdleBlacksmith.Gameplay
         /// <summary>Called by the worker's hammer animation event on each strike.</summary>
         public void OnHammerStrike() => Strike(0.9f);
 
-        void Strike(float volume)
+        void Strike(float volume, float pitch = 1f)
         {
             hammerStrikes++;
             if (sparks != null) sparks.Play();
-            AudioManager.Play("hammer", 0.09f, volume);
+            AudioManager.Play("hammer", 0.09f, volume, pitch);
             if (hotSwordVisual != null)
                 Tween.PunchScale(hotSwordVisual.transform, hotSwordBaseScale * 0.18f, 0.25f);
         }
@@ -203,7 +203,7 @@ namespace IdleBlacksmith.Gameplay
             timer = Mathf.Min(timer + boost, duration);
             float p = Mathf.Clamp01(timer / duration);
             if (progressBar != null) progressBar.SetProgress(p);
-            Strike(0.55f);
+            Strike(0.55f, 1f + tapCombo * 0.05f);
             UI.SettingsPanel.Buzz();
             Tween.PunchScale(transform, Vector3.one * 0.04f, 0.2f);
             // Each hand-hit lands a small thud — just enough to feel the hammer.
