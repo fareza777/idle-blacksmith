@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using IdleBlacksmith.Core;
 using IdleBlacksmith.UI;
@@ -90,6 +91,54 @@ namespace IdleBlacksmith.EditorTools
             cam.orthographicSize = 1.9f;
             Render(cam, 1080, 1080, "_Screenshots/6_closeup.png");
 
+            // Market-fair day: spawn the bunting over the forecourt and frame it from the street.
+            var fairGo = new GameObject("FairBuntingPreview");
+            var fair = fairGo.AddComponent<IdleBlacksmith.Gameplay.FairBunting>();
+            fair.PreviewBuild();
+            // A couple of strollers browsing the stalls, like FairCrowd spawns at runtime.
+            var fairCfg = preload != null ? preload.config : null;
+            var strollers = new List<GameObject>();
+            if (fairCfg != null)
+            {
+                var spots = new[] { new Vector3(-2.0f, 0f, -1.15f), new Vector3(1.9f, 0f, -1.35f), new Vector3(0.1f, 0f, -1.9f) };
+                var pool = new[] { fairCfg.customerPrefabD, fairCfg.customerPrefabA, fairCfg.customerPrefabB };
+                for (int i = 0; i < spots.Length; i++)
+                {
+                    if (pool[i] == null) continue;
+                    var inst = (GameObject)PrefabUtility.InstantiatePrefab(pool[i]);
+                    inst.transform.position = spots[i];
+                    inst.transform.rotation = Quaternion.Euler(0f, i == 0 ? 160f : (i == 1 ? 200f : 180f), 0f);
+                    strollers.Add(inst);
+                }
+            }
+            cam.transform.position = new Vector3(0f, 3.4f, -8.6f);
+            cam.transform.LookAt(new Vector3(0f, 1.2f, -0.6f));
+            cam.orthographicSize = 4.4f;
+            Render(cam, 1080, 1080, "_Screenshots/19_fair.png");
+            foreach (GameObject g in strollers) Object.DestroyImmediate(g);
+            Object.DestroyImmediate(fairGo);
+
+            // Customer lineup: every shopper model side by side for a visual pass on the cast.
+            var lineup = new List<GameObject>();
+            if (preload != null && preload.config != null)
+            {
+                var cfg = preload.config;
+                var prefabs = new[] { cfg.customerPrefabA, cfg.customerPrefabB, cfg.customerPrefabC, cfg.customerPrefabD };
+                for (int i = 0; i < prefabs.Length; i++)
+                {
+                    if (prefabs[i] == null) continue;
+                    var inst = (GameObject)PrefabUtility.InstantiatePrefab(prefabs[i]);
+                    inst.transform.position = new Vector3(-1.4f + i * 0.95f, 0f, -6.2f);
+                    inst.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+                    lineup.Add(inst);
+                }
+                cam.transform.position = new Vector3(0f, 1.4f, -9.0f);
+                cam.transform.LookAt(new Vector3(0f, 0.7f, -6.2f));
+                cam.orthographicSize = 1.3f;
+                Render(cam, 1080, 1080, "_Screenshots/20_customers.png");
+                foreach (GameObject g in lineup) Object.DestroyImmediate(g);
+            }
+
             // Remaining sheets all render in overlay mode against a frozen camera.
             canvas.renderMode = RenderMode.ScreenSpaceCamera;
             canvas.worldCamera = cam;
@@ -181,6 +230,7 @@ namespace IdleBlacksmith.EditorTools
 
             var inst = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
             inst.transform.SetParent(gm.environmentRoot, false);
+            gm.SpawnForgeSign(level);
         }
 
         /// <summary>
@@ -225,12 +275,15 @@ namespace IdleBlacksmith.EditorTools
 
             if (ui.metaPanel != null)
             {
-                ui.metaPanel.PreviewOpenForScreenshot(false);
+                ui.metaPanel.PreviewOpenForScreenshot(0);
                 Canvas.ForceUpdateCanvases();
                 Render(cam, w, h, "_Screenshots/11_achievements.png");
-                ui.metaPanel.ShowPage(true);
+                ui.metaPanel.ShowPage(1);
                 Canvas.ForceUpdateCanvases();
                 Render(cam, w, h, "_Screenshots/12_stats.png");
+                ui.metaPanel.ShowPage(2);
+                Canvas.ForceUpdateCanvases();
+                Render(cam, w, h, "_Screenshots/18_codex.png");
                 ui.metaPanel.PreviewClose();
             }
 
@@ -256,6 +309,36 @@ namespace IdleBlacksmith.EditorTools
                 Canvas.ForceUpdateCanvases();
                 Render(cam, w, h, "_Screenshots/15_welcome.png");
                 ui.welcomeBackPanel.PreviewClose();
+            }
+
+            var dialogueMgr = Object.FindFirstObjectByType<IdleBlacksmith.Core.DialogueManager>();
+            if (ui.dialoguePanel != null && dialogueMgr != null)
+            {
+                var seq = new DialogueSequence
+                {
+                    id = "preview",
+                    lines = new[]
+                    {
+                        new DialogueLine
+                        {
+                            speaker = "Petra Flint",
+                            portrait = AssetFactory.LoadMenuArt("portrait_petra"),
+                            text = "Ore while you sleep, ore while you eat. Just keep my lanterns lit, smith.",
+                        },
+                    },
+                };
+                ui.dialoguePanel.PreviewShow(seq);
+                Canvas.ForceUpdateCanvases();
+                Render(cam, w, h, "_Screenshots/16_dialogue.png");
+                ui.dialoguePanel.PreviewHide();
+            }
+
+            if (ui.introCinematic != null)
+            {
+                ui.introCinematic.PreviewShow(0);
+                Canvas.ForceUpdateCanvases();
+                Render(cam, w, h, "_Screenshots/17_intro.png");
+                ui.introCinematic.PreviewHide();
             }
         }
 

@@ -1,4 +1,5 @@
 using IdleBlacksmith.Core;
+using IdleBlacksmith.UI;
 using UnityEngine;
 
 namespace IdleBlacksmith.Gameplay
@@ -54,11 +55,11 @@ namespace IdleBlacksmith.Gameplay
 
         [Header("Player pan and zoom")]
         [Tooltip("How far the player may drag the view away from the auto-framed centre, in world units")]
-        public float panLimit = 7f;
+        public float panLimit = 9f;
         [Tooltip("Closest the player may zoom in, as an orthographic size")]
         public float manualMinSize = 3.4f;
         [Tooltip("Furthest the player may zoom out, as an orthographic size")]
-        public float manualMaxSize = 19f;
+        public float manualMaxSize = 21f;
         [Tooltip("Drag distance in pixels before a press counts as a pan rather than a tap")]
         public float dragThreshold = 22f;
 
@@ -192,8 +193,14 @@ namespace IdleBlacksmith.Gameplay
 
         static bool IsOverUI()
         {
+            // An open sheet owns the gesture — pointer-over checks can miss touches.
+            var ui = UIManager.Instance;
+            if (ui != null && (ui.AnyPanelOpen || ui.IntroPlaying)) return true;
+
             var es = UnityEngine.EventSystems.EventSystem.current;
-            return es != null && es.IsPointerOverGameObject();
+            if (es == null) return false;
+            if (Input.touchCount > 0) return es.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
+            return es.IsPointerOverGameObject();
         }
 
         void HandlePinch()
@@ -308,6 +315,22 @@ namespace IdleBlacksmith.Gameplay
         void ClampZoom()
         {
             userZoom = Mathf.Clamp(userZoom, manualMinSize - autoSize, manualMaxSize - autoSize);
+        }
+
+        /// <summary>
+        /// Slides the view so a world point sits near screen center — the quest "show me"
+        /// affordance. Persistent like a manual pan until the player drags or resets.
+        /// </summary>
+        public void FocusOn(Vector3 worldPoint)
+        {
+            EnsureInit();
+            // focus carries the last Frame's pan already; strip it to get the pure auto focus.
+            Vector3 autoFocus = focus - userPan;
+            userPan = worldPoint - autoFocus;
+            userPan.y = 0f;
+            if (userPan.magnitude > panLimit) userPan = userPan.normalized * panLimit;
+            Frame();
+            AudioManager.Play("pop", 0.03f);
         }
 
         /// <summary>Snaps the view back to the auto-framed shot.</summary>

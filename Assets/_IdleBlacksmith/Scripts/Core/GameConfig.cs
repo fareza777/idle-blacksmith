@@ -72,6 +72,12 @@ namespace IdleBlacksmith.Core
         public GameObject helperPrefab;
         public GameObject customerPrefabA;
         public GameObject customerPrefabB;
+        [Tooltip("Distinct noble look used for VIP customers (high pay multiplier)")]
+        public GameObject customerPrefabC;
+        public GameObject customerPrefabD;
+        public GameObject vendorPrefab;
+        public GameObject mysticPrefab;
+        public GameObject stokerPrefab;
         public GameObject swordPrefab;
         public GameObject oreChunkPrefab;
 
@@ -201,6 +207,10 @@ namespace IdleBlacksmith.Core
         public int runeLevelsPerTier;
         [Tooltip("Sanctum: fraction shaved off rune costs per level above 1")]
         public float runeCostCut;
+        [Tooltip("Blast Furnace: fraction off craft duration per level")]
+        public float craftSpeedCut;
+        [Tooltip("Storehouse: extra offline earnings fraction per level")]
+        public float offlineBonus;
 
         public int MaxBuyableLevel => Mathf.Min(maxLevel, (levelCosts != null ? levelCosts.Length : 0) + 1);
     }
@@ -284,6 +294,15 @@ namespace IdleBlacksmith.Core
         BuildRunes,
         OwnRarity,
         PlayMinutes,
+        ServeOrders,
+        RushOrders,
+        ClaimDailies,
+        UseTools,
+        PetCat,
+        CatchEmber,
+        MasterRecipe,
+        DaysPassed,
+        FairSales,
     }
 
     [System.Serializable]

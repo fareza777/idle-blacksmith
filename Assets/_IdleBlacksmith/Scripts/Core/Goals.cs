@@ -30,6 +30,21 @@ namespace IdleBlacksmith.Core
                 case QuestGoal.BuildRunes: return gm.runes != null ? gm.runes.TotalLevels : 0;
                 case QuestGoal.OwnRarity: return st != null ? st.bestRarity : 0;
                 case QuestGoal.PlayMinutes: return st != null ? (long)(st.playSeconds / 60f) : 0;
+                case QuestGoal.ServeOrders: return st != null ? st.ordersServed : 0;
+                case QuestGoal.RushOrders: return st != null ? st.rushOrdersDone : 0;
+                case QuestGoal.ClaimDailies: return st != null ? st.dailyClaims : 0;
+                case QuestGoal.UseTools: return st != null ? st.toolUses : 0;
+                case QuestGoal.PetCat: return st != null ? st.catPets : 0;
+                case QuestGoal.CatchEmber: return st != null ? st.embersCaught : 0;
+                case QuestGoal.MasterRecipe:
+                    // Highest mastery tier reached on any recipe the player has ever forged.
+                    if (gm.config == null || gm.config.recipes == null) return 0;
+                    int bestTier = 0;
+                    foreach (RecipeDef r in gm.config.recipes)
+                        bestTier = Mathf.Max(bestTier, gm.MasteryTierOf(r.id));
+                    return bestTier;
+                case QuestGoal.DaysPassed: return st != null ? st.dayCycles : 0;
+                case QuestGoal.FairSales: return st != null ? st.fairSales : 0;
             }
             return 0;
         }
@@ -52,6 +67,15 @@ namespace IdleBlacksmith.Core
                 case QuestGoal.BuildRunes: return $"Raise {target} rune levels";
                 case QuestGoal.OwnRarity: return $"Forge a {RarityInfo.NameOf((Rarity)target)} sword";
                 case QuestGoal.PlayMinutes: return $"Play for {target} minutes";
+                case QuestGoal.ServeOrders: return $"Complete {target} merchant orders";
+                case QuestGoal.RushOrders: return $"Complete {target} orders during Rush Hour";
+                case QuestGoal.ClaimDailies: return $"Claim {target} daily embers";
+                case QuestGoal.UseTools: return $"Use workbench tools {target} times";
+                case QuestGoal.PetCat: return $"Pet the forge cat {target} times";
+                case QuestGoal.CatchEmber: return $"Catch {target} lucky embers";
+                case QuestGoal.MasterRecipe: return $"Reach mastery tier {target} on any recipe";
+                case QuestGoal.DaysPassed: return $"See {target} dawns over the forge";
+                case QuestGoal.FairSales: return $"Sell {target} swords on market-fair days";
             }
             return "Progress";
         }

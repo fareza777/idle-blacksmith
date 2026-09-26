@@ -30,6 +30,17 @@ namespace IdleBlacksmith.UI
 
         readonly System.Collections.Generic.List<RecipeCard> cards = new System.Collections.Generic.List<RecipeCard>();
         bool built;
+        float nextPoll;
+
+        /// <summary>Counts on the cards tick over while the sheet sits open.</summary>
+        void Update()
+        {
+            if (IsOpen && Time.unscaledTime >= nextPoll)
+            {
+                nextPoll = Time.unscaledTime + 1.5f;
+                RefreshAll();
+            }
+        }
 
         public void Init()
         {

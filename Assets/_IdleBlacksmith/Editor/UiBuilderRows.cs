@@ -85,6 +85,7 @@ namespace IdleBlacksmith.EditorTools
             Txt(titleGo, title, 52, Brown, TextAlignmentOptions.Left, titleFont);
             var subGo = Box("Subtitle", sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(42, -76), new Vector2(640, 38));
             subLabel = Txt(subGo, subtitle, 26, Secondary, TextAlignmentOptions.Left, bodyFont);
+            subLabel.enableAutoSizing = true; subLabel.fontSizeMin = 12f; subLabel.fontSizeMax = subLabel.fontSize;
         }
 
         /// <summary>A small pill used for level / cost / state chips on a row.</summary>
@@ -206,13 +207,15 @@ namespace IdleBlacksmith.EditorTools
             var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -14), new Vector2(420, 42));
             var nameLabel = Txt(nameGo, "Building", 32, Brown, TextAlignmentOptions.Left, titleFont);
 
-            var perkGo = Box("Perk", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(430, 30));
+            var perkGo = Box("Perk", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(390, 30));
             var perkLabel = Txt(perkGo, "Effect", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
+            // Longer stage/effect lines shrink to fit rather than sliding under the cost pill.
+            perkLabel.enableAutoSizing = true; perkLabel.fontSizeMin = 12f; perkLabel.fontSizeMax = perkLabel.fontSize;
 
             Pips(rt, new Vector2(140, -96), 5, out Image[] levelPips);
 
             // Right column: state, cost, action — laid out horizontally so nothing can overlap.
-            var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -16), new Vector2(220, 34));
+            var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -16), new Vector2(350, 34));
             var levelLabel = Txt(levelGo, "Not built", 24, Secondary, TextAlignmentOptions.Right, bodyFont);
 
             RectTransform costPill = RowCostPill(rt, "coin", Hex(0xF2994A), Color.white, 224f, out TMP_Text costLabel);
@@ -266,8 +269,9 @@ namespace IdleBlacksmith.EditorTools
             var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -14), new Vector2(420, 42));
             var nameLabel = Txt(nameGo, "Rune", 32, Brown, TextAlignmentOptions.Left, titleFont);
 
-            var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(430, 30));
+            var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(390, 30));
             var descLabel = Txt(descGo, "Effect", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
+            descLabel.enableAutoSizing = true; descLabel.fontSizeMin = 12f; descLabel.fontSizeMax = descLabel.fontSize;
 
             var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -16), new Vector2(220, 34));
             var levelLabel = Txt(levelGo, "Lv 0/4", 24, Secondary, TextAlignmentOptions.Right, bodyFont);
@@ -313,13 +317,24 @@ namespace IdleBlacksmith.EditorTools
             // keep the frame behind the content it outlines
             frameGo.SetAsFirstSibling();
 
+            // tier accent: a thin strip on the left edge, tinted per recipe metal
+            var accentGo = Box("Accent", rt, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(8, 0), new Vector2(16, 140));
+            var accentImg = accentGo.gameObject.AddComponent<Image>();
+            accentImg.sprite = bar; accentImg.type = Image.Type.Sliced;
+            accentImg.raycastTarget = false;
+
             Image icon = RowIcon(rt, null);
 
             var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -14), new Vector2(420, 42));
             var nameLabel = Txt(nameGo, "Recipe", 32, Brown, TextAlignmentOptions.Left, titleFont);
 
-            var statGo = Box("Stats", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(430, 30));
+            var statGo = Box("Stats", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(390, 30));
             var statLabel = Txt(statGo, "1 ore · 10 gold · 3.2s", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
+            statLabel.enableAutoSizing = true; statLabel.fontSizeMin = 12f; statLabel.fontSizeMax = statLabel.fontSize;
+
+            var forgedGo = Box("Forged", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -92), new Vector2(390, 30));
+            var forgedLabel = Txt(forgedGo, "", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
+            forgedLabel.enableAutoSizing = true; forgedLabel.fontSizeMin = 12f; forgedLabel.fontSizeMax = forgedLabel.fontSize;
 
             BouncyButton selectBtn = RowAction(rt, "SELECT", Orange, out TMP_Text selectLabel);
 
@@ -333,17 +348,33 @@ namespace IdleBlacksmith.EditorTools
             var lockedLabel = Txt(lockedGo, "Needs Smithy 2", 20, Color.white, TextAlignmentOptions.Center, bodyFont);
             lockedBadge.gameObject.SetActive(false);
 
+            // Gold corner tag marking today's featured recipe (+30% sale price).
+            var dailyBadge = Chip("DailyBadge", rt, new Vector2(1, 1), new Vector2(-14, -8), new Vector2(172, 38), Hex(0xE8B84B));
+            var dailyGo = StretchBox("Label", dailyBadge);
+            Txt(dailyGo, "TODAY +30%", 19, new Color(0.35f, 0.22f, 0.05f), TextAlignmentOptions.Center, bodyFont);
+            dailyBadge.gameObject.SetActive(false);
+
+            // Green tag while a recipe is unlocked but has never been forged once.
+            var newBadge = Chip("NewBadge", rt, new Vector2(1, 1), new Vector2(-14, -48), new Vector2(96, 38), Hex(0x5BA86B));
+            var newGo = StretchBox("Label", newBadge);
+            Txt(newGo, "NEW", 19, Color.white, TextAlignmentOptions.Center, bodyFont);
+            newBadge.gameObject.SetActive(false);
+
             var card = root.AddComponent<RecipeCard>();
             card.icon = icon;
             card.frame = frameImg;
+            card.accent = accentImg;
             card.nameLabel = nameLabel;
             card.statLabel = statLabel;
+            card.forgedLabel = forgedLabel;
             card.descLabel = null;
             card.selectButton = selectBtn;
             card.selectLabel = selectLabel;
             card.lockedBadge = lockedBadge.gameObject;
             card.lockedLabel = lockedLabel;
             card.activeBadge = activeBadge.gameObject;
+            card.dailyBadge = dailyBadge.gameObject;
+            card.newBadge = newBadge.gameObject;
             card.content = content;
 
             return SavePrefabRow(root, RecipeCardPrefabPath);
@@ -372,6 +403,7 @@ namespace IdleBlacksmith.EditorTools
 
             var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(520, 32));
             var descLabel = Txt(descGo, "Requirement", 24, Secondary, TextAlignmentOptions.Left, bodyFont);
+            descLabel.enableAutoSizing = true; descLabel.fontSizeMin = 12f; descLabel.fontSizeMax = descLabel.fontSize;
 
             var progressGo = Box("Progress", rt, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-18, -22), new Vector2(220, 40));
             var progressLabel = Txt(progressGo, "0 / 1", 26, Secondary, TextAlignmentOptions.Right, bodyFont);
@@ -412,8 +444,9 @@ namespace IdleBlacksmith.EditorTools
             var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -14), new Vector2(420, 42));
             var nameLabel = Txt(nameGo, "Talent", 32, Brown, TextAlignmentOptions.Left, titleFont);
 
-            var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(430, 30));
+            var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -58), new Vector2(390, 30));
             var descLabel = Txt(descGo, "Effect", 22, Secondary, TextAlignmentOptions.Left, bodyFont);
+            descLabel.enableAutoSizing = true; descLabel.fontSizeMin = 12f; descLabel.fontSizeMax = descLabel.fontSize;
 
             var levelGo = Box("Level", rt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -16), new Vector2(220, 34));
             var levelLabel = Txt(levelGo, "Lv 0/5", 24, Secondary, TextAlignmentOptions.Right, bodyFont);

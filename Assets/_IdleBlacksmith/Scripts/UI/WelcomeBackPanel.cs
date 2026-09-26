@@ -40,7 +40,15 @@ namespace IdleBlacksmith.UI
             IsOpen = true;
 
             if (elapsedLabel != null)
-                elapsedLabel.text = "The forge kept working for " + OfflineProgress.FormatElapsed(report.elapsedSeconds);
+            {
+                var gm = GameManager.Instance;
+                int storeLevel = gm != null && gm.buildings != null ? gm.buildings.GetLevel(BuildingId.Storehouse) : 0;
+                var storeDef = gm != null && gm.config != null ? gm.config.GetBuilding(BuildingId.Storehouse) : null;
+                string storeNote = storeLevel > 0 && storeDef != null
+                    ? $"  ·  Storehouse kept +{Mathf.RoundToInt(storeLevel * storeDef.offlineBonus * 100f)}%"
+                    : "";
+                elapsedLabel.text = "The forge kept working for " + OfflineProgress.FormatElapsed(report.elapsedSeconds) + storeNote;
+            }
             if (oreLabel != null)
                 oreLabel.text = report.oreGained > 0 ? $"+{report.oreGained} ore" : "";
             if (goldLabel != null)
@@ -53,6 +61,8 @@ namespace IdleBlacksmith.UI
             if (group != null)
             {
                 group.alpha = 0f;
+                group.blocksRaycasts = true;
+                group.interactable = true;
                 Tween.Alpha(group, 1f, 0.35f, Ease.OutQuad);
             }
             if (card != null)
@@ -70,8 +80,12 @@ namespace IdleBlacksmith.UI
             IsOpen = false;
             AudioManager.Play("coin");
             if (group != null)
+            {
+                group.blocksRaycasts = false;
+                group.interactable = false;
                 Tween.Alpha(group, 0f, 0.28f, Ease.InQuad)
                     .OnComplete(() => gameObject.SetActive(false));
+            }
             else
                 gameObject.SetActive(false);
         }

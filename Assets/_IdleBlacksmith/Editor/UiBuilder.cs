@@ -98,6 +98,10 @@ namespace IdleBlacksmith.EditorTools
             Img(metalIconGo.gameObject, AssetFactory.LoadIcon("ore"), Color.white).raycastTarget = false;
             var metalLabelGo = Box("Label", metalPill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(68, 0), new Vector2(100, 50));
             var metalOreLabel = Txt(metalLabelGo, "0", 38, Color.white, TextAlignmentOptions.Left, titleFont);
+            // count shows "ore/cap" — autosize so wide counts like "60/65" fit the pill.
+            metalOreLabel.enableAutoSizing = true;
+            metalOreLabel.fontSizeMin = 26f;
+            metalOreLabel.fontSizeMax = 38f;
             var metalPerSecGo = Box("Rate", metalPill, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-14, 0), new Vector2(86, 46));
             var metalRateLabel = Txt(metalPerSecGo, "+0/s", 24, new Color(0.78f, 0.86f, 0.90f), TextAlignmentOptions.Right, bodyFont);
 
@@ -111,6 +115,17 @@ namespace IdleBlacksmith.EditorTools
             var oreLabelGo = Box("Label", orePill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(68, 0), new Vector2(150, 48));
             var oreLabel = Txt(oreLabelGo, "0", 36, OreText, TextAlignmentOptions.Left, titleFont);
 
+            // Day chip (below relic ore) — counts dawns over the forge.
+            var dayPill = Box("DayPill", hud, new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -290), new Vector2(252, 56));
+            var dayImg = dayPill.gameObject.AddComponent<Image>();
+            dayImg.sprite = pill; dayImg.type = Image.Type.Sliced; dayImg.color = new Color(0.24f, 0.28f, 0.38f, 0.9f);
+            SoftShadow(dayPill.gameObject);
+            var dayLabelGo = Box("Label", dayPill, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(20, 0), new Vector2(216, 44));
+            var dayLabel = Txt(dayLabelGo, "Day 1", 30, new Color(0.85f, 0.88f, 1f), TextAlignmentOptions.Left, bodyFont);
+            dayLabel.enableAutoSizing = true; dayLabel.fontSizeMin = 20f; dayLabel.fontSizeMax = 30f;
+            var dayChip = dayPill.gameObject.AddComponent<DayChip>();
+            dayChip.label = dayLabel;
+
             // ---------------- top-right rail: menu, upgrades, achievements, prestige, mute
             var railGo = Box("TopRail", hud, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-24, -22), new Vector2(84, 460));
             var rail = railGo.gameObject.AddComponent<VerticalLayoutGroup>();
@@ -123,8 +138,18 @@ namespace IdleBlacksmith.EditorTools
 
             BouncyButton menuBtn = RailButton(railGo, "MenuButton", "settings", Cream, out Image _);
             BouncyButton upBtn = RailButton(railGo, "UpgradesButton", "craft", Orange, out _);
+            // Starts stopped — the HUD tick pulses it only while something is affordable.
+            var upgradesPulse = upBtn.gameObject.AddComponent<PulseLoop>();
+            upgradesPulse.startStopped = true;
             BouncyButton achBtn = RailButton(railGo, "AchievementsButton", "trophy", Hex(0xC99638), out _);
             BouncyButton prestBtn = RailButton(railGo, "PrestigeButton", "ember", Hex(0xD95F4E), out _);
+            // rekindle-ready badge on the prestige button
+            var pBadgeGo = Box("Badge", prestBtn.transform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(6, 6), new Vector2(52, 52));
+            var pBadgeImg = pBadgeGo.gameObject.AddComponent<Image>();
+            pBadgeImg.sprite = circle; pBadgeImg.type = Image.Type.Sliced; pBadgeImg.color = Hex(0xE25B4E);
+            var pBadgeTxtGo = Box("Mark", pBadgeGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(44, 44));
+            Txt(pBadgeTxtGo, "!", 34, Color.white, TextAlignmentOptions.Center, titleFont);
+            pBadgeGo.gameObject.SetActive(false);
             BouncyButton muteBtn = RailButton(railGo, "MuteButton", "sound_on", Cream, out Image muteIcon);
 
             // ---------------- bottom bar: Complex / Forge / Dungeon / Quest
@@ -159,7 +184,7 @@ namespace IdleBlacksmith.EditorTools
             var logoGo = Box("Logo", titleBadge, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(10, 0), new Vector2(48, 48));
             Img(logoGo.gameObject, AssetFactory.LoadMenuArt("emblem"), Color.white).raycastTarget = false;
             var titleTextGo = Box("Text", titleBadge, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-10, 0), new Vector2(352, 46));
-            Txt(titleTextGo, "Idle Blacksmith RPG", 34, Brown, TextAlignmentOptions.Right, titleFont);
+            Txt(titleTextGo, "EMBERFORGE", 30, Brown, TextAlignmentOptions.Right, titleFont);
 
             // Floating text layer
             var ftLayer = StretchBox("FloatingTextLayer", safeArea);
@@ -168,6 +193,9 @@ namespace IdleBlacksmith.EditorTools
             ftCg.interactable = false;
 
             // ------------------------------------------------ panels
+            // Dialogue builds first so every sheet draws above the strip — one focus at
+            // a time; a sheet opening mid-beat simply covers it until the sheet closes.
+            var dialogue = BuildDialogue(canvasGo.transform);
             var panel = BuildUpgradePanel(canvasGo.transform, upgradeRowPrefab);
             var dungeonPanel = BuildDungeonPanel(canvasGo.transform, dungeonRowPrefab);
             var complexPanel = BuildComplexPanel(canvasGo.transform, buildingRowPrefab, runeRowPrefab);
@@ -177,10 +205,24 @@ namespace IdleBlacksmith.EditorTools
             var prestigePanel = BuildPrestigePanel(canvasGo.transform, talentRowPrefab);
             var settingsPanel = BuildSettingsPanel(canvasGo.transform);
             var welcomeBack = BuildWelcomeBack(canvasGo.transform);
+            var dailyClaim = BuildDailyClaim(canvasGo.transform);
             var mainMenu = BuildMainMenu(canvasGo.transform);
             var onboarding = BuildOnboarding(canvasGo.transform);
+            var intro = BuildIntro(canvasGo.transform);
             var splash = BuildSplash(canvasGo.transform);
             var ticker = BuildTicker(hud, questPanel);
+            var orderTicker = BuildOrderTicker(hud);
+            var rushBanner = BuildRushBanner(hud);
+
+            // Full-screen flash overlay — last sibling so nothing draws above it.
+            var flashGo = StretchBox("FlashOverlay", canvasGo.transform);
+            var flashImg = flashGo.gameObject.AddComponent<Image>();
+            flashImg.color = new Color(1f, 0.9f, 0.7f, 1f);
+            flashImg.raycastTarget = false;
+            var flashCg = flashGo.gameObject.AddComponent<CanvasGroup>();
+            flashCg.alpha = 0f;
+            flashCg.blocksRaycasts = false;
+            flashCg.interactable = false;
 
             // ------------------------------------------------ world bars
             refs.anvilBar = BuildAnvilBar(anvilStation, new Vector3(0, 1.55f, 0), "AnvilBar");
@@ -198,6 +240,7 @@ namespace IdleBlacksmith.EditorTools
             ui.soundOnSprite = AssetFactory.LoadIcon("sound_on");
             ui.soundOffSprite = AssetFactory.LoadIcon("sound_off");
             ui.upgradesButton = upBtn;
+            ui.upgradesButtonPulse = upgradesPulse;
             ui.upgradePanel = panel;
             ui.dungeonButton = dgBtn;
             ui.dungeonPanel = dungeonPanel;
@@ -210,16 +253,24 @@ namespace IdleBlacksmith.EditorTools
             ui.questButton = questBtn;
             ui.questPanel = questPanel;
             ui.questBadge = qBadgeGo.gameObject;
+            ui.prestigeBadge = pBadgeGo.gameObject;
             ui.menuButton = menuBtn;
             ui.metaPanel = metaPanel;
             ui.prestigePanel = prestigePanel;
             ui.settingsPanel = settingsPanel;
             ui.welcomeBackPanel = welcomeBack;
+            ui.dailyPanel = dailyClaim;
             ui.mainMenuPanel = mainMenu;
             ui.ticker = ticker;
+            ui.orderTicker = orderTicker;
+            ui.rushBanner = rushBanner;
             ui.hudGroup = hud.gameObject.AddComponent<CanvasGroup>();
+            ui.flashOverlay = flashCg;
+            ui.flashTint = flashImg;
             ui.splashScreen = splash;
             ui.onboardingPanel = onboarding;
+            ui.introCinematic = intro;
+            ui.dialoguePanel = dialogue;
             ui.floatingTextLayer = ftLayer;
             ui.floatingTextPrefab = floatingTextPrefab.GetComponent<FloatingText>();
 
@@ -565,9 +616,9 @@ namespace IdleBlacksmith.EditorTools
             emblemImg.preserveAspect = true;
             emblemImg.raycastTarget = false;
             var titleGo = Box("Title", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -330), new Vector2(960, 90));
-            Txt(titleGo, "IDLE BLACKSMITH", 74, GoldText, TextAlignmentOptions.Center, titleFont);
+            Txt(titleGo, "EMBERFORGE", 88, GoldText, TextAlignmentOptions.Center, titleFont);
             var subGo = Box("Sub", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -412), new Vector2(960, 56));
-            Txt(subGo, "R  P  G", 44, Cream, TextAlignmentOptions.Center, titleFont);
+            Txt(subGo, "I D L E   B L A C K S M I T H", 40, Cream, TextAlignmentOptions.Center, titleFont);
             var tagGo = Box("Tagline", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -478), new Vector2(960, 44));
             Txt(tagGo, "a cozy forge adventure", 30, new Color(1f, 0.93f, 0.80f, 0.9f), TextAlignmentOptions.Center, bodyFont);
 
@@ -676,7 +727,8 @@ namespace IdleBlacksmith.EditorTools
                     art = LoadPageArt("page_forge", "onboard_forge"),
                     title = "Forge Legendary Swords",
                     body = "Miners dig ore, your smith hammers it on the anvil, and the rack fills up with swords. "
-                         + "Every blade rolls its own quality — from Common all the way to Legendary.",
+                         + "Every blade rolls its own quality — from Common all the way to Legendary. "
+                         + "Tap the anvil to hammer faster.",
                 },
                 new OnboardingPanel.Page
                 {
@@ -832,12 +884,15 @@ namespace IdleBlacksmith.EditorTools
             tileIcon.raycastTarget = false;
             tileIcon.preserveAspect = true;
 
-            var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(156, -18), new Vector2(360, 46));
+            var nameGo = Box("Name", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(156, -18), new Vector2(250, 46));
             var nameLabel = Txt(nameGo, "Dungeon", 36, Brown, TextAlignmentOptions.Left, titleFont);
-            var durGo = Box("Duration", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(420, -26), new Vector2(160, 36));
+            // Smaller size + narrower box keep "The Frozen Depth" clear of the duration.
+            nameLabel.fontSize = 30f;
+            var durGo = Box("Duration", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(436, -26), new Vector2(160, 36));
             var durLabel = Txt(durGo, "2 min", 26, Teal, TextAlignmentOptions.Left, titleFont);
             var descGo = Box("Desc", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(156, -66), new Vector2(470, 34));
             var descLabel = Txt(descGo, "Description", 24, Secondary, TextAlignmentOptions.Left, bodyFont);
+            descLabel.enableAutoSizing = true; descLabel.fontSizeMin = 12f; descLabel.fontSizeMax = descLabel.fontSize;
             var rewardGo = Box("Reward", rt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(156, -110), new Vector2(470, 40));
             var rewardLabel = Txt(rewardGo, "+60 gold  +2 relic ore", 26, Hex(0xC99638), TextAlignmentOptions.Left, titleFont);
 
@@ -911,7 +966,7 @@ namespace IdleBlacksmith.EditorTools
         {
             var root = new GameObject("FloatingText", typeof(RectTransform), typeof(CanvasGroup));
             var rt = (RectTransform)root.transform;
-            rt.sizeDelta = new Vector2(240, 90);
+            rt.sizeDelta = new Vector2(460, 90);
             var label = root.AddComponent<TextMeshProUGUI>();
             label.text = "+10";
             label.fontSize = 48;
@@ -976,10 +1031,15 @@ namespace IdleBlacksmith.EditorTools
             fill.color = Orange;
             fill.raycastTarget = false;
 
+            // Recipe name floating over the bar so the current craft reads at a glance.
+            var nameGo = Box("Label", rt, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, 12), new Vector2(340, 30));
+            var nameTxt = Txt(nameGo, "", 22, new Color(1f, 0.93f, 0.78f), TextAlignmentOptions.Center, bodyFont);
+
             var barComp = go.GetComponent<WorldProgressBar>();
             barComp.canvasGroup = cg;
             barComp.fill = fill;
             barComp.root = rt;
+            barComp.label = nameTxt;
             return barComp;
         }
 

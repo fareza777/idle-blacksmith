@@ -11,8 +11,10 @@ namespace IdleBlacksmith.Core
         public const string Market = "market";
         public const string Gate = "gate";
         public const string Sanctum = "sanctum";
+        public const string Furnace = "furnace";
+        public const string Storehouse = "storehouse";
 
-        public static readonly string[] All = { Smithy, Mine, Market, Gate, Sanctum };
+        public static readonly string[] All = { Smithy, Mine, Market, Gate, Sanctum, Furnace, Storehouse };
     }
 
     public static class RecipeId
@@ -20,11 +22,15 @@ namespace IdleBlacksmith.Core
         public const string Copper = "copper";
         public const string Iron = "iron";
         public const string Steel = "steel";
+        public const string EmberAxe = "emberaxe";
         public const string Silver = "silver";
         public const string Mithril = "mithril";
         public const string Dragonsteel = "dragonsteel";
+        public const string Frostbrand = "frostbrand";
+        public const string Voidreaver = "voidreaver";
+        public const string Starforged = "starforged";
 
-        public static readonly string[] All = { Copper, Iron, Steel, Silver, Mithril, Dragonsteel };
+        public static readonly string[] All = { Copper, Iron, Steel, EmberAxe, Silver, Frostbrand, Mithril, Dragonsteel, Voidreaver, Starforged };
     }
 
     public static class RuneId

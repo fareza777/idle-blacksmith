@@ -63,11 +63,21 @@ namespace IdleBlacksmith.UI
             bool afford = gm.economy != null && gm.economy.Gold >= cost;
 
             if (levelLabel != null)
-                levelLabel.text = built ? $"Lv {level}/{gm.buildings.Def(def.id).maxLevel}" : "Not built";
+            {
+                string stage = built ? Stage(level) : "";
+                levelLabel.text = built
+                    ? $"Lv {level}/{gm.buildings.Def(def.id).maxLevel}" + (stage.Length > 0 ? $" \u00b7 {stage}" : "")
+                    : "Not built";
+            }
             if (levelLabel != null) levelLabel.color = built ? LevelGood : Secondary;
 
             if (perkLabel != null)
-                perkLabel.text = maxed ? "Fully upgraded — " + Perk(level) : Perk(built ? level + 1 : 1);
+            {
+                // Unbuilt rows sell the building's purpose; owned rows sell the next level.
+                if (maxed) perkLabel.text = "Fully upgraded — " + Perk(level);
+                else if (!built) perkLabel.text = def.description;
+                else perkLabel.text = Perk(level + 1);
+            }
 
             if (maxBadge != null) maxBadge.SetActive(maxed);
             if (lockedBadge != null) lockedBadge.SetActive(!maxed && !afford);
@@ -97,6 +107,14 @@ namespace IdleBlacksmith.UI
         }
 
         static readonly Color Secondary = new Color(0.66f, 0.55f, 0.42f);
+
+        /// <summary>The stage name carried by this level's perk line ("Grand Forge \u2014 +2 rack\u2026"), or empty.</summary>
+        string Stage(int level)
+        {
+            string p = Perk(level);
+            int cut = p.IndexOf('\u2014');
+            return cut > 0 ? p.Substring(0, cut).Trim() : "";
+        }
 
         string Perk(int level)
         {

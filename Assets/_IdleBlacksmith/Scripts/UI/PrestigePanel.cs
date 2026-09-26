@@ -154,6 +154,8 @@ namespace IdleBlacksmith.UI
             if (gained <= 0) { AudioManager.Play("denied"); return; }
 
             AudioManager.Play("prestige");
+            SettingsPanel.Buzz();
+            UIManager.Instance?.FlashScreen(new Color(1f, 0.72f, 0.35f), 0.85f, 1.2f);
             Tween.PunchScale(transform, Vector3.one * 0.09f, 0.6f);
             UIManager.Instance?.SpawnFloatingText(
                 new Vector3(0f, 2.2f, -0.6f), $"+{gained} ember shards!", new Color(1f, 0.62f, 0.3f));

@@ -27,10 +27,15 @@ namespace IdleBlacksmith.EditorTools
         public const string CratePrefab = Paths.Prefabs + "/Crate.prefab";
         public const string StoolPrefab = Paths.Prefabs + "/Stool.prefab";
         public const string PlantPrefab = Paths.Prefabs + "/Plant.prefab";
+        public const string GrindstonePrefab = Paths.Prefabs + "/Grindstone.prefab";
+        public const string QuenchTroughPrefab = Paths.Prefabs + "/QuenchTrough.prefab";
+        public const string BirdPrefab = Paths.Prefabs + "/Bird.prefab";
         public const string ShelfPrefab = Paths.Prefabs + "/Shelf.prefab";
         public const string BannerPrefab = Paths.Prefabs + "/Banner.prefab";
         public const string RugPrefab = Paths.Prefabs + "/Rug.prefab";
         public const string SignPostPrefab = Paths.Prefabs + "/SignPost.prefab";
+        public const string CatPrefab = Paths.Prefabs + "/Cat.prefab";
+        public static string CloudPrefabPath(int variant) => Paths.Prefabs + "/Cloud_" + variant + ".prefab";
 
         // ------------------------------------------------------------ stations
 
@@ -239,6 +244,8 @@ namespace IdleBlacksmith.EditorTools
             src.volume = 0.45f;
             src.dopplerLevel = 0f;
 
+            CreateEmberMotes(root.transform, new Vector3(0f, 0.95f, 0.42f));
+
             SavePrefab(root, ForgePrefab);
         }
 
@@ -315,6 +322,68 @@ namespace IdleBlacksmith.EditorTools
                 Part("Mesh", root.transform, SaveMesh(b, "Plant"), PM, Vector3.zero);
                 SavePrefab(root, PlantPrefab);
             }
+            // Grindstone — A-frame, stone wheel, crank. Tap to sharpen: the next blade
+            // rolls its rarity twice and keeps the best.
+            {
+                var b = new MeshBuilder();
+                // treadle frame
+                b.Box(new Vector3(-0.30f, 0.28f, 0), new Vector3(0.09f, 0.56f, 0.34f), Palette.WoodDark);
+                b.Box(new Vector3(0.30f, 0.28f, 0), new Vector3(0.09f, 0.56f, 0.34f), Palette.WoodDark);
+                b.Box(new Vector3(0, 0.06f, 0), new Vector3(0.72f, 0.07f, 0.40f), Palette.WoodMid);
+                // stone wheel between the uprights
+                b.Cylinder(new Vector3(0, 0.52f, 0), 0.30f, 0.10f, 12, Palette.Stone);
+                b.Cylinder(new Vector3(0, 0.52f, 0), 0.05f, 0.16f, 8, Palette.MetalDark);
+                // crank handle on the near side
+                b.Box(new Vector3(0.36f, 0.52f, 0.10f), new Vector3(0.05f, 0.05f, 0.22f), Palette.MetalDark);
+                b.Box(new Vector3(0.36f, 0.46f, 0.20f), new Vector3(0.05f, 0.16f, 0.05f), Palette.WoodMid);
+                // drip trough under the wheel
+                b.Box(new Vector3(0, 0.16f, 0.22f), new Vector3(0.44f, 0.14f, 0.20f), Palette.WoodMid);
+                b.Box(new Vector3(0, 0.22f, 0.22f), new Vector3(0.36f, 0.03f, 0.14f), Palette.OreCrystal);
+                var root = new GameObject("Grindstone");
+                Part("Mesh", root.transform, SaveMesh(b, "Grindstone"), PM, Vector3.zero);
+                var tool = root.AddComponent<ToolStation>();
+                tool.kind = ToolStation.Kind.Grindstone;
+                tool.cooldown = 60f;
+                tool.anchorLocal = new Vector3(0f, 0.6f, 0f);
+                SavePrefab(root, GrindstonePrefab);
+            }
+            // Quench trough — a long water tub by the anvil. Tap mid-craft to finish the
+            // blade instantly; it needs a while to re-heat between quenches.
+            {
+                var b = new MeshBuilder();
+                b.Box(new Vector3(0, 0.22f, 0), new Vector3(1.15f, 0.40f, 0.48f), Palette.WoodMid);
+                b.Box(new Vector3(0, 0.40f, 0), new Vector3(1.19f, 0.07f, 0.52f), Palette.WoodDark);
+                b.Box(new Vector3(0, 0.42f, 0), new Vector3(1.02f, 0.03f, 0.36f), Palette.OreCrystal);
+                b.Box(new Vector3(-0.50f, 0.06f, 0), new Vector3(0.10f, 0.14f, 0.44f), Palette.WoodDark);
+                b.Box(new Vector3(0.50f, 0.06f, 0), new Vector3(0.10f, 0.14f, 0.44f), Palette.WoodDark);
+                // steam wisps frozen into the model read as heat shimmer at this scale
+                b.Rock(new Vector3(-0.20f, 0.52f, 0.05f), new Vector3(0.07f, 0.09f, 0.07f), Palette.White, 3.3f, 1);
+                var root = new GameObject("QuenchTrough");
+                Part("Mesh", root.transform, SaveMesh(b, "QuenchTrough"), PM, Vector3.zero);
+                var tool = root.AddComponent<ToolStation>();
+                tool.kind = ToolStation.Kind.QuenchTrough;
+                tool.cooldown = 90f;
+                tool.anchorLocal = new Vector3(0f, 0.55f, 0f);
+                SavePrefab(root, QuenchTroughPrefab);
+            }
+            // Bird — tiny flier that crosses the sky: wing parts pivot at the body edge so
+            // BirdFlock can flap them by rotating z.
+            {
+                var root = new GameObject("Bird");
+                var b = new MeshBuilder();
+                b.Box(new Vector3(0, 0, 0), new Vector3(0.07f, 0.06f, 0.20f), Palette.Coal);
+                b.Box(new Vector3(0, 0.01f, 0.12f), new Vector3(0.05f, 0.05f, 0.06f), Palette.Coal);
+                var bodyMesh = SaveMesh(b, "Bird_Body");
+                Part("Body", root.transform, bodyMesh, PM, Vector3.zero);
+                // wings: mesh drawn outward from the pivot so rotation reads as flapping
+                var wl = new MeshBuilder();
+                wl.Box(new Vector3(-0.13f, 0, 0), new Vector3(0.22f, 0.015f, 0.14f), Palette.Coal);
+                Part("WingL", root.transform, SaveMesh(wl, "Bird_WingL"), PM, new Vector3(-0.03f, 0.03f, 0.01f));
+                var wr = new MeshBuilder();
+                wr.Box(new Vector3(0.13f, 0, 0), new Vector3(0.22f, 0.015f, 0.14f), Palette.Coal);
+                Part("WingR", root.transform, SaveMesh(wr, "Bird_WingR"), PM, new Vector3(0.03f, 0.03f, 0.01f));
+                SavePrefab(root, BirdPrefab);
+            }
             // Wall shelf with two display swords and a candle.
             {
                 var b = new MeshBuilder();
@@ -365,6 +434,49 @@ namespace IdleBlacksmith.EditorTools
                 var root = new GameObject("SignPost");
                 Part("Mesh", root.transform, SaveMesh(b, "SignPost"), PM, Vector3.zero);
                 SavePrefab(root, SignPostPrefab);
+            }
+            // Three cloud lumps for the drifting sky layer.
+            for (int v = 0; v < 3; v++)
+            {
+                var b = new MeshBuilder();
+                b.Rock(new Vector3(0, 0, 0), new Vector3(1.5f, 0.65f, 0.9f), Palette.White, 11f + v * 3.1f);
+                b.Rock(new Vector3(0.9f, -0.08f, 0.15f), new Vector3(0.95f, 0.5f, 0.7f), Palette.White, 5f + v * 7.3f);
+                b.Rock(new Vector3(-0.85f, -0.05f, -0.1f), new Vector3(0.8f, 0.45f, 0.6f), Palette.ClothCream, 3f + v * 5.9f);
+                if (v == 2)
+                    b.Rock(new Vector3(0.2f, 0.3f, -0.2f), new Vector3(0.7f, 0.4f, 0.5f), Palette.White, 9.7f);
+                var root = new GameObject("Cloud_" + v);
+                Part("Mesh", root.transform, SaveMesh(b, "Cloud_" + v), PM, Vector3.zero);
+                root.AddComponent<CloudDrift>();
+                SavePrefab(root, CloudPrefabPath(v));
+            }
+            // The forge cat: orange body, cream muzzle and paws, coal eyes, a tail that
+            // exists as its own part so CatAmbient can flick it while it naps.
+            {
+                var b = new MeshBuilder();
+                b.Box(new Vector3(0, 0.16f, 0), new Vector3(0.44f, 0.18f, 0.20f), Palette.Terracotta);
+                // head with ears and muzzle
+                b.Box(new Vector3(0.26f, 0.25f, 0), new Vector3(0.17f, 0.15f, 0.16f), Palette.Terracotta);
+                b.Box(new Vector3(0.335f, 0.215f, 0), new Vector3(0.05f, 0.05f, 0.08f), Palette.ClothCream);
+                b.Box(new Vector3(0.22f, 0.355f, 0.055f), new Vector3(0.055f, 0.075f, 0.03f), Palette.Terracotta);
+                b.Box(new Vector3(0.22f, 0.355f, -0.055f), new Vector3(0.055f, 0.075f, 0.03f), Palette.Terracotta);
+                // eyes
+                b.Box(new Vector3(0.345f, 0.27f, 0.045f), new Vector3(0.02f, 0.03f, 0.02f), Palette.Coal);
+                b.Box(new Vector3(0.345f, 0.27f, -0.045f), new Vector3(0.02f, 0.03f, 0.02f), Palette.Coal);
+                // stubby legs
+                b.Box(new Vector3(0.14f, 0.05f, 0.06f), new Vector3(0.05f, 0.10f, 0.05f), Palette.ClothCream);
+                b.Box(new Vector3(0.14f, 0.05f, -0.06f), new Vector3(0.05f, 0.10f, 0.05f), Palette.ClothCream);
+                b.Box(new Vector3(-0.14f, 0.05f, 0.06f), new Vector3(0.05f, 0.10f, 0.05f), Palette.Terracotta);
+                b.Box(new Vector3(-0.14f, 0.05f, -0.06f), new Vector3(0.05f, 0.10f, 0.05f), Palette.Terracotta);
+                var root = new GameObject("Cat");
+                Part("Body", root.transform, SaveMesh(b, "Cat_Body"), PM, Vector3.zero);
+                var tail = new MeshBuilder();
+                tail.Box(new Vector3(0, 0.11f, 0), new Vector3(0.05f, 0.22f, 0.05f), Palette.Terracotta);
+                tail.Box(new Vector3(0.015f, 0.245f, 0), new Vector3(0.07f, 0.06f, 0.055f), Palette.ClothCream);
+                GameObject tailGo = Part("Tail", root.transform, SaveMesh(tail, "Cat_Tail"), PM, new Vector3(-0.235f, 0.20f, 0));
+                tailGo.transform.localRotation = Quaternion.Euler(0f, 0f, -18f);
+                var cat = root.AddComponent<CatAmbient>();
+                cat.tail = tailGo.transform;
+                SavePrefab(root, CatPrefab);
             }
         }
 
@@ -590,6 +702,8 @@ namespace IdleBlacksmith.EditorTools
 
             var root = new GameObject("Environment_T" + tier);
             Part("Mesh", root.transform, SaveMesh(b, "Environment_T" + tier), PME, Vector3.zero);
+            if (tier >= 2)
+                CreateChimneySmoke(root.transform, new Vector3(-1.9f, tallH + 1.22f, backZ - 0.35f));
             SavePrefab(root, EnvironmentTierPrefabs[tier - 1]);
         }
 
@@ -747,6 +861,100 @@ namespace IdleBlacksmith.EditorTools
             psr.renderMode = ParticleSystemRenderMode.Billboard;
             psr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             return ps;
+        }
+
+        /// <summary>Glowing motes lazily rising out of the forge mouth — the ambient magic.</summary>
+        static void CreateEmberMotes(Transform parent, Vector3 localPos)
+        {
+            var go = new GameObject("EmberMotes");
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = localPos;
+            go.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+
+            var ps = go.AddComponent<ParticleSystem>();
+            ParticleSystem.MainModule main = ps.main;
+            main.playOnAwake = true;
+            main.loop = true;
+            main.duration = 4f;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.9f, 1.8f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(0.25f, 0.55f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.012f, 0.034f);
+            main.gravityModifier = -0.25f;   // sparks rise
+            main.maxParticles = 30;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+
+            ParticleSystem.EmissionModule em = ps.emission;
+            em.rateOverTime = 6.5f;
+
+            ParticleSystem.ShapeModule shape = ps.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Cone;
+            shape.angle = 16f;
+            shape.radius = 0.22f;
+
+            ParticleSystem.ColorOverLifetimeModule col = ps.colorOverLifetime;
+            col.enabled = true;
+            var gradient = new Gradient();
+            gradient.SetKeys(
+                new[] { new GradientColorKey(new Color(1f, 0.78f, 0.35f), 0f), new GradientColorKey(new Color(1f, 0.35f, 0.08f), 1f) },
+                new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(1f, 0.15f), new GradientAlphaKey(0.85f, 0.6f), new GradientAlphaKey(0f, 1f) });
+            col.color = gradient;
+
+
+            var psr = go.GetComponent<ParticleSystemRenderer>();
+            psr.sharedMaterial = sparkMat;
+            psr.renderMode = ParticleSystemRenderMode.Billboard;
+            psr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        }
+
+        /// <summary>Looping grey puffs drifting up from the smithy chimney.</summary>
+        public static void CreateChimneySmoke(Transform parent, Vector3 localPos)
+        {
+            var go = new GameObject("ChimneySmoke");
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = localPos;
+            go.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f); // cone points up
+
+            var ps = go.AddComponent<ParticleSystem>();
+            ParticleSystem.MainModule main = ps.main;
+            main.playOnAwake = true;
+            main.loop = true;
+            main.duration = 5f;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(1.8f, 3.0f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(0.35f, 0.6f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.22f, 0.5f);
+            main.startRotation = new ParticleSystem.MinMaxCurve(0f, 6.28f);
+            main.maxParticles = 24;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+
+            ParticleSystem.EmissionModule em = ps.emission;
+            em.rateOverTime = 3.2f;
+
+            ParticleSystem.ShapeModule shape = ps.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Cone;
+            shape.angle = 9f;
+            shape.radius = 0.10f;
+
+            ParticleSystem.ColorOverLifetimeModule col = ps.colorOverLifetime;
+            col.enabled = true;
+            var gradient = new Gradient();
+            gradient.SetKeys(
+                new[] { new GradientColorKey(new Color(0.85f, 0.86f, 0.9f), 0f), new GradientColorKey(new Color(0.62f, 0.64f, 0.72f), 1f) },
+                new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(0.38f, 0.18f), new GradientAlphaKey(0.30f, 0.6f), new GradientAlphaKey(0f, 1f) });
+            col.color = gradient;
+
+            ParticleSystem.SizeOverLifetimeModule sol = ps.sizeOverLifetime;
+            sol.enabled = true;
+            sol.size = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(
+                new Keyframe(0f, 0.5f), new Keyframe(0.4f, 0.95f), new Keyframe(1f, 1.6f)));
+
+
+            var psr = go.GetComponent<ParticleSystemRenderer>();
+            psr.sharedMaterial = smokeMat;
+            psr.renderMode = ParticleSystemRenderMode.Billboard;
+            psr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            psr.sortMode = ParticleSystemSortMode.Distance;
         }
     }
 }

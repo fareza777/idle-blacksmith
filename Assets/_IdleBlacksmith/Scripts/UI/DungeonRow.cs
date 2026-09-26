@@ -51,8 +51,9 @@ namespace IdleBlacksmith.UI
             if (claimState != null) claimState.SetActive(ready);
             if (goButton != null) goButton.interactable = !isThis && ex.HasFreeSlot;
             if (content != null) content.alpha = unlocked ? 1f : 0.45f;
-            if (nameLabel != null)
-                nameLabel.text = unlocked ? def.displayName : def.displayName + "  (locked)";
+            if (nameLabel != null) nameLabel.text = def.displayName;
+            if (descLabel != null)
+                descLabel.text = unlocked ? def.description : "Needs Dungeon Gate level " + def.requiredGateLevel;
             if (durationLabel != null && unlocked)
                 durationLabel.text = DungeonPanel.FormatDuration(Mathf.RoundToInt(ex.EffectiveDuration(def)));
 

@@ -21,9 +21,12 @@ namespace IdleBlacksmith.UI
         public TMP_Text bodyLabel;
         public TMP_Text progressLabel;
         public TMP_Text rewardLabel;
+        public TMP_Text nextLabel;
         public TMP_Text counterLabel;
         public Image fill;
         public Button achievementsButton;
+        [Tooltip("Pans the camera to the quest's target building, then closes the sheet")]
+        public Button showButton;
 
         [Header("Layout")]
         public float openY = 26f;
@@ -38,6 +41,21 @@ namespace IdleBlacksmith.UI
             if (gm != null && gm.quests != null) gm.quests.OnChanged += Refresh;
             if (closeButton != null) closeButton.onClick.AddListener(Close);
             if (backdropButton != null) backdropButton.onClick.AddListener(Close);
+            if (showButton != null) showButton.onClick.AddListener(OnShow);
+        }
+
+        /// <summary>
+        /// "Show me": drop the sheet and slide the camera to the building the quest wants.
+        /// Quests without a physical target (passive goals) hide the button instead.
+        /// </summary>
+        void OnShow()
+        {
+            var marker = FindFirstObjectByType<Gameplay.QuestMarker>();
+            Transform target = marker != null ? marker.ResolveTarget() : null;
+            var director = FindFirstObjectByType<Gameplay.CameraDirector>();
+            if (target != null && director != null)
+                director.FocusOn(target.position);
+            Close();
         }
 
         public void Refresh()
@@ -55,8 +73,23 @@ namespace IdleBlacksmith.UI
                 if (bodyLabel != null) bodyLabel.text = "Every quest is done. Rekindle for ember shards, or keep forging for a Legendary sword.";
                 if (progressLabel != null) progressLabel.text = "";
                 if (rewardLabel != null) rewardLabel.text = "";
+                if (nextLabel != null) nextLabel.text = "";
                 if (fill != null) fill.fillAmount = 1f;
+                if (showButton != null) showButton.gameObject.SetActive(false);
                 return;
+            }
+
+            // Passive goals have nowhere to point at — the button hides rather than dead-tap.
+            if (showButton != null)
+            {
+                var marker = FindFirstObjectByType<Gameplay.QuestMarker>();
+                showButton.gameObject.SetActive(marker != null && marker.ResolveTarget() != null);
+            }
+
+            if (nextLabel != null)
+            {
+                QuestDef next = gm.quests.Next;
+                nextLabel.text = next != null ? $"Up next: {next.title}" : "Final quest — the road ends in legend";
             }
 
             if (titleLabel != null) titleLabel.text = q.title;

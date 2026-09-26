@@ -16,6 +16,33 @@ namespace IdleBlacksmith.Gameplay
         [Tooltip("All complex buildings; a tap opens whichever is nearest")]
         public BuildingVisuals[] buildings;
 
+        [Tooltip("The anvil — while a craft is running, taps near it hammer the sword faster")]
+        public AnvilStation anvil;
+
+        [Tooltip("Tap tolerance for the anvil, tighter than buildings so it doesn't steal building taps")]
+        public float anvilTapRadiusNormalized = 0.085f;
+
+        [Tooltip("The ore pile — taps grab a chunk straight off the stock")]
+        public OrePile orePile;
+
+        [Tooltip("The forge cat — tapping it earns a purr, nothing more")]
+        public CatAmbient cat;
+
+        [Tooltip("The lucky ember — a wandering bonus sprite, tapped for gold while it is up")]
+        public EmberSprite emberSprite;
+
+        [Tooltip("Workbench tools — bellows, grindstone, quench trough — each with its own tap effect")]
+        public ToolStation[] tools;
+
+        [Tooltip("Tap tolerance for workbench tools")]
+        public float toolTapRadiusNormalized = 0.075f;
+
+        [Tooltip("Tap tolerance for the cat, the tightest hitbox in the shop")]
+        public float catTapRadiusNormalized = 0.05f;
+
+        [Tooltip("Tap tolerance for the ore pile")]
+        public float oreTapRadiusNormalized = 0.09f;
+
         [Tooltip("Tap tolerance as a fraction of screen height, so it feels the same on any device")]
         public float tapRadiusNormalized = 0.12f;
 
@@ -47,8 +74,7 @@ namespace IdleBlacksmith.Gameplay
             {
                 pressed = true;
                 pressedAt = Input.mousePosition;
-                var es = UnityEngine.EventSystems.EventSystem.current;
-                pressedOverUI = es != null && es.IsPointerOverGameObject();
+                pressedOverUI = IsOverUI();
                 return;
             }
 
@@ -56,6 +82,11 @@ namespace IdleBlacksmith.Gameplay
             pressed = false;
 
             if (pressedOverUI) return;
+
+            // A sheet on screen owns every tap — IsPointerOverGameObject can miss touches,
+            // so the panel state is checked again on release.
+            var mgr = UIManager.Instance;
+            if (mgr != null && (mgr.AnyPanelOpen || mgr.IntroPlaying)) return;
             if (director != null && director.IsDragging) return;
             if (Vector2.Distance(Input.mousePosition, pressedAt) > dragThreshold) return;
 
@@ -79,10 +110,78 @@ namespace IdleBlacksmith.Gameplay
                 if (d < bestDist) { bestDist = d; best = b; }
             }
 
+            // The lucky ember outranks everything while it is up — it fades fast.
+            if (emberSprite != null && emberSprite.IsActive)
+            {
+                Vector3 ep = cam.WorldToScreenPoint(emberSprite.AnchorWorld);
+                if (ep.z > 0f && Vector2.Distance(ep, screenPos) <= toolTapRadiusNormalized * Screen.height)
+                {
+                    emberSprite.Collect();
+                    return;
+                }
+            }
+
+            // While a sword is on the anvil, a tap on the anvil is a hammer blow, not a menu
+            // open — the active-craft read matters more than opening the smithy row.
+            if (anvil != null && anvil.IsCrafting)
+            {
+                Vector3 ap = cam.WorldToScreenPoint(anvil.transform.position + Vector3.up * 0.55f);
+                if (ap.z > 0f && Vector2.Distance(ap, screenPos) <= anvilTapRadiusNormalized * Screen.height)
+                {
+                    anvil.TapBoost();
+                    return;
+                }
+            }
+
+            // A tap on the ore pile chips a chunk straight into the stock.
+            if (orePile != null)
+            {
+                Vector3 op = cam.WorldToScreenPoint(orePile.transform.position + Vector3.up * 0.5f);
+                if (op.z > 0f && Vector2.Distance(op, screenPos) <= oreTapRadiusNormalized * Screen.height)
+                {
+                    orePile.ManualMine();
+                    return;
+                }
+            }
+
+            // Workbench tools each carry their own function.
+            if (tools != null)
+            {
+                foreach (ToolStation t in tools)
+                {
+                    if (t == null) continue;
+                    Vector3 tp = cam.WorldToScreenPoint(t.AnchorWorld);
+                    if (tp.z > 0f && Vector2.Distance(tp, screenPos) <= toolTapRadiusNormalized * Screen.height)
+                    {
+                        t.Use();
+                        return;
+                    }
+                }
+            }
+
+            // The cat wins no menus — only a purr.
+            if (cat != null)
+            {
+                Vector3 cp = cam.WorldToScreenPoint(cat.transform.position + Vector3.up * 0.25f);
+                if (cp.z > 0f && Vector2.Distance(cp, screenPos) <= catTapRadiusNormalized * Screen.height)
+                {
+                    cat.Pet();
+                    return;
+                }
+            }
+
             if (best == null) return;
             if (bestDist > tapRadiusNormalized * Screen.height) return;
 
             Open(best.buildingId);
+        }
+
+        static bool IsOverUI()
+        {
+            var es = UnityEngine.EventSystems.EventSystem.current;
+            if (es == null) return false;
+            if (Input.touchCount > 0) return es.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
+            return es.IsPointerOverGameObject();
         }
 
         /// <summary>Opens the complex sheet with this building's row highlighted and scrolled to.</summary>

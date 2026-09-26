@@ -55,7 +55,11 @@ namespace IdleBlacksmith.Gameplay
                 }
 
             if (glow != null)
-                glow.intensity = glowBase + Mathf.Sin(t * glowSpeed + phase) * glowSwing;
+            {
+                // Lamps breathe; at night they burn brighter so the village reads as lit.
+                float nightBoost = Mathf.Lerp(0.55f, 2.0f, DayCycle.Night);
+                glow.intensity = (glowBase + Mathf.Sin(t * glowSpeed + phase) * glowSwing) * nightBoost;
+            }
 
             if (bursts == null || bursts.Length == 0) return;
             burstTimer -= Time.deltaTime;

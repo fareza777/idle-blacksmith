@@ -487,6 +487,8 @@ MonoBehaviour:
   - {fileID: 8576267208664211170}
   - {fileID: 6110622653588484742}
   - {fileID: 4730736034288313691}
+  tapOre: 1
+  tapCooldown: 0.25
 --- !u!1 &6542964056519717151
 GameObject:
   m_ObjectHideFlags: 0
