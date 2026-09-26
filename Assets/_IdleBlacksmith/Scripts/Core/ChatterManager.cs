@@ -47,6 +47,19 @@ namespace IdleBlacksmith.Core
             "Smell that festival air!", "The fair's worth the walk!",
         };
 
+        static readonly string[] RushLines =
+        {
+            "Rush hour — today, please!", "The whole Vale is queuing!",
+            "Knights at the gate — hurry!", "Any blade will do — quick!",
+        };
+
+        static readonly string[] NightLines =
+        {
+            "Working late tonight…", "The forge light keeps the dark back.",
+            "Night steel cools slower.", "Stars out — fire's still up.",
+            "Quiet hours, loud anvil.",
+        };
+
         static readonly string[] RainLines =
         {
             "Rain's good for the steel!", "Stay dry, friend!",
@@ -104,6 +117,17 @@ namespace IdleBlacksmith.Core
                 }
             }
 
+            // Rush hour makes the whole queue impatient — let them say so.
+            if (gm.rush != null && gm.rush.Active)
+            {
+                CustomerController rusher = gm.customerSpawner != null ? gm.customerSpawner.Current : null;
+                if (rusher != null && Random.value < 0.55f)
+                {
+                    Speak(rusher.transform.position, Pick(RushLines), Urgent);
+                    return;
+                }
+            }
+
             // In a shower whoever's about remarks on the weather.
             if (rain == null) rain = FindFirstObjectByType<RainWeather>();
             if (rain != null && rain.IsRaining)
@@ -112,6 +136,21 @@ namespace IdleBlacksmith.Core
                 if (wet != null && Random.value < 0.35f)
                 {
                     Speak(wet.transform.position, Pick(RainLines), Mist);
+                    return;
+                }
+            }
+
+            // After dark the shop talks quieter — smith or straggler remark on the hour.
+            if (DayCycle.Night > 0.55f)
+            {
+                if (worker == null) worker = FindFirstObjectByType<WorkerController>();
+                CustomerController straggler = gm.customerSpawner != null ? gm.customerSpawner.Current : null;
+                Transform speaker = worker != null && (straggler == null || Random.value < 0.6f)
+                    ? worker.transform
+                    : straggler != null ? straggler.transform : null;
+                if (speaker != null && Random.value < 0.6f)
+                {
+                    Speak(speaker.position, Pick(NightLines), Mist);
                     return;
                 }
             }
