@@ -33,6 +33,29 @@ namespace IdleBlacksmith.Core
         string currentAmbId = "";
         Coroutine fader;
         Coroutine ambFader;
+        /// <summary>0..1 music duck, decays over ~1.1s. Set by DuckMusic.</summary>
+        float duck;
+
+        /// <summary>
+        /// Briefly dips the music under a loud moment — fanfares, thunder, prestige.
+        /// Implemented as a cap in LateUpdate so it lowers whatever the crossfader wrote
+        /// without fighting it, then releases smoothly as the duck decays.
+        /// </summary>
+        public static void DuckMusic(float amount = 0.5f)
+        {
+            if (Instance != null) Instance.duck = Mathf.Max(Instance.duck, amount);
+        }
+
+        void LateUpdate()
+        {
+            if (duck <= 0f || musicSource == null) return;
+            duck = Mathf.Max(0f, duck - Time.unscaledDeltaTime * 0.9f);
+            NamedClip c;
+            float peak = map.TryGetValue(currentMusicId, out c) && c.clip != null
+                ? musicVolume * c.volume : musicVolume;
+            float cap = peak * (1f - duck * 0.6f);
+            if (musicSource.volume > cap) musicSource.volume = cap;
+        }
 
         public static bool Muted
         {

@@ -53,6 +53,16 @@ namespace IdleBlacksmith.Gameplay
         public float swayAmount = 0.04f;
         public float swaySpeed = 0.35f;
 
+        [Header("Impact shake")]
+        [Tooltip("World units of displacement at full trauma")]
+        public float shakeScale = 0.4f;
+        [Tooltip("Trauma drained per second — hits feel snappy, not seasick")]
+        public float shakeDecay = 1.6f;
+
+        /// <summary>Shared handle so world events can add trauma without a scene reference.</summary>
+        public static CameraDirector Instance;
+        float trauma;
+
         [Header("Player pan and zoom")]
         [Tooltip("How far the player may drag the view away from the auto-framed centre, in world units")]
         public float panLimit = 9f;
@@ -95,7 +105,22 @@ namespace IdleBlacksmith.Gameplay
         float checkTimer;
         bool initialized;
 
-        void Awake() => EnsureInit();
+        void Awake()
+        {
+            Instance = this;
+            EnsureInit();
+        }
+
+        /// <summary>
+        /// Adds impact trauma in 0..1 — a hammer tap barely nudges, thunder and a legendary
+        /// forge land hard. Shake magnitude runs off trauma squared, so big hits dominate.
+        /// No-op under Reduce FX.
+        /// </summary>
+        public void AddShake(float amount)
+        {
+            if (SettingsPanel.ReduceFX) return;
+            trauma = Mathf.Clamp01(trauma + amount);
+        }
 
         /// <summary>
         /// Resolves the camera and the fixed viewing direction. Runs lazily because Awake never
@@ -361,6 +386,17 @@ namespace IdleBlacksmith.Gameplay
                 Mathf.Sin(t) * swayAmount,
                 Mathf.Sin(t * 0.7f) * swayAmount * 0.5f,
                 Mathf.Cos(t * 0.85f) * swayAmount);
+
+            // Impact shake rides on top of the sway: three higher-frequency sines at
+            // incommensurate rates keep it organic rather than a mechanical buzz.
+            if (trauma > 0f)
+            {
+                float s = trauma * trauma * shakeScale;
+                offset.x += Mathf.Sin(Time.time * 31.7f) * s;
+                offset.y += Mathf.Sin(Time.time * 27.3f + 1.3f) * s * 0.6f;
+                offset.z += Mathf.Sin(Time.time * 35.1f + 2.1f) * s;
+                trauma = Mathf.Max(0f, trauma - shakeDecay * Time.deltaTime);
+            }
 
             transform.position = settledPos + offset;
             AimAtFocus();

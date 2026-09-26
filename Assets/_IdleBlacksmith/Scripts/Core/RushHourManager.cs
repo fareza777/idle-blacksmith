@@ -50,7 +50,9 @@ namespace IdleBlacksmith.Core
                         new Vector3(0f, 2.5f, 0f), "RUSH HOUR!", new Color(1f, 0.62f, 0.25f));
                     UIManager.Instance?.FlashScreen(new Color(1f, 0.55f, 0.2f), 0.28f, 0.9f);
                     UI.SettingsPanel.Buzz();
+                    Gameplay.CameraDirector.Instance?.AddShake(0.35f);
                     AudioManager.Play("ember_whoosh", 0.04f, 0.8f);
+                    AudioManager.DuckMusic(0.5f);
                     OnChanged?.Invoke();
                 }
                 return;

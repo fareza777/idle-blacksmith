@@ -167,8 +167,10 @@ namespace IdleBlacksmith.Gameplay
                 RarityInfo.NameOf(rarity).ToUpperInvariant() + "!  x" + RarityInfo.MultiplierOf(rarity).ToString("0.#"),
                 RarityInfo.TextColor(rarity));
             AudioManager.Play(legendary ? "fanfare" : "levelup", 0.05f, legendary ? 0.9f : 0.55f);
+            CameraDirector.Instance?.AddShake(legendary ? 0.6f : rarity == Rarity.Epic ? 0.22f : 0f);
             if (legendary)
             {
+                AudioManager.DuckMusic(0.6f);
                 UI.SettingsPanel.Buzz();
                 UI.UIManager.Instance?.FlashScreen(new Color(1f, 0.75f, 0.3f), 0.32f, 0.7f);
             }
@@ -204,6 +206,8 @@ namespace IdleBlacksmith.Gameplay
             Strike(0.55f);
             UI.SettingsPanel.Buzz();
             Tween.PunchScale(transform, Vector3.one * 0.04f, 0.2f);
+            // Each hand-hit lands a small thud — just enough to feel the hammer.
+            CameraDirector.Instance?.AddShake(0.10f);
             // A floater only earns its place once a combo is rolling — single taps get
             // the punch and the ring, so the forge stays readable instead of chatty.
             if (tapCombo >= 2)

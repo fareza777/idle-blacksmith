@@ -124,6 +124,8 @@ namespace IdleBlacksmith.Gameplay
                 nextRumble = now + Random.Range(7f, 16f);
                 UIManager.Instance?.FlashScreen(new Color(0.82f, 0.86f, 1f), 0.22f, 0.35f);
                 AudioManager.Play("thunder", volumeScale: 0.8f);
+                AudioManager.DuckMusic(0.4f);
+                CameraDirector.Instance?.AddShake(0.4f);
                 bolt.position = new Vector3(Random.Range(-7f, 7f), Random.Range(9.5f, 12f), 12f);
                 bolt.localScale = Vector3.one * Random.Range(1.4f, 2.2f);
                 boltHide = now + 0.13f;
