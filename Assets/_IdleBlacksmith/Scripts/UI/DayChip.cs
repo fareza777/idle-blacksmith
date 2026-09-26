@@ -1,4 +1,5 @@
 using IdleBlacksmith.Core;
+using PrimeTween;
 using TMPro;
 using UnityEngine;
 
@@ -21,6 +22,8 @@ namespace IdleBlacksmith.UI
             bool fair = gm != null && gm.marketFair != null && gm.marketFair.Active;
             if (days != shown || fair != wasFair)
             {
+                // A new dawn ticks the chip — skip the very first frame (that's just init).
+                if (shown >= 0) Tween.PunchScale(transform, Vector3.one * 0.12f, 0.35f);
                 shown = days;
                 wasFair = fair;
                 if (label != null)
