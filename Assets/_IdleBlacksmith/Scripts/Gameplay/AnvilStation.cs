@@ -53,6 +53,8 @@ namespace IdleBlacksmith.Gameplay
         public bool sharpenNext;
         float speedBoost = 1f;
         float boostUntil;
+        Color fillBase;
+        bool fillBaseSet;
 
         void Awake()
         {
@@ -113,6 +115,8 @@ namespace IdleBlacksmith.Gameplay
         {
             speedBoost = Mathf.Max(1f, multiplier);
             boostUntil = Time.unscaledTime + seconds;
+            // Bellows flare — the hearth answers the stoke, not just the floater.
+            if (sparks != null) sparks.Play();
         }
 
         /// <summary>Quench trough: the blade hits the water and the craft completes now.</summary>
@@ -127,6 +131,13 @@ namespace IdleBlacksmith.Gameplay
             timer += Time.deltaTime * (Time.unscaledTime < boostUntil ? speedBoost : 1f);
             float p = Mathf.Clamp01(timer / duration);
             if (progressBar != null) progressBar.SetProgress(p);
+            // While the bellows burn the bar runs hot — an ember tint until the stoke fades.
+            if (progressBar != null && progressBar.fill != null)
+            {
+                if (!fillBaseSet) { fillBase = progressBar.fill.color; fillBaseSet = true; }
+                progressBar.fill.color = Time.unscaledTime < boostUntil
+                    ? new Color(1f, 0.58f, 0.18f) : fillBase;
+            }
             if (timer >= duration)
             {
                 IsCrafting = false;
