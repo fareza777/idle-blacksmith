@@ -87,7 +87,13 @@ namespace IdleBlacksmith.UI
         {
             GameManager gm = GameManager.Instance;
             if (oreLabel != null && gm != null && gm.resources != null)
-                oreLabel.text = $"{gm.resources.Ore} / {gm.resources.OreCapacity}";
+            {
+                bool full = gm.resources.IsFull;
+                oreLabel.text = full
+                    ? $"{gm.resources.Ore} / {gm.resources.OreCapacity} — FULL"
+                    : $"{gm.resources.Ore} / {gm.resources.OreCapacity}";
+                oreLabel.color = full ? new Color(1f, 0.72f, 0.4f) : Color.white;
+            }
         }
 
         public void Open()
