@@ -101,6 +101,7 @@ namespace IdleBlacksmith.UI
         void HandleUnlocked(AchievementDef def)
         {
             AudioManager.Play("achievement");
+            SettingsPanel.Buzz();
             if (UIManager.Instance != null)
                 UIManager.Instance.SpawnFloatingText(
                     new Vector3(0f, 1.9f, 0f), "Achievement: " + def.displayName,
@@ -285,6 +286,7 @@ namespace IdleBlacksmith.UI
         {
             if (!IsOpen || sheet == null) return;
             IsOpen = false;
+            AudioManager.Play("whoosh", 0.04f, 0.45f);
             if (backdrop != null)
             {
                 backdrop.blocksRaycasts = false;

@@ -22,6 +22,14 @@ namespace IdleBlacksmith.UI
         static readonly Color Gold = new Color(1f, 0.82f, 0.42f);
         static readonly Color Urgent = new Color(1f, 0.45f, 0.38f);
 
+        [Tooltip("Seconds left at which the banner starts calling attention to the deadline")]
+        public float urgentAt = 30f;
+
+        OrderManager.Order lastOrder;
+        bool urgentArmed;
+        float nextPulse;
+        float nextTick;
+
         public void Init()
         {
             if (openButton != null)
@@ -60,14 +68,41 @@ namespace IdleBlacksmith.UI
         {
             OrderManager orders = GameManager.Instance != null ? GameManager.Instance.orders : null;
             OrderManager.Order o = orders != null ? orders.Active : null;
-            if (o == null) return;
+            if (o == null) { lastOrder = null; return; }
+            if (!ReferenceEquals(o, lastOrder))
+            {
+                lastOrder = o;
+                urgentArmed = true;
+                nextPulse = 0f;
+                nextTick = 0f;
+            }
 
             float left = o.SecondsLeft;
             if (timer != null)
             {
                 int s = Mathf.CeilToInt(left);
                 timer.text = $"{s / 60}:{s % 60:00}";
-                timer.color = left < 30f ? Urgent : Gold;
+                timer.color = left < urgentAt ? Urgent : Gold;
+            }
+            // Final stretch: the banner breathes and ticks so a missed contract is never silent.
+            if (left > 0f && left <= urgentAt)
+            {
+                if (urgentArmed)
+                {
+                    urgentArmed = false;
+                    SettingsPanel.Buzz();
+                    AudioManager.Play("blip", 0.05f, 0.5f);
+                }
+                if (Time.time >= nextPulse)
+                {
+                    Tween.PunchScale(transform, Vector3.one * 0.035f, 0.45f);
+                    nextPulse = Time.time + 1f;
+                }
+                if (Time.time >= nextTick)
+                {
+                    AudioManager.Play("blip", 0.12f, 0.3f);
+                    nextTick = Time.time + 5f;
+                }
             }
             if (fill != null)
                 fill.fillAmount = Mathf.Clamp01(o.delivered / (float)o.needed);

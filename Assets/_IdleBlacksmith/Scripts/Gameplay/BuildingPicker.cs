@@ -49,11 +49,15 @@ namespace IdleBlacksmith.Gameplay
         [Tooltip("How far the finger may travel and still count as a tap rather than a drag")]
         public float dragThreshold = 22f;
 
+        [Tooltip("Seconds a finger must rest on the ore pile before it keeps mining on its own")]
+        public float oreHoldDelay = 0.35f;
+
         [Tooltip("The camera director; taps are ignored while the player is dragging the view")]
         public CameraDirector director;
 
         Camera cam;
         Vector2 pressedAt;
+        float pressedSince;
         bool pressed;
         bool pressedOverUI;
 
@@ -74,8 +78,26 @@ namespace IdleBlacksmith.Gameplay
             {
                 pressed = true;
                 pressedAt = Input.mousePosition;
+                pressedSince = Time.time;
                 pressedOverUI = IsOverUI();
                 return;
+            }
+
+            // Held on the ore pile: keep chipping chunks without making the player tap —
+            // ManualMine paces itself on its own cooldown, and any real drag ends the hold.
+            if (pressed && !pressedOverUI && Input.GetMouseButton(0) && orePile != null
+                && Time.time - pressedSince >= oreHoldDelay
+                && Vector2.Distance(Input.mousePosition, pressedAt) <= dragThreshold
+                && (director == null || !director.IsDragging))
+            {
+                var ui = UIManager.Instance;
+                if (ui == null || (!ui.AnyPanelOpen && !ui.IntroPlaying))
+                {
+                    Vector3 op = cam.WorldToScreenPoint(orePile.transform.position + Vector3.up * 0.5f);
+                    if (op.z > 0f
+                        && Vector2.Distance(op, Input.mousePosition) <= oreTapRadiusNormalized * Screen.height)
+                        orePile.ManualMine();
+                }
             }
 
             if (!Input.GetMouseButtonUp(0) || !pressed) return;

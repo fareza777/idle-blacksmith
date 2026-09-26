@@ -28,6 +28,12 @@ namespace IdleBlacksmith.Core
             "The contract is generous - do not waste it!", "I am counting on you!",
         };
 
+        static readonly string[] PatronUrgentLines =
+        {
+            "Time runs short, smith!", "The deadline approaches!",
+            "Any moment now, surely?", "My patience wears thin…",
+        };
+
         static readonly string[] WorkerLines =
         {
             "Strike while it's hot!", "Another beauty!", "Hah! A fine blade!",
@@ -50,6 +56,7 @@ namespace IdleBlacksmith.Core
         static readonly Color Warm = new Color(1f, 0.92f, 0.78f);
         static readonly Color Gold = new Color(1f, 0.84f, 0.4f);
         static readonly Color Mist = new Color(0.8f, 0.88f, 1f);
+        static readonly Color Urgent = new Color(1f, 0.55f, 0.45f);
 
         WorkerController worker;
         FairCrowd crowd;
@@ -79,7 +86,9 @@ namespace IdleBlacksmith.Core
             PatronController patron = gm.orders != null ? gm.orders.Patron : null;
             if (patron != null && Random.value < 0.5f)
             {
-                Speak(patron.transform.position, Pick(PatronLines), Gold);
+                bool urgent = gm.orders.Active != null && gm.orders.Active.SecondsLeft <= 30f;
+                Speak(patron.transform.position, Pick(urgent ? PatronUrgentLines : PatronLines),
+                    urgent ? Urgent : Gold);
                 return;
             }
 

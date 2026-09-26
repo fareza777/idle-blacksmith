@@ -85,6 +85,9 @@ namespace IdleBlacksmith.Gameplay
             sprite.localScale = Vector3.zero;
             Tween.Scale(sprite, Vector3.one * 0.30f, 0.4f, Ease.OutBack);
             AudioManager.Play("pop", 0.04f, 0.5f);
+            UIManager.Instance?.SpawnFloatingText(
+                home + Vector3.up * 0.8f, "A lucky ember drifts by!",
+                new Color(1f, 0.82f, 0.4f));
         }
 
         void Vanish()
