@@ -156,7 +156,7 @@ namespace IdleBlacksmith.EditorTools
             audio.musicClips = new[]
             {
                 Clip("music_forge", 1f), Clip("music_intro", 1f), Clip("music_deep", 1f),
-                Clip("music_fair", 1f),
+                Clip("music_fair", 1f), Clip("music_night", 0.85f),
             };
 
             var dialogue = gameGo.AddComponent<DialogueManager>();

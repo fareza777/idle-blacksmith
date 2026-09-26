@@ -41,6 +41,7 @@ namespace IdleBlacksmith.EditorTools
             Try("amb_rain", AmbRain());
             Try("music_deep", MusicDeep());
             Try("music_fair", MusicFair());
+            Try("music_night", MusicNight());
         }
 
         static void Try(string name, float[] samples)
@@ -520,6 +521,39 @@ namespace IdleBlacksmith.EditorTools
                 float tt = (x + step * 0.5f) % step;
                 v += (Mathf.PerlinNoise(x * 9000f, 0.7f) - 0.5f) * 0.10f * Mathf.Exp(-tt * 40f);
                 s[i] = Mathf.Clamp(v * 0.85f, -1f, 1f);
+            }
+            int xn = (int)(SR * 0.4f);
+            for (int i = 0; i < xn; i++)
+                s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
+            return s;
+        }
+
+        // A music-box lullaby for after dark: sparse high bells with a long release over a
+        // warm root-fifth pad that breathes on the loop length. Sixteen seconds, folded tail.
+        static float[] MusicNight()
+        {
+            const float seconds = 16f;
+            const float step = 1.6f;
+            float[] melody =
+            {
+                659.25f, 523.25f, 440f, 523.25f, 659.25f,
+                880f, 783.99f, 659.25f, 523.25f, 440f,
+            };
+            int n = (int)(SR * seconds);
+            var s = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float x = i / (float)SR;
+                // Pad: A2 + E3, swelling gently across the loop so the seam disappears.
+                float swell = 0.55f + 0.45f * Mathf.Sin(2f * Mathf.PI * x / seconds);
+                float v = (Sin(110f, x) * 0.09f + Sin(164.81f, x) * 0.07f
+                           + Sin(220f, x) * 0.04f) * swell;
+                // Music box: one bell per step, slow release, faint octave shimmer.
+                int stepIdx = (int)(x / step) % melody.Length;
+                float lt = x % step;
+                v += (Sin(melody[stepIdx], lt) + Sin(melody[stepIdx] * 2f, lt) * 0.25f)
+                     * 0.09f * Mathf.Exp(-lt * 1.4f);
+                s[i] = Mathf.Clamp(v * 0.8f, -1f, 1f);
             }
             int xn = (int)(SR * 0.4f);
             for (int i = 0; i < xn; i++)
