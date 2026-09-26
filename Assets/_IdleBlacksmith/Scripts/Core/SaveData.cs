@@ -154,6 +154,8 @@ namespace IdleBlacksmith.Core
         public int prestigeCount;
         /// <summary>Gold earned since the last prestige — the prestige payout is based on this.</summary>
         public long runEarned;
+        /// <summary>Lifetime-gold snapshot at the last dawn — the dawn recap diffs against it.</summary>
+        public long goldAtDawn;
 
         public string activeQuestId = "";
         public List<string> questsClaimed = new List<string>();

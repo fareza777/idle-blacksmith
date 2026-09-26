@@ -69,7 +69,14 @@ namespace IdleBlacksmith.Gameplay
                 if (d != null && d.stats != null)
                 {
                     d.stats.dayCycles++;
-                    // The daily special rotates at dawn — tell the player what pays today.
+                    // Dawn recap — how the shop did since the last sun-up, then today's special.
+                    long earned = d.stats.goldEarned - d.goldAtDawn;
+                    d.goldAtDawn = d.stats.goldEarned;
+                    if (earned > 0 && d.stats.dayCycles > 1)
+                        UIManager.Instance?.SpawnFloatingText(
+                            new Vector3(0f, 2.45f, 0.5f),
+                            "+" + UI.GoldCounter.Format(earned) + " gold since dawn",
+                            new Color(1f, 0.82f, 0.4f));
                     var daily = gm.RecipeOfTheDay();
                     if (daily != null)
                         UIManager.Instance?.SpawnFloatingText(
