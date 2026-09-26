@@ -43,6 +43,13 @@ namespace IdleBlacksmith.Core
                 UI.SettingsPanel.Buzz();
                 AudioManager.Play("ember_whoosh", 0.045f, 0.85f);
             }
+            else if (!Active && announcedDay >= 0)
+            {
+                // Closing beat — the festival had an opening, it should have an ending too.
+                announcedDay = -1;
+                UIManager.Instance?.SpawnFloatingText(
+                    new Vector3(0f, 2.6f, 0f), "The fair packs up…", new Color(0.75f, 0.7f, 0.9f));
+            }
             // The festival gets its own tune; the forge theme comes back at close.
             AudioManager.PlayMusic(Active ? "music_fair" : UIManager.ThemeId(), 2f);
             OnChanged?.Invoke();

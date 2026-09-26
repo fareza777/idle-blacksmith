@@ -60,6 +60,8 @@ namespace IdleBlacksmith.Core
             {
                 Active = false;
                 nextAt = Time.time + Random.Range(idleDelay.x, idleDelay.y);
+                UIManager.Instance?.SpawnFloatingText(
+                    new Vector3(0f, 2.5f, 0f), "The rush subsides…", new Color(0.65f, 0.72f, 0.95f));
                 UIManager.Instance?.FlashScreen(new Color(0.45f, 0.6f, 1f), 0.18f, 0.8f);
                 AudioManager.Play("blip", 0.06f, 0.6f);
                 OnChanged?.Invoke();

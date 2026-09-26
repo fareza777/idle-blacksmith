@@ -133,9 +133,22 @@ namespace IdleBlacksmith.Core
         public void RegisterForged(SwordItem item)
         {
             if (item == null || Data == null || Data.stats == null) return;
+            int tierBefore = MasteryTierOf(item.recipeId);
             Data.stats.swordsForged++;
             Data.stats.bestRarity = Mathf.Max(Data.stats.bestRarity, (int)item.rarity);
             Data.stats.NoteForged(item.recipeId, item.rarity);
+            int tierAfter = MasteryTierOf(item.recipeId);
+            if (tierAfter > tierBefore)
+            {
+                RecipeDef recipe = config != null ? config.GetRecipe(item.recipeId) : null;
+                string name = recipe != null ? recipe.displayName : item.recipeId;
+                UI.UIManager.Instance?.SpawnFloatingText(
+                    new Vector3(0f, 2.5f, 0f),
+                    name + " mastery +" + tierAfter * 4 + "%!",
+                    new Color(0.55f, 0.9f, 0.65f));
+                AudioManager.Play("enchant", 0.06f, 0.6f);
+                UI.SettingsPanel.Buzz();
+            }
         }
 
         /// <summary>Records a sale and adds the takings to the prestige run total.</summary>
