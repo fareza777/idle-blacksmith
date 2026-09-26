@@ -27,6 +27,7 @@ namespace IdleBlacksmith.UI
 
         OrderManager.Order lastOrder;
         bool urgentArmed;
+        bool wasWrong;
         float nextPulse;
         float nextTick;
 
@@ -52,12 +53,16 @@ namespace IdleBlacksmith.UI
                 group.blocksRaycasts = on;
                 if (on && wasHidden) Tween.PunchScale(transform, Vector3.one * 0.05f, 0.35f);
             }
-            if (!on) return;
+            if (!on) { wasWrong = false; return; }
 
             GameManager gm = GameManager.Instance;
             RecipeDef recipe = gm != null && gm.config != null ? gm.config.GetRecipe(o.recipeId) : null;
             string name = recipe != null ? recipe.displayName : o.recipeId;
             bool wrongRecipe = gm != null && gm.recipes != null && gm.recipes.ActiveId != o.recipeId;
+            // First frame the banner calls out a wrong recipe gets a blip — after that the
+            // text is loud enough on its own.
+            if (wrongRecipe && !wasWrong) AudioManager.Play("blip", 0.05f, 0.45f);
+            wasWrong = wrongRecipe;
             if (line != null)
                 line.text = wrongRecipe
                     ? $"{o.patron}: {o.delivered}/{o.needed} × {name}  —  switch recipe!"
