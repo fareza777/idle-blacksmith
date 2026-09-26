@@ -174,6 +174,7 @@ namespace IdleBlacksmith.Core
                     AudioManager.Play("fanfare", 0.04f, 0.9f);
                     AudioManager.DuckMusic(0.6f);
                     Gameplay.CameraDirector.Instance?.AddShake(0.4f);
+                    Gameplay.CameraDirector.Instance?.HitStop(0.2f, 0.3f);
                     UI.SettingsPanel.Buzz();
                 }
                 gm.Save();

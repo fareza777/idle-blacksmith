@@ -155,6 +155,7 @@ namespace IdleBlacksmith.UI
 
             AudioManager.Play("prestige");
             AudioManager.DuckMusic(0.65f);
+            Gameplay.CameraDirector.Instance?.HitStop(0.22f, 0.25f);
             SettingsPanel.Buzz();
             UIManager.Instance?.FlashScreen(new Color(1f, 0.72f, 0.35f), 0.85f, 1.2f);
             Gameplay.CameraDirector.Instance?.AddShake(0.65f);

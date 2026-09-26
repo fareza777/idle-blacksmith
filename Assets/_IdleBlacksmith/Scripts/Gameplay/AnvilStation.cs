@@ -173,6 +173,7 @@ namespace IdleBlacksmith.Gameplay
             if (legendary)
             {
                 AudioManager.DuckMusic(0.6f);
+                CameraDirector.Instance?.HitStop(0.16f, 0.25f);
                 UI.SettingsPanel.Buzz();
                 UI.UIManager.Instance?.FlashScreen(new Color(1f, 0.75f, 0.3f), 0.32f, 0.7f);
                 // The save's very first legendary deserves to feel like history — the stat

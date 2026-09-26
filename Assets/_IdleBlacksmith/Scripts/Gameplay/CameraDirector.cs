@@ -62,6 +62,7 @@ namespace IdleBlacksmith.Gameplay
         /// <summary>Shared handle so world events can add trauma without a scene reference.</summary>
         public static CameraDirector Instance;
         float trauma;
+        Coroutine hitstop;
 
         [Header("Player pan and zoom")]
         [Tooltip("How far the player may drag the view away from the auto-framed centre, in world units")]
@@ -120,6 +121,31 @@ namespace IdleBlacksmith.Gameplay
         {
             if (SettingsPanel.ReduceFX) return;
             trauma = Mathf.Clamp01(trauma + amount);
+        }
+
+        /// <summary>
+        /// Brief time dip for the loudest beats — a legendary landing, a quest log cleared.
+        /// Runs on unscaled time so it releases even while the clock is dilated.
+        /// </summary>
+        public void HitStop(float seconds = 0.14f, float scale = 0.3f)
+        {
+            if (SettingsPanel.ReduceFX) return;
+            if (hitstop != null) StopCoroutine(hitstop);
+            hitstop = StartCoroutine(HitStopRoutine(seconds, scale));
+        }
+
+        System.Collections.IEnumerator HitStopRoutine(float seconds, float scale)
+        {
+            Time.timeScale = scale;
+            yield return new WaitForSecondsRealtime(seconds);
+            Time.timeScale = 1f;
+            hitstop = null;
+        }
+
+        void OnDisable()
+        {
+            // Coroutines die on disable — never leave the clock dilated.
+            if (hitstop != null) { Time.timeScale = 1f; hitstop = null; }
         }
 
         /// <summary>
