@@ -1,4 +1,5 @@
 using IdleBlacksmith.Core;
+using PrimeTween;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,8 +18,6 @@ namespace IdleBlacksmith.UI
         public Button openButton;
         public QuestPanel questPanel;
         public CanvasGroup group;
-
-        float pulseTimer;
 
         public void Init()
         {
@@ -42,7 +41,8 @@ namespace IdleBlacksmith.UI
             if (group != null)
             {
                 group.alpha = 1f;
-                pulseTimer = 1.2f;
+                // A real pop — the reward beat the old alpha-hold was meant to be.
+                Tween.PunchScale(transform, Vector3.one * 0.07f, 0.5f);
             }
             if (UIManager.Instance != null)
                 UIManager.Instance.SpawnFloatingText(
@@ -62,15 +62,6 @@ namespace IdleBlacksmith.UI
                 progressLabel.text = q == null ? "" : $"{Mathf.Min(gm.quests.Progress, q.target)}/{q.target}";
             }
             if (fill != null) fill.fillAmount = gm.quests.Fill01;
-        }
-
-        void Update()
-        {
-            if (pulseTimer <= 0f) return;
-            pulseTimer -= Time.deltaTime;
-            // A short highlight when a quest lands, so the reward is noticed.
-            if (group != null)
-                group.alpha = 1f;
         }
     }
 }

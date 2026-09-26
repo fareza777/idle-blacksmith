@@ -30,6 +30,17 @@ namespace IdleBlacksmith.UI
 
         readonly System.Collections.Generic.List<RecipeCard> cards = new System.Collections.Generic.List<RecipeCard>();
         bool built;
+        float nextPoll;
+
+        /// <summary>Counts on the cards tick over while the sheet sits open.</summary>
+        void Update()
+        {
+            if (IsOpen && Time.unscaledTime >= nextPoll)
+            {
+                nextPoll = Time.unscaledTime + 1.5f;
+                RefreshAll();
+            }
+        }
 
         public void Init()
         {
@@ -76,7 +87,13 @@ namespace IdleBlacksmith.UI
         {
             GameManager gm = GameManager.Instance;
             if (oreLabel != null && gm != null && gm.resources != null)
-                oreLabel.text = $"{gm.resources.Ore} / {gm.resources.OreCapacity}";
+            {
+                bool full = gm.resources.IsFull;
+                oreLabel.text = full
+                    ? $"{gm.resources.Ore} / {gm.resources.OreCapacity} — FULL"
+                    : $"{gm.resources.Ore} / {gm.resources.OreCapacity}";
+                oreLabel.color = full ? new Color(1f, 0.72f, 0.4f) : Color.white;
+            }
         }
 
         public void Open()
@@ -102,6 +119,7 @@ namespace IdleBlacksmith.UI
         {
             if (!IsOpen || sheet == null) return;
             IsOpen = false;
+            AudioManager.Play("whoosh", 0.04f, 0.45f);
             if (backdrop != null)
             {
                 backdrop.blocksRaycasts = false;

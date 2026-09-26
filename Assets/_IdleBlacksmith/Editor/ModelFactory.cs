@@ -16,6 +16,11 @@ namespace IdleBlacksmith.EditorTools
         public const string HelperPrefab = Paths.Prefabs + "/Helper.prefab";
         public const string CustomerAPrefab = Paths.Prefabs + "/CustomerA.prefab";
         public const string CustomerBPrefab = Paths.Prefabs + "/CustomerB.prefab";
+        public const string CustomerCPrefab = Paths.Prefabs + "/CustomerC.prefab";
+        public const string CustomerDPrefab = Paths.Prefabs + "/CustomerD.prefab";
+        public const string VendorPrefab = Paths.Prefabs + "/Vendor.prefab";
+        public const string MysticPrefab = Paths.Prefabs + "/Mystic.prefab";
+        public const string StokerPrefab = Paths.Prefabs + "/Stoker.prefab";
         public const string SwordPrefab = Paths.Prefabs + "/Sword.prefab";
         public const string OreChunkPrefab = Paths.Prefabs + "/OreChunk.prefab";
 
@@ -25,6 +30,7 @@ namespace IdleBlacksmith.EditorTools
         static Material hotSwordMat;
         static Material blobMat;
         static Material sparkMat;
+        static Material smokeMat;
 
         static Material[] PM => new[] { paletteMat };
         static Material[] PME => new[] { paletteMat, emissiveMat };
@@ -38,6 +44,7 @@ namespace IdleBlacksmith.EditorTools
             hotSwordMat = AssetDatabase.LoadAssetAtPath<Material>(AssetFactory.MatHotSword);
             blobMat = AssetDatabase.LoadAssetAtPath<Material>(AssetFactory.MatBlob);
             sparkMat = AssetDatabase.LoadAssetAtPath<Material>(AssetFactory.MatParticle);
+            smokeMat = AssetDatabase.LoadAssetAtPath<Material>(AssetFactory.MatSmoke);
         }
 
         public static void BuildAll()
@@ -115,6 +122,17 @@ namespace IdleBlacksmith.EditorTools
                 Part("Rock", root.transform, mesh, PMC, Vector3.zero);
                 SavePrefab(root, OreChunkPrefab);
             }
+            // Hand hammer: grip at the anchor, head forward along +Z (same convention as
+            // the carried sword prop).
+            {
+                var b = new MeshBuilder();
+                b.Box(new Vector3(0, 0, 0.09f), new Vector3(0.034f, 0.034f, 0.19f), Palette.Grip);
+                b.Box(new Vector3(0, 0.005f, 0.20f), new Vector3(0.075f, 0.075f, 0.12f), Palette.MetalLight);
+                b.Box(new Vector3(0, 0.005f, 0.265f), new Vector3(0.052f, 0.052f, 0.02f), Palette.MetalDark);
+                b.Box(new Vector3(0, 0, -0.015f), new Vector3(0.05f, 0.05f, 0.035f), Palette.MetalDark);
+                carriedHammerMesh = AssetReplace.SaveMesh(
+                    b.Build("HammerMesh"), "CarriedHammer", $"{Paths.Models}/CarriedHammer.asset");
+            }
         }
 
         // ------------------------------------------------------------ characters
@@ -125,9 +143,14 @@ namespace IdleBlacksmith.EditorTools
             BuildCharacter("Helper", Palette.ShirtGreen, Palette.HairBlond, true, Hat.Headband, Palette.Pants);
             BuildCharacter("CustomerA", Palette.ShirtOrange, Palette.HairBrown, false, Hat.Straw, Palette.PlumDark);
             BuildCharacter("CustomerB", Palette.Teal, Palette.HairBlack, false, Hat.Buns, Palette.PlumDark);
+            BuildCharacter("CustomerC", Palette.ShirtPurple, Palette.HairBlond, false, Hat.Feather, Palette.PlumDark);
+            BuildCharacter("CustomerD", Palette.RedAccent, Palette.HairBlond, false, Hat.Bonnet, Palette.Pants);
+            BuildCharacter("Vendor", Palette.ClothCream, Palette.HairBrown, true, Hat.Cap, Palette.Pants);
+            BuildCharacter("Mystic", Palette.PlumDark, Palette.HairBlack, false, Hat.Hood, Palette.PlumDark);
+            BuildCharacter("Stoker", Palette.ShirtOrange, Palette.HairBlack, true, Hat.Headband, Palette.Coal);
         }
 
-        enum Hat { Cap, Straw, Buns, Headband }
+        enum Hat { Cap, Straw, Buns, Headband, Feather, Hood, Bonnet }
 
         static void BuildCharacter(string name, int shirt, int hair, bool apron, Hat hat, int pants)
         {
@@ -175,6 +198,27 @@ namespace IdleBlacksmith.EditorTools
                 case Hat.Headband:
                     b.Box(new Vector3(0, 0.44f, -0.02f), new Vector3(0.48f, 0.12f, 0.44f), hair);
                     b.Box(new Vector3(0, 0.31f, 0.01f), new Vector3(0.49f, 0.07f, 0.45f), Palette.RedAccent);
+                    break;
+                case Hat.Feather:
+                    // noble's soft beret with a gold quill
+                    b.Cylinder(new Vector3(0, 0.45f, -0.02f), 0.27f, 0.09f, 10, Palette.PlumDark);
+                    b.Box(new Vector3(0.13f, 0.53f, -0.08f), new Vector3(0.05f, 0.15f, 0.03f), Palette.Gold);
+                    b.Box(new Vector3(0, 0.30f, -0.20f), new Vector3(0.46f, 0.18f, 0.05f), hair);
+                    break;
+                case Hat.Hood:
+                    // deep hood framing the face: peak, brow ridge, back drape, side flaps
+                    b.Box(new Vector3(0, 0.46f, -0.02f), new Vector3(0.52f, 0.14f, 0.48f), Palette.PlumDark);
+                    b.Box(new Vector3(0, 0.42f, 0.20f), new Vector3(0.50f, 0.09f, 0.10f), Palette.PlumDark);
+                    b.Box(new Vector3(0, 0.30f, -0.225f), new Vector3(0.52f, 0.36f, 0.07f), Palette.PlumDark);
+                    b.Box(new Vector3(-0.25f, 0.36f, -0.02f), new Vector3(0.07f, 0.30f, 0.46f), Palette.PlumDark);
+                    b.Box(new Vector3(0.25f, 0.36f, -0.02f), new Vector3(0.07f, 0.30f, 0.46f), Palette.PlumDark);
+                    break;
+                case Hat.Bonnet:
+                    // peddler's bonnet: pink cap, back drape, brim fold and a little chin bow
+                    b.Box(new Vector3(0, 0.47f, -0.04f), new Vector3(0.50f, 0.13f, 0.46f), Palette.FlowerPink);
+                    b.Box(new Vector3(0, 0.35f, -0.22f), new Vector3(0.46f, 0.26f, 0.08f), Palette.FlowerPink);
+                    b.Box(new Vector3(0, 0.42f, 0.19f), new Vector3(0.48f, 0.06f, 0.10f), Palette.FlowerPink);
+                    b.Box(new Vector3(0, 0.23f, 0.20f), new Vector3(0.10f, 0.06f, 0.06f), Palette.FlowerPink);
                     break;
             }
             Mesh headMesh = SaveMesh(b, name + "_Head");
@@ -227,11 +271,19 @@ namespace IdleBlacksmith.EditorTools
                 var wc = root.AddComponent<WorkerController>();
                 wc.model = model.transform;
                 wc.handAnchor = handAnchor.transform;
+                if (carriedHammerMesh != null)
+                {
+                    GameObject hammer = Part("CarriedHammer", handAnchor.transform, carriedHammerMesh, PM,
+                        new Vector3(0, 0.02f, 0.04f));
+                    hammer.transform.localRotation = Quaternion.Euler(32f, 0f, 0f);
+                    wc.hammerProp = hammer;
+                }
                 SavePrefab(root, Paths.Prefabs + "/" + name + ".prefab");
             }
         }
 
         static Mesh carriedSwordMesh;
+        static Mesh carriedHammerMesh;
 
         static void SavePrefab(GameObject root, string path)
             => AssetReplace.SavePrefab(root, path);

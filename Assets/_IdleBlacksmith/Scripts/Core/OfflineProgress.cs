@@ -35,16 +35,20 @@ namespace IdleBlacksmith.Core
             float seconds = Mathf.Min(elapsedMs / 1000f, capSeconds);
             float rate = Mathf.Clamp01(Production.OfflineRate);
 
-            // The mine keeps producing; the shop keeps selling. Both are capped by the same window.
-            float oreRaw = gm.resources.OrePerSecond * seconds * rate;
+            int storehouse = gm.buildings != null ? gm.buildings.GetLevel(BuildingId.Storehouse) : 0;
+            var storeDef = gm.config.GetBuilding(BuildingId.Storehouse);
+            float stored = 1f + storehouse * (storeDef != null ? storeDef.offlineBonus : 0f);
+
+            // The mine keeps producing; the shop keeps selling; the storehouse keeps the take safe.
+            float oreRaw = gm.resources.OrePerSecond * seconds * rate * stored;
             int ore = Mathf.FloorToInt(oreRaw);
 
             int smithy = gm.buildings != null ? gm.buildings.GetLevel(BuildingId.Smithy) : 0;
             int market = gm.buildings != null ? gm.buildings.GetLevel(BuildingId.Market) : 0;
-            float goldRaw = (smithy + market) * gm.config.offlineGoldPerBuildingLevel * seconds * rate;
+            float goldRaw = (smithy + market) * gm.config.offlineGoldPerBuildingLevel * seconds * rate * stored;
             int gold = Mathf.FloorToInt(goldRaw);
 
-            if (ore > 0) gm.resources.GrantOffline(seconds);
+            if (ore > 0) ore = gm.resources.GrantOffline(ore);
             if (gold > 0)
             {
                 gm.economy.AddGold(gold);
@@ -57,7 +61,7 @@ namespace IdleBlacksmith.Core
 
             report.valid = ore > 0 || gold > 0 || gm.expeditions.ReadyCount > 0;
             report.elapsedSeconds = (long)seconds;
-            report.oreGained = Mathf.Min(ore, gm.resources.Ore);
+            report.oreGained = ore;
             report.goldGained = gold;
             report.expeditionsReady = gm.expeditions.ReadyCount;
             return report;

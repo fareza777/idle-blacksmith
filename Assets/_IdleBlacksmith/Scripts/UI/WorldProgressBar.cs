@@ -11,6 +11,9 @@ namespace IdleBlacksmith.UI
         public Image fill;
         public RectTransform root;
 
+        /// <summary>Name of what's on the anvil — fades in and out with the bar.</summary>
+        public TMPro.TMP_Text label;
+
         bool visible;
 
         void Awake()

@@ -1,0 +1,45 @@
+# https://docs.devin.ai/onboard-devin/environment-yaml
+# Commands run from the repo root.
+
+# One-time setup: install Unity editor + python art tooling.
+initialize:
+  - name: download Unity 6000.3.20f1 editor tarball
+    run: |
+      mkdir -p ~/unity
+      curl -sSL -o ~/unity/Unity.tar.xz "https://download.unity3d.com/download_unity/c9ba695d4f07/LinuxEditorInstaller/Unity.tar.xz"
+  - name: extract Unity editor to ~/unity/editor
+    run: |
+      mkdir -p ~/unity/editor
+      tar -xJf ~/unity/Unity.tar.xz -C ~/unity/editor
+      rm -f ~/unity/Unity.tar.xz
+      ~/unity/editor/Editor/Unity --version || true
+  - name: python art tooling (image gen + browser automation)
+    run: pip install playwright==1.63.0 pillow requests
+
+# Unity editor needs a license to run batchmode; see 'unity-license' knowledge.
+maintenance: |
+  pip install playwright==1.63.0 pillow requests
+
+knowledge:
+  - name: unity-editor
+    contents: |
+      Unity 6000.3.20f1 at ~/unity/editor/Editor/Unity
+      Build project (generates scene, art imports, all UI):
+      ~/unity/editor/Editor/Unity -batchmode -projectPath ~/repos/idle-blacksmith -executeMethod EditorBoot.BuildAll -quit -logFile /tmp/build.log
+      Requires a display for activation on Personal (-nographics lacks entitlement): use DISPLAY=:0 or xvfb.
+  - name: smoke-test
+    contents: |
+      ~/unity/editor/Editor/Unity -batchmode -projectPath ~/repos/idle-blacksmith -executeMethod EditorBoot.SmokeTest -quit -logFile /tmp/smoke.log ; exit code 0 = pass
+      ~15 game-seconds: asserts ore rate >0, swords forged >0, zero game exceptions.
+  - name: preview-captures
+    contents: |
+      EditorBoot via PreviewBuilder.RenderOverlay captures UI/world frames to PNGs for visual review without a device.
+  - name: unity-license
+    contents: |
+      Activation needs Unity ID creds (secrets UNITY_ID_EMAIL / UNITY_ID_PASSWORD).
+      ~/unity/editor/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client --activate-all --include-personal --username $UNITY_ID_EMAIL --password $UNITY_ID_PASSWORD  (needs DISPLAY=:0)
+      Manual fallback: generate ALF via editor -createManualActivationFile, upload at https://license.unity3d.com/manual, apply returned .ulf with --manualLicenseFile.
+      WARNING: repeated bad-password attempts lock the Unity ID account ("User is blocked due to continuous failures") - verify creds before retrying.
+  - name: art-generation
+    contents: |
+      Tools/FetchStoryArt.py generates app icon / portraits / cinematic frames via Replicate flux-schnell (needs REPLICATE_API_TOKEN secret) into Assets/_IdleBlacksmith/Art/{App,Menu}; music via ElevenLabs API (ELEVENLABS_API_KEY).

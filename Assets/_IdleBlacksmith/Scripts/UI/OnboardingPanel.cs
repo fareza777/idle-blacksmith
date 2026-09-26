@@ -39,6 +39,10 @@ namespace IdleBlacksmith.UI
         static readonly Color DotOn = new Color(0.95f, 0.60f, 0.29f);
         static readonly Color DotOff = new Color(0.66f, 0.55f, 0.42f, 0.5f);
 
+        /// <summary>Fired once when the panel finishes closing (skip or last page) — the boot
+        /// flow hooks this so the welcome-back sheet still gets its turn.</summary>
+        public System.Action onFinished;
+
         int index;
 
         public void Show()
@@ -53,6 +57,8 @@ namespace IdleBlacksmith.UI
             if (group != null)
             {
                 group.alpha = 0f;
+                group.blocksRaycasts = true;
+                group.interactable = true;
                 Tween.Alpha(group, 1f, 0.35f, Ease.OutQuad);
             }
             ApplyPage(false);
@@ -101,11 +107,24 @@ namespace IdleBlacksmith.UI
         void Finish()
         {
             GameManager.Instance?.MarkOnboardingSeen();
+            var cb = onFinished;
+            onFinished = null;
             if (group != null)
+            {
+                group.blocksRaycasts = false;
+                group.interactable = false;
                 Tween.Alpha(group, 0f, 0.3f, Ease.InQuad)
-                    .OnComplete(() => gameObject.SetActive(false));
+                    .OnComplete(() =>
+                    {
+                        gameObject.SetActive(false);
+                        cb?.Invoke();
+                    });
+            }
             else
+            {
                 gameObject.SetActive(false);
+                cb?.Invoke();
+            }
         }
 
         /// <summary>Editor tooling hook: first page, fully visible, no tweens.</summary>

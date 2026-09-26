@@ -1,5 +1,6 @@
 using IdleBlacksmith.Core;
 using IdleBlacksmith.Gameplay;
+using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -54,8 +55,37 @@ namespace IdleBlacksmith.EditorTools
             Spawn(ModelFactory.CratePrefab, V(2.05f, 0, 1.95f), -8f);
             Spawn(ModelFactory.StoolPrefab, V(-1.35f, 0, 0.5f), 30f);
             Spawn(ModelFactory.PlantPrefab, V(-2.0f, 0, -2.75f), 0f);
+            // Tappable workbench tools: grindstone sharpens the next blade, the quench
+            // trough finishes the current craft, and the bellows on the hearth stokes it.
+            Spawn(ModelFactory.GrindstonePrefab, V(1.95f, 0, 0.55f), 100f);
+            Spawn(ModelFactory.QuenchTroughPrefab, V(-0.55f, 0, -0.85f), 8f);
             Spawn(ModelFactory.RugPrefab, V(0.1f, 0.005f, 0.55f), 8f);
             Spawn(ModelFactory.SignPostPrefab, V(3.3f, 0, -4.6f), 160f);
+
+            // Drifting clouds and the forge cat — ambient life that survives tier rebuilds.
+            var cloudRng = new System.Random(4242);
+            var clouds = new GameObject("Clouds");
+            for (int c = 0; c < 5; c++)
+            {
+                var cloud = (GameObject)PrefabUtility.InstantiatePrefab(
+                    AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CloudPrefabPath(c % 3)));
+                cloud.transform.SetParent(clouds.transform, false);
+                cloud.transform.position = new Vector3(
+                    Mathf.Lerp(-12f, 12f, (float)cloudRng.NextDouble()),
+                    Mathf.Lerp(9.5f, 13.5f, (float)cloudRng.NextDouble()),
+                    Mathf.Lerp(-6f, 8f, (float)cloudRng.NextDouble()));
+                float cs = Mathf.Lerp(0.85f, 1.5f, (float)cloudRng.NextDouble());
+                cloud.transform.localScale = Vector3.one * cs;
+                cloud.transform.rotation = Quaternion.Euler(0f, (float)cloudRng.NextDouble() * 360f, 0f);
+                var drift = cloud.GetComponent<CloudDrift>();
+                if (drift != null) drift.speed = Mathf.Lerp(0.16f, 0.42f, (float)cloudRng.NextDouble());
+            }
+            GameObject cat = Spawn(ModelFactory.CatPrefab, V(-0.95f, 0, 1.95f), 205f);
+
+            // Small birds cross the sky every few seconds — ambient life.
+            var flock = new GameObject("BirdFlock");
+            var bf = flock.AddComponent<BirdFlock>();
+            bf.birdPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.BirdPrefab);
 
             // ------------------------------------------------ the rest of the complex
             // Each plot faces the forge, so every building reads as part of one yard. The plots sit
@@ -67,10 +97,12 @@ namespace IdleBlacksmith.EditorTools
             Vector3 shopCentre = V(0.15f, 0f, -0.55f);
             BuildingVisuals[] plots =
             {
-                MakePlot(plotsRoot, BuildingId.Mine, V(-6.0f, 0, 1.4f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Market, V(6.0f, 0, 1.4f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Gate, V(-3.4f, 0, -5.4f), shopCentre),
-                MakePlot(plotsRoot, BuildingId.Sanctum, V(5.4f, 0, 6.6f), shopCentre),
+                MakePlot(plotsRoot, BuildingId.Mine, V(-6.0f, 0, 1.4f), shopCentre, "ORE MINE"),
+                MakePlot(plotsRoot, BuildingId.Market, V(6.0f, 0, 1.4f), shopCentre, "TRADING POST"),
+                MakePlot(plotsRoot, BuildingId.Gate, V(-3.4f, 0, -5.4f), shopCentre, "DUNGEON GATE"),
+                MakePlot(plotsRoot, BuildingId.Sanctum, V(5.4f, 0, 6.6f), shopCentre, "SANCTUM"),
+                MakePlot(plotsRoot, BuildingId.Furnace, V(-5.6f, 0, 6.4f), shopCentre, "BLAST FURNACE"),
+                MakePlot(plotsRoot, BuildingId.Storehouse, V(-6.3f, 0, -2.3f), shopCentre, "STOREHOUSE"),
             };
 
             Transform helperSpawn = Marker("HelperSpawn", V(1.3f, 0, 0.85f));
@@ -81,6 +113,12 @@ namespace IdleBlacksmith.EditorTools
             Transform wpDoor = Marker("WpDoor", V(0.8f, 0f, -4.1f));
             Transform wpCounter = Marker("WpCounter", V(0.8f, 0f, -2.8f));
             Transform customerSpawn = Marker("CustomerSpawn", V(6.4f, ModelFactory.OutdoorGroundY, -5.7f));
+
+            // The storehouse porter: hauls crates smithy -> depot once the building stands.
+            var porterGo = Spawn(ModelFactory.CustomerBPrefab, V(-6.3f, 0, -1.0f), 140f);
+            Object.DestroyImmediate(porterGo.GetComponent<CustomerController>());
+            var porter = porterGo.AddComponent<PorterController>();
+            porter.shopPoint = wpDoor;
 
             // ------------------------------------------------ systems
             var gameGo = new GameObject("Game");
@@ -96,6 +134,10 @@ namespace IdleBlacksmith.EditorTools
             var prestige = gameGo.AddComponent<PrestigeManager>();
             var questManager = gameGo.AddComponent<QuestManager>();
             var achievements = gameGo.AddComponent<AchievementManager>();
+            var orders = gameGo.AddComponent<OrderManager>();
+            var rush = gameGo.AddComponent<RushHourManager>();
+            gameGo.AddComponent<ChatterManager>();
+            var daily = gameGo.AddComponent<DailyRewardManager>();
             var gm = gameGo.AddComponent<GameManager>();
 
             var audioGo = new GameObject("Audio");
@@ -108,6 +150,24 @@ namespace IdleBlacksmith.EditorTools
                 Clip("mine_pick", 0.8f), Clip("market_chime", 0.9f), Clip("enchant", 0.9f),
                 Clip("quest_done", 0.9f), Clip("achievement", 0.9f), Clip("prestige", 1f),
                 Clip("unlock", 0.9f), Clip("levelup", 0.9f), Clip("whoosh", 0.7f),
+                Clip("blip", 0.9f), Clip("ember_whoosh", 0.9f), Clip("amb_fire", 0.4f),
+                Clip("amb_night", 0.45f), Clip("amb_rain", 0.55f), Clip("thunder", 0.7f),
+            };
+            audio.musicClips = new[]
+            {
+                Clip("music_forge", 1f), Clip("music_intro", 1f), Clip("music_deep", 1f),
+                Clip("music_fair", 1f), Clip("music_night", 0.85f),
+            };
+
+            var dialogue = gameGo.AddComponent<DialogueManager>();
+            dialogue.portraits = new[]
+            {
+                new DialogueManager.NamedSprite { key = "bram", sprite = AssetFactory.LoadMenuArt("portrait_bram") },
+                new DialogueManager.NamedSprite { key = "petra", sprite = AssetFactory.LoadMenuArt("portrait_petra") },
+                new DialogueManager.NamedSprite { key = "sable", sprite = AssetFactory.LoadMenuArt("portrait_sable") },
+                new DialogueManager.NamedSprite { key = "aldric", sprite = AssetFactory.LoadMenuArt("portrait_aldric") },
+                new DialogueManager.NamedSprite { key = "nyx", sprite = AssetFactory.LoadMenuArt("portrait_nyx") },
+                new DialogueManager.NamedSprite { key = "cole", sprite = AssetFactory.LoadMenuArt("portrait_cole") },
             };
 
             var spawnerGo = new GameObject("CustomerSpawner");
@@ -135,25 +195,32 @@ namespace IdleBlacksmith.EditorTools
             gm.prestige = prestige;
             gm.quests = questManager;
             gm.achievements = achievements;
+            gm.orders = orders;
+            gm.rush = rush;
+            gm.daily = daily;
             production.config = config;
             gm.orePile = ore.GetComponent<OrePile>();
             gm.anvil = anvil.GetComponent<AnvilStation>();
             gm.rack = rack.GetComponent<SwordRack>();
             gm.customerSpawner = spawner;
+            orders.customerSpawner = spawner;
             gm.helperSpawnPoint = helperSpawn;
             gm.apprenticeAnvilRoot = apprentice;
             gm.environmentRoot = envRoot.transform;
             gm.environmentPrefabs = new GameObject[ModelFactory.EnvironmentTierPrefabs.Length];
             for (int i = 0; i < ModelFactory.EnvironmentTierPrefabs.Length; i++)
                 gm.environmentPrefabs[i] = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.EnvironmentTierPrefabs[i]);
+            gm.signFont = AssetDatabase.LoadAssetAtPath<TMPro.TMP_FontAsset>(AssetFactory.FontTitlePath);
 
             anvil.GetComponent<AnvilStation>().progressBar = ui.anvilBar;
             var apprenticeStation = apprentice.GetComponent<AnvilStation>();
             apprenticeStation.progressBar = ui.apprenticeBar;
             rack.GetComponent<SwordRack>().stockBar = ui.rackBar;
 
+            dialogue.ui = ui.uiManager;
+
             AudioSource fireAudio = forge.GetComponentInChildren<AudioSource>(true);
-            if (fireAudio != null) fireAudio.clip = LoadClip("crackle");
+            if (fireAudio != null) fireAudio.clip = LoadClip("amb_fire");
 
             var eventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
 
@@ -161,6 +228,21 @@ namespace IdleBlacksmith.EditorTools
             var pickerGo = new GameObject("BuildingPicker");
             var picker = pickerGo.AddComponent<BuildingPicker>();
             picker.buildings = plots;
+            picker.anvil = anvil.GetComponent<AnvilStation>();
+            picker.orePile = ore.GetComponent<OrePile>();
+            picker.cat = cat.GetComponent<CatAmbient>();
+
+            // The bellows is baked into the hearth mesh, so its ToolStation lives on the
+            // forge root with an anchor over the bellows — every tool drives the main anvil.
+            var bellows = forge.AddComponent<ToolStation>();
+            bellows.kind = ToolStation.Kind.Bellows;
+            bellows.cooldown = 45f;
+            bellows.anchorLocal = new Vector3(-0.85f, 0.45f, 0.25f);
+            bellows.scaleOnUse = false;
+            bellows.breatheOnReady = false;
+            var stations = Object.FindObjectsByType<ToolStation>(FindObjectsSortMode.None);
+            foreach (ToolStation t in stations) t.anvil = picker.anvil;
+            picker.tools = stations;
 
             // Camera frames the smithy plus every building that actually exists.
             cameraDirector.staticAnchors = new Transform[0];
@@ -202,8 +284,8 @@ namespace IdleBlacksmith.EditorTools
             return go.transform;
         }
 
-        /// <summary>A building plot: owns the id, the per-level prefabs and the facing.</summary>
-        static BuildingVisuals MakePlot(GameObject parent, string id, Vector3 pos, Vector3 lookAt)
+        /// <summary>A building plot: owns the id, the per-level prefabs, the facing and the sign text.</summary>
+        static BuildingVisuals MakePlot(GameObject parent, string id, Vector3 pos, Vector3 lookAt, string signText)
         {
             var go = new GameObject("Plot_" + id);
             go.transform.SetParent(parent.transform, false);
@@ -229,9 +311,32 @@ namespace IdleBlacksmith.EditorTools
                     bv.emptyMarker = (GameObject)PrefabUtility.InstantiatePrefab(marker);
                     bv.emptyMarker.transform.SetParent(go.transform, false);
                     bv.emptyMarker.transform.localPosition = Vector3.zero;
+                    LabelPlotSign(bv.emptyMarker.transform, signText);
                 }
             }
             return bv;
+        }
+
+        /// <summary>Paints the building's name on the survey sign, so the plot tells you what it wants to be.</summary>
+        static void LabelPlotSign(Transform marker, string signText)
+        {
+            var font = AssetDatabase.LoadAssetAtPath<TMPro.TMP_FontAsset>(AssetFactory.FontTitlePath);
+            if (font == null || string.IsNullOrEmpty(signText)) return;
+            var go = new GameObject("PlotName");
+            go.transform.SetParent(marker, false);
+            var tmp = go.AddComponent<TextMeshPro>();
+            tmp.font = font;
+            tmp.text = signText;
+            tmp.fontSize = 1.35f;
+            tmp.enableAutoSizing = true;
+            tmp.fontSizeMin = 0.55f;
+            tmp.fontSizeMax = 1.35f;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.color = new Color(0.28f, 0.18f, 0.10f);
+            var rt = go.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(0.70f, 0.38f);
+            go.transform.localPosition = new Vector3(0f, 1.42f, 0.10f);
+            go.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
         }
 
         static AudioManager.NamedClip Clip(string id, float volume)
@@ -258,6 +363,7 @@ namespace IdleBlacksmith.EditorTools
             sun.shadows = LightShadows.Soft;
             sun.shadowStrength = 0.82f;
             sunGo.transform.rotation = Quaternion.LookRotation(new Vector3(0.45f, -1f, -0.35f));
+            sunGo.AddComponent<Gameplay.DayCycle>();
 
             RenderSettings.ambientMode = AmbientMode.Flat;
             RenderSettings.ambientLight = new Color(0.72f, 0.65f, 0.55f);
@@ -360,6 +466,10 @@ namespace IdleBlacksmith.EditorTools
                 QuestGoal.UnlockRecipe, 2, gold: 200, ore: 15),
             Q("q_helper", "An Extra Pair of Hands", "Hire the apprentice and let two smiths share the work.",
                 QuestGoal.HireHelper, 1, gold: 200),
+            Q("q_tools", "The Smith's Tools", "The bellows stoke the hearth, the grindstone sharpens the next blade, the quench trough finishes a craft. Put them to work.",
+                QuestGoal.UseTools, 5, gold: 220, ore: 10),
+            Q("q_order1", "A Patron's Request", "Merchants post orders at the gate arch — deliver the swords they ask for and they pay over the counter price.",
+                QuestGoal.ServeOrders, 1, gold: 250),
             Q("q_gate1", "The Way Down", "Build the Dungeon Gate. Expeditions pay out even while the app is closed.",
                 QuestGoal.UpgradeBuilding, 1, gold: 300, ore: 25, targetId: BuildingId.Gate),
             Q("q_exped1", "First Blood", "Send a party through the gate and claim what they bring back.",
@@ -370,6 +480,8 @@ namespace IdleBlacksmith.EditorTools
                 QuestGoal.ForgeSwords, 100, gold: 800, ore: 40),
             Q("q_market1", "Word of Mouth", "Open the Trading Post to pull in more customers.",
                 QuestGoal.UpgradeBuilding, 1, gold: 700, targetId: BuildingId.Market),
+            Q("q_rush1", "Rush Hour", "When the forge bell rings, customers flood in — finish an order while the rush lasts.",
+                QuestGoal.RushOrders, 1, gold: 900),
             Q("q_mine2", "Timbered Shaft", "Take the mine to level 2 for more ore and more storage.",
                 QuestGoal.UpgradeBuilding, 2, gold: 800, targetId: BuildingId.Mine),
             Q("q_silver", "Silver and Steel", "Unlock four recipes. Silver needs a deeper mine than the rest.",
@@ -378,16 +490,36 @@ namespace IdleBlacksmith.EditorTools
                 QuestGoal.UpgradeBuilding, 2, gold: 1500, targetId: BuildingId.Gate),
             Q("q_runes3", "Enchanted", "Raise three rune levels at the Sanctum — relic ore is for spending, not hoarding.",
                 QuestGoal.BuildRunes, 3, gold: 1500, relic: 15),
+            Q("q_daily3", "The Ember Tithe", "The forge pays out once a day — claim the daily ember three days running.",
+                QuestGoal.ClaimDailies, 3, gold: 1600, relic: 10),
             Q("q_forge250", "Master Smith", "Forge two hundred and fifty swords.",
                 QuestGoal.ForgeSwords, 250, gold: 4000, ore: 100),
             Q("q_sanctum1", "The Enchanter Arrives", "Build the Enchanter's Sanctum.",
                 QuestGoal.UpgradeBuilding, 1, gold: 5000, relic: 25, targetId: BuildingId.Sanctum),
+            Q("q_furnace1", "Brick and Blast", "Raise the Blast Furnace — forced air means faster forging.",
+                QuestGoal.UpgradeBuilding, 1, gold: 6000, targetId: BuildingId.Furnace),
+            Q("q_store", "Lock the Goods", "Raise a Storehouse — what the forge earns while you sleep should still be there when you wake.",
+                QuestGoal.UpgradeBuilding, 1, gold: 2500, targetId: BuildingId.Storehouse),
+            Q("q_cat5", "Nine Lives", "The forge cat keeps the shop's luck — scratch her until she purrs.",
+                QuestGoal.PetCat, 5, gold: 400),
+            Q("q_ember", "Lucky Catch", "A wandering ember drifts over the village now and then. Snatch it before it fades — fortune favours the quick.",
+                QuestGoal.CatchEmber, 3, gold: 500),
+            Q("q_mastery", "A Smith's Signature", "Master a recipe — forge it until your hands know it by heart and buyers pay a premium.",
+                QuestGoal.MasterRecipe, 2, gold: 1500, shard: 1),
+            Q("q_dawns", "Many Mornings", "Five dawns over the forge. The village wakes to the smell of fresh steel now.",
+                QuestGoal.DaysPassed, 5, gold: 1800),
+            Q("q_fair1", "Market Day", "Every fifth dawn the village holds a market fair — bunting up, crowds in, prices up too. Sell swords while the fair runs.",
+                QuestGoal.FairSales, 8, gold: 2500, relic: 8),
             Q("q_smithy4", "Mithril Works", "Grow the Smithy to level 4 and unlock mithril.",
                 QuestGoal.UpgradeBuilding, 4, gold: 8000, targetId: BuildingId.Smithy),
             Q("q_rare", "Something Rare", "Forge a Rare sword. Luck, the Sanctum and the Lucky Anvil all help.",
                 QuestGoal.OwnRarity, 2, gold: 6000, shard: 1),
             Q("q_forge500", "Five Hundred", "Forge five hundred swords.",
                 QuestGoal.ForgeSwords, 500, gold: 12000, shard: 2),
+            Q("q_starforged", "Reach the Stars", "Unlock every blade the forge knows — including the Starforged, hammered from a fallen star.",
+                QuestGoal.UnlockRecipe, 10, gold: 20000, shard: 3),
+            Q("q_orders10", "The Guild Ledger", "Ten merchant orders fulfilled — patrons remember a smith who delivers.",
+                QuestGoal.ServeOrders, 10, gold: 9000, shard: 2),
             Q("q_prestige", "Rekindle the Forge", "Burn this run for ember shards and start again, permanently stronger.",
                 QuestGoal.Prestige, 1, shard: 5),
             Q("q_smithy5", "Dragonforge", "Take the Smithy all the way to level 5.",
@@ -433,6 +565,22 @@ namespace IdleBlacksmith.EditorTools
             A("a_prestige5", "Phoenix Smith", "Rekindle the forge five times", QuestGoal.Prestige, 5, AchBonus.Gold, 0.08f, "ember"),
             A("a_play60", "Dedicated", "Play for an hour", QuestGoal.PlayMinutes, 60, AchBonus.Offline, 0.03f, "offline"),
             A("a_play600", "Forge Never Sleeps", "Play for ten hours", QuestGoal.PlayMinutes, 600, AchBonus.Gold, 0.04f, "offline"),
+            A("a_orders10", "Guild Contractor", "Complete 10 merchant orders", QuestGoal.ServeOrders, 10, AchBonus.Price, 0.03f, "scroll"),
+            A("a_orders50", "Quartermaster", "Complete 50 merchant orders", QuestGoal.ServeOrders, 50, AchBonus.Gold, 0.05f, "scroll"),
+            A("a_rush10", "Rush Master", "Complete 10 orders during Rush Hour", QuestGoal.RushOrders, 10, AchBonus.Craft, 0.04f, "star"),
+            A("a_daily7", "Faithful", "Claim the daily ember 7 times", QuestGoal.ClaimDailies, 7, AchBonus.Offline, 0.03f, "star"),
+            A("a_daily30", "Ember Devout", "Claim the daily ember 30 times", QuestGoal.ClaimDailies, 30, AchBonus.Gold, 0.05f, "ember"),
+            A("a_furnace5", "Volcanic Heart", "Raise the Blast Furnace to level 5", QuestGoal.UpgradeBuilding, 5, AchBonus.Craft, 0.05f, "furnace", BuildingId.Furnace),
+            A("a_store3", "Hoard Master", "Raise the Storehouse to level 3", QuestGoal.UpgradeBuilding, 3, AchBonus.Offline, 0.05f, "chest", BuildingId.Storehouse),
+            A("a_cat10", "Cat Person", "Pet the forge cat 10 times", QuestGoal.PetCat, 10, AchBonus.Luck, 0.5f, "cat"),
+            A("a_tools", "Tool Time", "Use the bellows, grindstone and quench trough 25 times", QuestGoal.UseTools, 25, AchBonus.Craft, 0.03f, "craft"),
+            A("a_tools100", "Hand and Hammer", "Use the workbench tools 100 times", QuestGoal.UseTools, 100, AchBonus.Luck, 0.5f, "gem"),
+            A("a_ember10", "Ember Hunter", "Catch 10 lucky embers", QuestGoal.CatchEmber, 10, AchBonus.Luck, 0.5f, "ember"),
+            A("a_ember50", "Sprite Whisperer", "Catch 50 lucky embers", QuestGoal.CatchEmber, 50, AchBonus.Luck, 1f, "star"),
+            A("a_master3", "Signature Blade", "Reach mastery tier 3 on any recipe", QuestGoal.MasterRecipe, 3, AchBonus.Price, 0.03f, "craft"),
+            A("a_master5", "Grandmaster Smith", "Reach mastery tier 5 on any recipe", QuestGoal.MasterRecipe, 5, AchBonus.Price, 0.05f, "trophy"),
+            A("a_dawns15", "Seasoned Hearth", "See 15 dawns over the forge", QuestGoal.DaysPassed, 15, AchBonus.Offline, 0.05f, "star"),
+            A("a_fair25", "Fair Favorite", "Sell 25 swords on market-fair days", QuestGoal.FairSales, 25, AchBonus.Gold, 0.05f, "coin"),
         };
 
         // ------------------------------------------------------------ config asset
@@ -608,7 +756,7 @@ namespace IdleBlacksmith.EditorTools
                 new BuildingDef
                 {
                     id = BuildingId.Gate, displayName = "Dungeon Gate", startLevel = 0, maxLevel = 5,
-                    description = "Opens the way below. Higher levels send more parties and pay better.",
+                    description = "Opens the way below — parties return with gold and relic ore.",
                     icon = AssetFactory.LoadIcon("gate"),
                     levelCosts = new[] { 400, 2200, 11000, 55000, 240000 },
                     levelPerks = new[]
@@ -637,13 +785,45 @@ namespace IdleBlacksmith.EditorTools
                     },
                     runeLevelsPerTier = 4, runeCostCut = 0.08f,
                 },
+                new BuildingDef
+                {
+                    id = BuildingId.Furnace, displayName = "Blast Furnace", startLevel = 0, maxLevel = 5,
+                    description = "Roaring forced-draft heat. Every level hammers craft time down.",
+                    icon = AssetFactory.LoadIcon("furnace"),
+                    levelCosts = new[] { 300, 1600, 7000, 32000, 140000 },
+                    levelPerks = new[]
+                    {
+                        "Brick Stack — forging 8% faster",
+                        "Twin Bellows — forging 16% faster",
+                        "Coke Furnace — forging 24% faster",
+                        "Blast Chamber — forging 32% faster",
+                        "Volcanic Heart — forging 40% faster",
+                    },
+                    craftSpeedCut = 0.08f,
+                },
+                new BuildingDef
+                {
+                    id = BuildingId.Storehouse, displayName = "Storehouse", startLevel = 0, maxLevel = 5,
+                    description = "Guarded cargo — every level banks more of your offline earnings.",
+                    icon = AssetFactory.LoadIcon("chest"),
+                    levelCosts = new[] { 450, 2400, 12000, 60000, 260000 },
+                    levelPerks = new[]
+                    {
+                        "Lean-To — offline earnings +20%",
+                        "Timber Shed — offline earnings +40%",
+                        "Cargo Shed — offline earnings +60%",
+                        "Warehouse — offline earnings +80%",
+                        "Grand Depot — offline earnings +100%",
+                    },
+                    offlineBonus = 0.20f,
+                },
             };
 
             cfg.recipes = new[]
             {
                 new RecipeDef
                 {
-                    id = RecipeId.Copper, displayName = "Copper Blade", oreCost = 1, baseValue = 10,
+                    id = RecipeId.Copper, displayName = "Copper Dagger", oreCost = 1, baseValue = 10,
                     craftDuration = 3.2f, requiredSmithyLevel = 1, requiredMineLevel = 0,
                     description = "Cheap, quick and always in demand.",
                     icon = AssetFactory.LoadIcon("copper"),
@@ -667,7 +847,15 @@ namespace IdleBlacksmith.EditorTools
                 },
                 new RecipeDef
                 {
-                    id = RecipeId.Silver, displayName = "Silver Edge", oreCost = 7, baseValue = 190,
+                    id = RecipeId.EmberAxe, displayName = "Ember Waraxe", oreCost = 6, baseValue = 120,
+                    craftDuration = 5.8f, requiredSmithyLevel = 3, requiredMineLevel = 1,
+                    description = "An ember-forged crescent that never cools.",
+                    icon = AssetFactory.LoadIcon("emberaxe"),
+                    swordPrefab = ModelFactory.SwordPrefabFor(RecipeId.EmberAxe),
+                },
+                new RecipeDef
+                {
+                    id = RecipeId.Silver, displayName = "Silver Rapier", oreCost = 7, baseValue = 190,
                     craftDuration = 6.0f, requiredSmithyLevel = 3, requiredMineLevel = 2,
                     description = "Bites deep into things that haunt the dark.",
                     icon = AssetFactory.LoadIcon("silver"),
@@ -675,7 +863,15 @@ namespace IdleBlacksmith.EditorTools
                 },
                 new RecipeDef
                 {
-                    id = RecipeId.Mithril, displayName = "Mithril Longsword", oreCost = 12, baseValue = 520,
+                    id = RecipeId.Frostbrand, displayName = "Frostbrand", oreCost = 10, baseValue = 330,
+                    craftDuration = 8.2f, requiredSmithyLevel = 4, requiredMineLevel = 3,
+                    description = "Forged cold and quenched in glacier water.",
+                    icon = AssetFactory.LoadIcon("frostbrand"),
+                    swordPrefab = ModelFactory.SwordPrefabFor(RecipeId.Frostbrand),
+                },
+                new RecipeDef
+                {
+                    id = RecipeId.Mithril, displayName = "Mithril Katana", oreCost = 12, baseValue = 520,
                     craftDuration = 7.5f, requiredSmithyLevel = 4, requiredMineLevel = 3,
                     description = "Light as air, hard as dawn.",
                     icon = AssetFactory.LoadIcon("mithril"),
@@ -688,6 +884,22 @@ namespace IdleBlacksmith.EditorTools
                     description = "Quenched in dragonfire. Nothing survives it.",
                     icon = AssetFactory.LoadIcon("dragonsteel"),
                     swordPrefab = ModelFactory.SwordPrefabFor(RecipeId.Dragonsteel),
+                },
+                new RecipeDef
+                {
+                    id = RecipeId.Voidreaver, displayName = "Voidreaver", oreCost = 30, baseValue = 2600,
+                    craftDuration = 10.5f, requiredSmithyLevel = 5, requiredMineLevel = 5,
+                    description = "A blade that drinks the light around it.",
+                    icon = AssetFactory.LoadIcon("voidreaver"),
+                    swordPrefab = ModelFactory.SwordPrefabFor(RecipeId.Voidreaver),
+                },
+                new RecipeDef
+                {
+                    id = RecipeId.Starforged, displayName = "Starforged", oreCost = 45, baseValue = 5200,
+                    craftDuration = 12f, requiredSmithyLevel = 5, requiredMineLevel = 5,
+                    description = "Hammered from a fallen star — the last word in blades.",
+                    icon = AssetFactory.LoadIcon("starforged"),
+                    swordPrefab = ModelFactory.SwordPrefabFor(RecipeId.Starforged),
                 },
             };
 
@@ -810,6 +1022,11 @@ namespace IdleBlacksmith.EditorTools
             cfg.helperPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.HelperPrefab);
             cfg.customerPrefabA = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CustomerAPrefab);
             cfg.customerPrefabB = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CustomerBPrefab);
+            cfg.customerPrefabC = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CustomerCPrefab);
+            cfg.customerPrefabD = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.CustomerDPrefab);
+            cfg.vendorPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.VendorPrefab);
+            cfg.mysticPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.MysticPrefab);
+            cfg.stokerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.StokerPrefab);
             cfg.swordPrefab = ModelFactory.SwordPrefabFor(RecipeId.Copper) ?? AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.SwordPrefab);
             cfg.oreChunkPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ModelFactory.OreChunkPrefab);
 

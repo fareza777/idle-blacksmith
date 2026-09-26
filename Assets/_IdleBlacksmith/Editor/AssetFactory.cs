@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -89,6 +90,7 @@ namespace IdleBlacksmith.EditorTools
         public const string MatHotSword = Paths.Materials + "/M_HotSword.mat";
         public const string MatBlob = Paths.Materials + "/M_BlobShadow.mat";
         public const string MatParticle = Paths.Materials + "/M_Spark.mat";
+        public const string MatSmoke = Paths.Materials + "/M_Smoke.mat";
 
         public static void EnsureMaterials()
         {
@@ -99,6 +101,7 @@ namespace IdleBlacksmith.EditorTools
             CreateEmissive(MatHotSword, new Color(1f, 0.36f, 0.08f), 3.2f);   // sword on anvil
             CreateBlobShadow();
             CreateSpark();
+            CreateSmoke();
         }
 
         static Material BaseLit(string path, float smooth)
@@ -175,6 +178,29 @@ namespace IdleBlacksmith.EditorTools
             mat.SetInt("_ZWrite", 0);
             mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
             mat.EnableKeyword("_BLENDMODE_ADDITIVE");
+            mat.renderQueue = (int)RenderQueue.Transparent;
+            EditorUtility.SetDirty(mat);
+        }
+
+        /// <summary>Soft alpha-blended puffs for chimney smoke — shares the blob falloff texture.</summary>
+        static void CreateSmoke()
+        {
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(MatSmoke);
+            if (mat == null)
+            {
+                mat = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit"));
+                AssetDatabase.CreateAsset(mat, MatSmoke);
+            }
+            var blob = AssetDatabase.LoadAssetAtPath<Texture2D>(BlobTexPath);
+            if (blob != null) mat.SetTexture("_BaseMap", blob);
+            mat.SetColor("_BaseColor", new Color(0.82f, 0.84f, 0.9f, 0.5f));
+            mat.SetFloat("_Surface", 1f);
+            mat.SetFloat("_Blend", 0f); // alpha
+            mat.SetOverrideTag("RenderType", "Transparent");
+            mat.SetInt("_SrcBlend", (int)BlendMode.SrcAlpha);
+            mat.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+            mat.SetInt("_ZWrite", 0);
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
             mat.renderQueue = (int)RenderQueue.Transparent;
             EditorUtility.SetDirty(mat);
         }
@@ -330,6 +356,154 @@ namespace IdleBlacksmith.EditorTools
         public static Sprite LoadMenuArt(string name)
         {
             return AssetDatabase.LoadAssetAtPath<Sprite>($"{MenuArtDir}/{name}.png");
+        }
+
+        // ------------------------------------------------------------ app icon
+
+        public const string AppIconPath = Paths.Art + "/App/app_icon.png";
+
+        /// <summary>
+        /// Imports Art/App/app_icon.png as a plain texture and registers it as the app icon
+        /// (legacy + Android round/adaptive slots). Missing file → icon stays as-is.
+        /// </summary>
+        public static void ApplyAppIcon()
+        {
+            if (!File.Exists(AppIconPath))
+            {
+                Debug.LogWarning($"[AssetFactory] {AppIconPath} missing — app icon unchanged");
+                return;
+            }
+            AssetDatabase.ImportAsset(AppIconPath, ImportAssetOptions.ForceSynchronousImport);
+            var imp = AssetImporter.GetAtPath(AppIconPath) as TextureImporter;
+            if (imp != null)
+            {
+                imp.textureType = TextureImporterType.Default;
+                imp.alphaIsTransparency = false;
+                imp.mipmapEnabled = false;
+                imp.filterMode = FilterMode.Bilinear;
+                imp.maxTextureSize = 1024;
+                imp.SaveAndReimport();
+            }
+            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(AppIconPath);
+            if (tex == null)
+            {
+                Debug.LogWarning("[AssetFactory] app icon failed to import — app icon unchanged");
+                return;
+            }
+            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown, new[] { tex }, IconKind.Any);
+            // Android-specific kinds (Round/Adaptive) need the Android build module;
+            // the default icon above covers standalone + web builds.
+            try
+            {
+                PlayerSettings.SetIcons(NamedBuildTarget.Android, new[] { tex }, IconKind.Any);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("[AssetFactory] android icon kind unavailable (module not installed): " + e.Message);
+            }
+            ApplyAdaptiveIcon(tex);
+            Debug.Log("[AssetFactory] app icon applied from " + AppIconPath);
+        }
+
+        public const string AdaptiveFgPath = Paths.Art + "/App/app_icon_fg.png";
+        public const string AdaptiveBgPath = Paths.Art + "/App/app_icon_bg.png";
+
+        /// <summary>
+        /// Android adaptive icon (API 26+, required polish for Play Store): fills every
+        /// adaptive slot with a background layer + a foreground emblem + the monochrome
+        /// layer Android 13 themed icons use. Layers are generated beside app_icon.png
+        /// by EnsureAdaptiveIconLayers when missing.
+        /// </summary>
+        static void ApplyAdaptiveIcon(Texture2D legacy)
+        {
+            try
+            {
+                EnsureAdaptiveIconLayers();
+                var fg = LoadIconTexture(AdaptiveFgPath);
+                var bg = LoadIconTexture(AdaptiveBgPath);
+                foreach (var kind in PlayerSettings.GetSupportedIconKinds(NamedBuildTarget.Android))
+                {
+                    var icons = PlayerSettings.GetPlatformIcons(NamedBuildTarget.Android, kind);
+                    foreach (var pi in icons)
+                    {
+                        // Multi-layer slots are the adaptive icons (background/foreground/
+                        // monochrome); single-layer slots take the plain icon.
+                        if (pi.maxLayerCount > 1 && fg != null && bg != null)
+                        {
+                            pi.SetTexture(bg, 0);
+                            pi.SetTexture(fg, 1);
+                            if (pi.maxLayerCount > 2) pi.SetTexture(fg, 2);
+                        }
+                        else if (pi.maxLayerCount > 0) pi.SetTexture(legacy, 0);
+                    }
+                    // SetTexture mutates in memory only — the mutated array must go
+                    // back through SetPlatformIcons or PlayerSettings never changes.
+                    PlayerSettings.SetPlatformIcons(NamedBuildTarget.Android, kind, icons);
+                }
+                Debug.Log("[AssetFactory] platform icon slots filled");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("[AssetFactory] platform icons unavailable: " + e.Message);
+            }
+        }
+
+        static Texture2D LoadIconTexture(string path)
+        {
+            if (!File.Exists(path)) return null;
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+            var imp = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (imp != null)
+            {
+                imp.textureType = TextureImporterType.Default;
+                imp.alphaIsTransparency = true;
+                imp.mipmapEnabled = false;
+                imp.maxTextureSize = 512;
+                imp.SaveAndReimport();
+            }
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        }
+
+        /// <summary>
+        /// Writes the two adaptive-icon layers from app_icon.png: an opaque background
+        /// sampled from the icon's edge colour, and the emblem shrunk to ~62% (the
+        /// adaptive safe zone) on a transparent foreground. Skipped when both exist.
+        /// </summary>
+        static void EnsureAdaptiveIconLayers()
+        {
+            if (!File.Exists(AppIconPath)) return;
+            if (File.Exists(AdaptiveFgPath) && File.Exists(AdaptiveBgPath)) return;
+            var src = new Texture2D(2, 2);
+            if (!src.LoadImage(File.ReadAllBytes(AppIconPath))) return;
+
+            const int S = 432;
+            Color bgCol = src.GetPixel(2, 2);
+            if (bgCol.a < 0.9f) bgCol = new Color(0.13f, 0.09f, 0.07f); // forge-dark fallback
+            bgCol.a = 1f;
+
+            var bg = new Texture2D(S, S, TextureFormat.RGBA32, false);
+            var px = new Color[S * S];
+            for (int i = 0; i < px.Length; i++) px[i] = bgCol;
+            bg.SetPixels(px);
+            bg.Apply();
+            File.WriteAllBytes(AdaptiveBgPath, bg.EncodeToPNG());
+
+            var fg = new Texture2D(S, S, TextureFormat.RGBA32, false);
+            var fgPx = new Color[S * S];
+            int inner = Mathf.RoundToInt(S * 0.62f);
+            int off = (S - inner) / 2;
+            for (int y = 0; y < inner; y++)
+            for (int x = 0; x < inner; x++)
+            {
+                int sx = Mathf.Clamp(x * src.width / inner, 0, src.width - 1);
+                int sy = Mathf.Clamp(y * src.height / inner, 0, src.height - 1);
+                fgPx[(y + off) * S + x + off] = src.GetPixel(sx, sy);
+            }
+            fg.SetPixels(fgPx);
+            fg.Apply();
+            File.WriteAllBytes(AdaptiveFgPath, fg.EncodeToPNG());
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+            Debug.Log("[AssetFactory] adaptive icon layers generated");
         }
 
         // ------------------------------------------------------------ fonts / TMP

@@ -14,13 +14,16 @@ namespace IdleBlacksmith.EditorTools
         public static void Apply()
         {
             PlayerSettings.colorSpace = ColorSpace.Linear;
-            PlayerSettings.productName = "Idle Blacksmith RPG";
+            PlayerSettings.productName = "Emberforge: Idle Blacksmith";
             PlayerSettings.companyName = "CozyForge";
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToLandscapeLeft = false;
             PlayerSettings.allowedAutorotateToLandscapeRight = false;
             PlayerSettings.allowedAutorotateToPortrait = true;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+            // Unity 6: the Unity splash is optional on every tier — our own branded
+            // splash panel shows instead, so the store build boots straight into Emberforge.
+            PlayerSettings.SplashScreen.show = false;
 
             if (GraphicsSettings.defaultRenderPipeline == null)
             {
@@ -152,6 +155,7 @@ namespace IdleBlacksmith.EditorTools
                 Log("fallback icons", () => IconFallback.Ensure());
                 Log("icon import", () => AssetFactory.ProcessIcons());
                 Log("menu art import", () => AssetFactory.ProcessMenuArt());
+                Log("app icon", () => AssetFactory.ApplyAppIcon());
                 Log("palette", () => AssetFactory.EnsurePalette());
                 Log("ui sprites", () => AssetFactory.EnsureUiSprites());
                 Log("materials", () => AssetFactory.EnsureMaterials());
@@ -169,7 +173,7 @@ namespace IdleBlacksmith.EditorTools
                 Log("scene", () => SceneBuilder.Build());
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
-                Debug.Log($"[IdleBlacksmith] BUILD OK in {sw.ElapsedMilliseconds / 1000f:0.0}s");
+                Debug.Log($"[Emberforge] BUILD OK in {sw.ElapsedMilliseconds / 1000f:0.0}s");
                 Directory.CreateDirectory("UserSettings");
                 File.WriteAllText(Marker, System.DateTime.Now.ToString("s"));
             }
@@ -236,6 +240,11 @@ namespace IdleBlacksmith.EditorTools
             bool oreChanged = false;
             bool oreRatePositive = false;
             int forgedSeen = 0;
+            bool fairSeen = false;
+            bool dailyRight = false;
+            bool fairPriceUp = false;
+            bool fairBuntingUp = false;
+            bool fairCrowdUp = false;
             Application.logMessageReceived += OnLog;
             EditorApplication.update += Tick;
             EditorApplication.EnterPlaymode();
@@ -270,6 +279,34 @@ namespace IdleBlacksmith.EditorTools
                 if (gmNow != null && gmNow.Data != null && gmNow.Data.stats != null)
                     forgedSeen = gmNow.Data.stats.swordsForged;
 
+                // Exercise the manual anvil tap a few times while a craft runs.
+                if (frames % 480 == 0)
+                {
+                    var anvilNow = Object.FindFirstObjectByType<IdleBlacksmith.Gameplay.AnvilStation>();
+                    if (anvilNow != null) anvilNow.TapBoost();
+                }
+                // Issue a royal order early so delivery + payout paths run in the smoke test.
+                if (frames == 240 && gmNow != null && gmNow.orders != null)
+                    gmNow.orders.ForceIssue();
+                // Kick a rush mid-run so the event multipliers get exercised too.
+                if (frames == 600 && gmNow != null && gmNow.rush != null)
+                    gmNow.rush.ForceStart();
+                // Land on a fair day so the market-fair event + bunting get exercised.
+                if (frames == 660 && gmNow != null && gmNow.Data != null && gmNow.Data.stats != null)
+                    gmNow.Data.stats.dayCycles = 4;
+                if (frames > 700 && gmNow != null && gmNow.marketFair != null && gmNow.marketFair.Active)
+                {
+                    fairSeen = true;
+                    if (gmNow.marketFair.PriceMult > 1f) fairPriceUp = true;
+                    var bun = Object.FindFirstObjectByType<IdleBlacksmith.Gameplay.FairBunting>();
+                    if (bun != null) fairBuntingUp = true;
+                    var crowd = Object.FindFirstObjectByType<IdleBlacksmith.Gameplay.FairCrowd>();
+                    if (crowd != null && crowd.transform.childCount > 0) fairCrowdUp = true;
+                    // dayCycles was poked to 4 — the daily recipe must have rotated there too.
+                    var all = gmNow.recipes != null ? gmNow.recipes.All : null;
+                    if (all != null && all.Count > 4 && gmNow.RecipeOfTheDay() == all[4]) dailyRight = true;
+                }
+
                 if (gameSeconds >= TargetGameSeconds || frames >= FrameSafetyCap)
                 {
                     var gm = IdleBlacksmith.Core.GameManager.Instance;
@@ -285,7 +322,8 @@ namespace IdleBlacksmith.EditorTools
                     // and the forge loop must actually turn: ore moves and a sword comes out.
                     bool ok = gm != null && econ != null && worker != null && rack != null
                               && buildings != null && recipes != null && quests != null && prestige != null
-                              && oreRatePositive && oreChanged && forgedSeen > 0 && exceptions == 0;
+                              && oreRatePositive && oreChanged && forgedSeen > 0 && fairSeen
+                              && dailyRight && exceptions == 0;
 
                     int smithyLevel = buildings != null ? buildings.GetLevel(IdleBlacksmith.Core.BuildingId.Smithy) : -1;
                     int recipesOpen = recipes != null ? recipes.AvailableCount : -1;
@@ -314,10 +352,12 @@ namespace IdleBlacksmith.EditorTools
                             + $"forged={forgedSeen} smithy={smithyLevel} recipesOpen={recipesOpen} rackStock={rackStock} "
                             + $"questsDone={questsClaimed}/{questsTotal} exceptions={exceptions}");
                     Debug.Log($"[Smoke] {craft} phase={phase} oreCap={oreCap} {prod} workerPos={wpos}");
+                    Debug.Log($"[Smoke] fairSeen={fairSeen} fairPriceUp={fairPriceUp} fairBuntingUp={fairBuntingUp} fairCrowdUp={fairCrowdUp} dailyRight={dailyRight}");
 
                     if (!oreRatePositive) Debug.LogWarning("[Smoke] ore production rate is zero");
                     if (!oreChanged) Debug.LogWarning("[Smoke] ore never moved during the run");
                     if (forgedSeen <= 0) Debug.LogWarning("[Smoke] no sword was forged during the run");
+                    if (!fairSeen) Debug.LogWarning("[Smoke] market fair never activated after the fifth dawn");
 
                     Application.logMessageReceived -= OnLog;
                     EditorApplication.update -= Tick;

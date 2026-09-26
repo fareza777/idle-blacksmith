@@ -94,6 +94,7 @@ namespace IdleBlacksmith.UI
         {
             if (!IsOpen || sheet == null) return;
             IsOpen = false;
+            AudioManager.Play("whoosh", 0.04f, 0.45f);
             if (backdrop != null)
             {
                 backdrop.blocksRaycasts = false;

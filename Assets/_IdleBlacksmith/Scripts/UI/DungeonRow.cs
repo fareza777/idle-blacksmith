@@ -51,8 +51,9 @@ namespace IdleBlacksmith.UI
             if (claimState != null) claimState.SetActive(ready);
             if (goButton != null) goButton.interactable = !isThis && ex.HasFreeSlot;
             if (content != null) content.alpha = unlocked ? 1f : 0.45f;
-            if (nameLabel != null)
-                nameLabel.text = unlocked ? def.displayName : def.displayName + "  (locked)";
+            if (nameLabel != null) nameLabel.text = def.displayName;
+            if (descLabel != null)
+                descLabel.text = unlocked ? def.description : "Needs Dungeon Gate level " + def.requiredGateLevel;
             if (durationLabel != null && unlocked)
                 durationLabel.text = DungeonPanel.FormatDuration(Mathf.RoundToInt(ex.EffectiveDuration(def)));
 
@@ -91,6 +92,7 @@ namespace IdleBlacksmith.UI
             if (gm.TryClaimExpedition(out ExpeditionDef claimed))
             {
                 AudioManager.Play("fanfare");
+                AudioManager.DuckMusic(0.55f);
                 Tween.PunchScale(transform, Vector3.one * 0.1f, 0.5f);
                 if (UIManager.Instance != null)
                     UIManager.Instance.SpawnFloatingText(

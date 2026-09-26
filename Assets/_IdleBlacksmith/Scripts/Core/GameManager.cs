@@ -1,4 +1,5 @@
 using IdleBlacksmith.Gameplay;
+using TMPro;
 using UnityEngine;
 
 namespace IdleBlacksmith.Core
@@ -42,6 +43,10 @@ namespace IdleBlacksmith.Core
         public PrestigeManager prestige;
         public QuestManager quests;
         public AchievementManager achievements;
+        public OrderManager orders;
+        public RushHourManager rush;
+        public MarketFairManager marketFair;
+        public DailyRewardManager daily;
 
         [Header("Scene stations")]
         public OrePile orePile;
@@ -56,6 +61,9 @@ namespace IdleBlacksmith.Core
         [Header("Environment (shop growth stages, tier 1..3)")]
         public Transform environmentRoot;
         public GameObject[] environmentPrefabs;
+        [Tooltip("Font for the forge name board hung over the shop door")]
+        public TMP_FontAsset signFont;
+        static Material signBoardMat;
 
         public SaveData Data { get; private set; }
         public bool HelperUnlocked { get; private set; }
@@ -80,16 +88,67 @@ namespace IdleBlacksmith.Core
             int baseValue = recipe != null ? recipe.baseValue : config.swordPrice;
             float oreMult = 1f + config.relicOrePriceBonus * Mathf.Min(RelicOre, config.relicOreMaxBonusCount);
             float mult = RarityInfo.MultiplierOf(item != null ? item.rarity : Rarity.Common)
-                       * oreMult * Production.PriceMult * Production.GoldMult;
+                       * oreMult * Production.PriceMult * Production.GoldMult
+                       * (rush != null ? rush.PriceMult : 1f)
+                       * (marketFair != null ? marketFair.PriceMult : 1f)
+                       * DailyBonusMult(recipe)
+                       * MasteryMultOf(recipe != null ? recipe.id : null);
             return Mathf.Max(1, Mathf.RoundToInt(baseValue * mult));
+        }
+
+        /// <summary>Today's featured recipe — rotates through the catalog one slot per dawn.</summary>
+        public RecipeDef RecipeOfTheDay()
+        {
+            var all = recipes != null ? recipes.All : null;
+            if (all == null || all.Count == 0) return null;
+            int days = Data != null && Data.stats != null ? Data.stats.dayCycles : 0;
+            return all[Mathf.Abs(days) % all.Count];
+        }
+
+        /// <summary>+30% sale bonus while a recipe is today's feature.</summary>
+        public float DailyBonusMult(RecipeDef r)
+        {
+            return r != null && r == RecipeOfTheDay() ? 1.3f : 1f;
+        }
+
+        static readonly int[] masterySteps = { 10, 25, 60, 120, 250 };
+
+        /// <summary>Mastery tier 0..5 for a recipe — each tier is a permanent +4% sell price.</summary>
+        public int MasteryTierOf(string recipeId)
+        {
+            if (Data == null || Data.stats == null || string.IsNullOrEmpty(recipeId)) return 0;
+            int forged = Data.stats.ForgedCount(recipeId);
+            int tier = 0;
+            foreach (int step in masterySteps)
+                if (forged >= step) tier++;
+            return tier;
+        }
+
+        public float MasteryMultOf(string recipeId)
+        {
+            return 1f + MasteryTierOf(recipeId) * 0.04f;
         }
 
         /// <summary>Records a forge and tracks the best rarity seen. Called by the worker.</summary>
         public void RegisterForged(SwordItem item)
         {
             if (item == null || Data == null || Data.stats == null) return;
+            int tierBefore = MasteryTierOf(item.recipeId);
             Data.stats.swordsForged++;
             Data.stats.bestRarity = Mathf.Max(Data.stats.bestRarity, (int)item.rarity);
+            Data.stats.NoteForged(item.recipeId, item.rarity);
+            int tierAfter = MasteryTierOf(item.recipeId);
+            if (tierAfter > tierBefore)
+            {
+                RecipeDef recipe = config != null ? config.GetRecipe(item.recipeId) : null;
+                string name = recipe != null ? recipe.displayName : item.recipeId;
+                UI.UIManager.Instance?.SpawnFloatingText(
+                    new Vector3(0f, 2.5f, 0f),
+                    name + " mastery +" + tierAfter * 4 + "%!",
+                    new Color(0.55f, 0.9f, 0.65f));
+                AudioManager.Play("enchant", 0.06f, 0.6f);
+                UI.SettingsPanel.Buzz();
+            }
         }
 
         /// <summary>Records a sale and adds the takings to the prestige run total.</summary>
@@ -99,6 +158,7 @@ namespace IdleBlacksmith.Core
             int price = PriceOf(item);
             Data.stats.swordsSold++;
             Data.stats.customersServed++;
+            if (marketFair != null && marketFair.Active) Data.stats.fairSales++;
             Data.stats.goldEarned += price;
             Data.runEarned += price;
         }
@@ -156,6 +216,7 @@ namespace IdleBlacksmith.Core
             prestige = Ensure<PrestigeManager>(prestige);
             quests = Ensure<QuestManager>(quests);
             achievements = Ensure<AchievementManager>(achievements);
+            marketFair = Ensure<MarketFairManager>(marketFair);
 
             Data = SaveSystem.Load();
             economy.Init(Data.gold, Data.totalEarned);
@@ -207,6 +268,7 @@ namespace IdleBlacksmith.Core
             prestige = Ensure<PrestigeManager>(prestige);
             quests = Ensure<QuestManager>(quests);
             achievements = Ensure<AchievementManager>(achievements);
+            marketFair = Ensure<MarketFairManager>(marketFair);
             production.config = config;
 
             Data = new SaveData();
@@ -237,6 +299,8 @@ namespace IdleBlacksmith.Core
         void Start()
         {
             SpawnEnvironment(ShopTier);
+            var markerGo = new GameObject("QuestMarker");
+            markerGo.AddComponent<QuestMarker>();
             if (rack != null)
             {
                 rack.SetCapacity(RackCapacityTotal);
@@ -245,6 +309,7 @@ namespace IdleBlacksmith.Core
             if (apprenticeAnvilRoot != null && HelperUnlocked)
                 apprenticeAnvilRoot.SetActive(true);
             if (HelperUnlocked) SpawnHelper(false);
+            SpawnAmbientNpcs();
             upgrades.OnUpgradeChanged += HandleUpgradeChanged;
             if (buildings != null) buildings.OnBuildingChanged += (id, _) => HandleBuildingChanged(id);
             Save();
@@ -290,6 +355,97 @@ namespace IdleBlacksmith.Core
             }
         }
 
+        /// <summary>
+        /// Ambient villager hands spawned at runtime. Their controller types must never
+        /// appear on serialized scene objects — a scene-level MonoBehaviour of a script
+        /// compiled this way corrupts level0 on device (editor tolerates it).
+        /// </summary>
+        void SpawnAmbientNpcs()
+        {
+            var minerGo = new GameObject("MinerHand");
+            minerGo.transform.position = new Vector3(-6.0f, 0f, 0.1f);
+            var miner = minerGo.AddComponent<MinerController>();
+            miner.characterPrefab = config != null ? config.customerPrefabA : null;
+            miner.pile = orePile != null ? orePile.transform : null;
+
+            var delverGo = new GameObject("Delver");
+            delverGo.transform.position = new Vector3(-3.4f, 0f, -4.0f);
+            var adv = delverGo.AddComponent<AdventurerController>();
+            adv.characterPrefab = config != null ? config.customerPrefabB : null;
+            adv.armSword = true;
+
+            // The stall keeper paces her counter once the Trading Post stands.
+            var vendorGo = new GameObject("Vendor");
+            vendorGo.transform.position = new Vector3(6f, 0f, 3.0f);
+            var vendor = vendorGo.AddComponent<AmbientHand>();
+            vendor.characterPrefab = config != null ? config.vendorPrefab : null;
+            vendor.requiresBuilding = BuildingId.Market;
+            vendor.patrolOffset = 1.4f;
+
+            // The hooded mystic stands vigil in front of the Sanctum.
+            var mysticGo = new GameObject("Mystic");
+            mysticGo.transform.position = new Vector3(5.4f, 0f, 5.0f);
+            var mystic = mysticGo.AddComponent<AmbientHand>();
+            mystic.characterPrefab = config != null ? config.mysticPrefab : null;
+            mystic.requiresBuilding = BuildingId.Sanctum;
+            mystic.patrolOffset = 0f;
+            mystic.idleMin = 6f;
+            mystic.idleMax = 12f;
+
+            // The stoker shovels at the Blast Furnace mouth once it stands.
+            var stokerGo = new GameObject("Stoker");
+            stokerGo.transform.position = new Vector3(-5.6f, 0f, 5.0f);
+            var stoker = stokerGo.AddComponent<AmbientHand>();
+            stoker.characterPrefab = config != null ? config.stokerPrefab : null;
+            stoker.requiresBuilding = BuildingId.Furnace;
+            stoker.patrolOffset = 0.9f;
+            stoker.idleMin = 2.5f;
+            stoker.idleMax = 5f;
+
+            // Fireflies over the village once dusk settles.
+            var fireflyGo = new GameObject("Fireflies");
+            fireflyGo.transform.position = new Vector3(0f, 0f, 1f);
+            fireflyGo.AddComponent<FireflyDrift>();
+
+            // Rune shards orbit the Sanctum — one per rune level owned.
+            var orbitGo = new GameObject("RuneOrbit");
+            orbitGo.AddComponent<RuneOrbit>();
+
+            // The lucky ember — a wandering tap-for-gold bonus over the village.
+            var emberGo = new GameObject("EmberSprite");
+            var sprite = emberGo.AddComponent<EmberSprite>();
+            var picker = FindFirstObjectByType<BuildingPicker>();
+            if (picker != null) picker.emberSprite = sprite;
+
+            // Stars fade in once true night settles over the village.
+            var starGo = new GameObject("StarField");
+            starGo.AddComponent<StarField>();
+
+            // The moon climbs the sky through the night half of the day cycle.
+            var moonGo = new GameObject("MoonDrift");
+            moonGo.AddComponent<MoonDrift>();
+
+            // Rain showers roll over the village every few minutes.
+            var rainGo = new GameObject("RainWeather");
+            rainGo.AddComponent<RainWeather>();
+
+            // Bunting over the forecourt, raised only on market-fair days.
+            var buntingGo = new GameObject("FairBunting");
+            buntingGo.AddComponent<FairBunting>();
+
+            // Strolling villagers who only show up for the fair.
+            var crowdGo = new GameObject("FairCrowd");
+            crowdGo.AddComponent<FairCrowd>();
+
+            // Butterflies over the front garden while the sun is up.
+            var flyGo = new GameObject("ButterflyDrift");
+            flyGo.AddComponent<ButterflyDrift>();
+
+            // The sun crossing the sky through the daylight stretch.
+            var sunGo = new GameObject("SunDrift");
+            sunGo.AddComponent<SunDrift>();
+        }
+
         // ------------------------------------------------------------ shop expansion
 
         /// <summary>Buys the next Smithy level. The side effects run from the building-changed handler.</summary>
@@ -303,6 +459,22 @@ namespace IdleBlacksmith.Core
             {
                 OnShopTierChanged?.Invoke(ShopTier);
                 SpawnEnvironment(ShopTier);
+                // Golden embers rise around the shop while the new tier settles in —
+                // the moment reads as a transformation, not a model pop.
+                if (environmentRoot != null)
+                {
+                    var reveal = environmentRoot.gameObject.AddComponent<Gameplay.UpgradeReveal>();
+                    float r = 3.2f + ShopTier * 0.3f;
+                    reveal.Begin(r, 3.0f + ShopTier * 0.4f);
+                }
+                // The rebuilt environment brings fresh decorative emitters.
+                UI.SettingsPanel.ApplyFxSetting(UI.SettingsPanel.ReduceFX);
+                UI.UIManager.Instance?.SpawnFloatingText(
+                    new Vector3(0f, 2.8f, 0f), "SMITHY LEVEL " + ShopTier + "!", new Color(1f, 0.72f, 0.3f));
+                AudioManager.Play("fanfare", 0.04f, 0.85f);
+                // From tier three the workshop theme gives way to the deep-forge drone —
+                // CurrentTheme keeps night/fair correct if the tier rolls in after dark.
+                AudioManager.PlayMusic(UI.UIManager.CurrentTheme(), 3f);
             }
             if (production != null) production.Recalculate();
             if (rack != null) rack.SetCapacity(RackCapacityTotal);
@@ -320,6 +492,83 @@ namespace IdleBlacksmith.Core
             for (int i = environmentRoot.childCount - 1; i >= 0; i--)
                 Destroy(environmentRoot.GetChild(i).gameObject);
             Instantiate(prefab, Vector3.zero, Quaternion.identity, environmentRoot);
+            SpawnForgeSign(tier);
+        }
+
+        /// <summary>
+        /// The forge's current stage name hung over the front door — the legible proof
+        /// that upgrading the smithy changed the building: the board literally wears it.
+        /// Public so the editor preview renders the same board.
+        /// </summary>
+        public void SpawnForgeSign(int tier)
+        {
+            if (signFont == null) return;
+            // Free-standing shop sign post beside the entrance path — always readable
+            // from the dollhouse camera, never occluded by the awning.
+            if (signBoardMat == null)
+            {
+                var sh = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+                if (sh != null)
+                {
+                    signBoardMat = new Material(sh);
+                    signBoardMat.color = new Color(0.16f, 0.10f, 0.07f);
+                }
+            }
+            var yaw = Quaternion.Euler(0f, 147f, 0f);
+            var board = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            board.name = "ForgeSignBoard";
+            board.transform.SetParent(environmentRoot, false);
+            board.transform.localPosition = new Vector3(2.15f, 1.05f, -4.55f);
+            board.transform.localRotation = yaw;
+            board.transform.localScale = new Vector3(1.9f, 0.42f, 0.08f);
+            if (signBoardMat != null)
+                board.GetComponent<Renderer>().sharedMaterial = signBoardMat;
+            var col = board.GetComponent<Collider>();
+            if (col != null) Destroy(col);
+            for (int leg = -1; leg <= 1; leg += 2)
+            {
+                var lg = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                lg.name = "ForgeSignLeg" + (leg < 0 ? "L" : "R");
+                lg.transform.SetParent(environmentRoot, false);
+                lg.transform.localPosition = board.transform.localPosition + yaw * new Vector3(leg * 0.8f, 0f, 0f) + new Vector3(0f, -0.63f, 0f);
+                lg.transform.localRotation = yaw;
+                lg.transform.localScale = new Vector3(0.06f, 0.84f, 0.06f);
+                if (signBoardMat != null)
+                    lg.GetComponent<Renderer>().sharedMaterial = signBoardMat;
+                var lgCol = lg.GetComponent<Collider>();
+                if (lgCol != null) Destroy(lgCol);
+            }
+
+            var go = new GameObject("ForgeSign");
+            go.transform.SetParent(environmentRoot, false);
+            var tmp = go.AddComponent<TextMeshPro>();
+            tmp.font = signFont;
+            tmp.text = ForgeTierName(tier).ToUpperInvariant();
+            tmp.fontSize = 3.2f;
+            tmp.enableAutoSizing = true;
+            tmp.fontSizeMin = 1.2f;
+            tmp.fontSizeMax = 3.2f;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.color = new Color(1f, 0.87f, 0.58f);
+            var rt = go.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(1.80f, 0.38f);
+            go.transform.localPosition = board.transform.localPosition + yaw * new Vector3(0f, 0f, 0.06f);
+            go.transform.localRotation = Quaternion.Euler(0f, 147f + 180f, 0f);
+        }
+
+        string ForgeTierName(int tier)
+        {
+            var def = buildings != null ? buildings.Def(BuildingId.Smithy) : null;
+            if (def != null && def.levelPerks != null && tier - 1 >= 0 && tier - 1 < def.levelPerks.Length)
+            {
+                string p = def.levelPerks[tier - 1];
+                int cut = p.IndexOf('\u2014'); // em dash in "Village Smithy — +2 rack…"
+                if (cut > 0) return p.Substring(0, cut).Trim();
+                cut = p.IndexOf('-');
+                if (cut > 0) return p.Substring(0, cut).Trim();
+                if (!string.IsNullOrEmpty(p)) return p;
+            }
+            return def != null ? def.displayName : "The Smithy";
         }
 
         // ------------------------------------------------------------ relic ore

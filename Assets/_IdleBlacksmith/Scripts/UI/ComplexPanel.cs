@@ -103,6 +103,7 @@ namespace IdleBlacksmith.UI
         {
             if (!IsOpen || sheet == null) return;
             IsOpen = false;
+            AudioManager.Play("whoosh", 0.04f, 0.45f);
             if (runePanel != null && runePanel.IsOpen) runePanel.Close();
             if (backdrop != null)
             {

@@ -36,7 +36,7 @@ namespace IdleBlacksmith.Core
         public int GetLevel(string id) => levels.TryGetValue(id, out int l) ? l : 0;
 
         /// <summary>Level cap across all runes, driven by the Sanctum building.</summary>
-        public int MaxLevel => buildings != null ? buildings.RuneMaxLevel : 4;
+        public int MaxLevel => buildings != null ? buildings.RuneMaxLevel : 0;
 
         public bool IsMaxed(RuneDef def) => def == null || GetLevel(def.id) >= MaxLevel;
 

@@ -13,11 +13,12 @@ namespace IdleBlacksmith.EditorTools
     /// Run headless:
     ///   Unity.exe -batchmode -quit -buildTarget Android -projectPath "&lt;proj&gt;" `
     ///     -executeMethod IdleBlacksmith.EditorTools.BuildAndroid.BuildApk
-    /// Produces _Builds/IdleBlacksmith.apk (debug-signed, IL2CPP, ARM64, GLES3).
+    /// Produces _Builds/IdleBlacksmith.apk (debug-signed, IL2CPP, ARM64+x86_64, GLES3).
     /// </summary>
     public static class BuildAndroid
     {
         const string ApkPath = "_Builds/IdleBlacksmith.apk";
+        const string AabPath = "_Builds/Emberforge.aab";
 
         /// <summary>
         /// Pass this on the command line to skip the asset rebuild. The player build then runs in
@@ -36,18 +37,18 @@ namespace IdleBlacksmith.EditorTools
 
             // ------------------------------------------------ player settings
             PlayerSettings.companyName = "CozyForge";
-            PlayerSettings.productName = "Idle Blacksmith RPG";
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.cozyforge.idleblacksmith");
+            PlayerSettings.productName = "Emberforge: Idle Blacksmith";
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.cozyforge.emberforge");
             // IL2CPP + ARM64: the reliably supported Android config on Unity 6
             // (Mono reported "target architecture not specified" from BuildPlayer despite PlayerSettings).
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
-            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.X86_64;
             AssetDatabase.SaveAssets();
             Debug.Log($"[Android] arch readback={PlayerSettings.Android.targetArchitectures}, backend={PlayerSettings.GetScriptingBackend(NamedBuildTarget.Android)}, activeTarget={EditorUserBuildSettings.activeBuildTarget}");
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
-            PlayerSettings.bundleVersion = "2.0";
-            PlayerSettings.Android.bundleVersionCode = 2;
+            PlayerSettings.bundleVersion = "3.1";
+            PlayerSettings.Android.bundleVersionCode = 4;
             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToLandscapeLeft = false;
@@ -55,13 +56,71 @@ namespace IdleBlacksmith.EditorTools
             PlayerSettings.allowedAutorotateToPortrait = true;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             EditorUserBuildSettings.buildAppBundle = false; // APK, not AAB
+            ApplySigning();
             AssetDatabase.SaveAssets();
 
-            // ------------------------------------------------ build
-            // The player build serializes scenes from disk. BuildAll has just rewritten the shop
-            // scene, and leaving it open and dirty while the build runs is what produces a
-            // half-written level0 that crashes on device with "level0 is corrupted". Flush
-            // everything to disk and let the build read a clean, closed scene instead.
+            BuildTo(ApkPath);
+        }
+
+        /// <summary>
+        /// Play Store upload artifact: the same player as an Android App Bundle (.aab).
+        /// Signing still needs a release keystore — the bundle comes out debug-signed
+        /// until PlayerSettings.Android keystore fields are filled in.
+        /// Run headless:
+        ///   Unity.exe -batchmode -quit -buildTarget Android -projectPath "&lt;proj&gt;" `
+        ///     -executeMethod IdleBlacksmith.EditorTools.BuildAndroid.BuildAab
+        /// </summary>
+        [MenuItem("Tools/Idle Blacksmith/Build Android AAB")]
+        public static void BuildAab()
+        {
+            bool skipRebuild = System.Array.IndexOf(
+                System.Environment.GetCommandLineArgs(), SkipRebuildFlag) >= 0;
+
+            if (!skipRebuild) EditorBoot.BuildAll();
+
+            PlayerSettings.companyName = "CozyForge";
+            PlayerSettings.productName = "Emberforge: Idle Blacksmith";
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.cozyforge.emberforge");
+            PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.X86_64;
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
+            PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
+            PlayerSettings.bundleVersion = "3.1";
+            PlayerSettings.Android.bundleVersionCode = 4;
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
+            PlayerSettings.allowedAutorotateToLandscapeLeft = false;
+            PlayerSettings.allowedAutorotateToLandscapeRight = false;
+            PlayerSettings.allowedAutorotateToPortrait = true;
+            PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+            EditorUserBuildSettings.buildAppBundle = true; // Play Store artifact
+            ApplySigning();
+            AssetDatabase.SaveAssets();
+
+            BuildTo(AabPath);
+        }
+
+        /// <summary>
+        /// Release signing comes only from env vars — no keystore path or password ever
+        /// touches the repo or PlayerSettings on disk:
+        ///   EMBERFORGE_KEYSTORE (absolute .keystore path), EMBERFORGE_KEYSTORE_PASS,
+        ///   EMBERFORGE_KEYALIAS, EMBERFORGE_KEYALIAS_PASS
+        /// Unset → Unity debug signing, fine for sideload/testing builds.
+        /// </summary>
+        static void ApplySigning()
+        {
+            string ks = System.Environment.GetEnvironmentVariable("EMBERFORGE_KEYSTORE");
+            if (string.IsNullOrEmpty(ks) || !System.IO.File.Exists(ks)) return;
+            PlayerSettings.Android.useCustomKeystore = true;
+            PlayerSettings.Android.keystoreName = ks;
+            PlayerSettings.Android.keystorePass = System.Environment.GetEnvironmentVariable("EMBERFORGE_KEYSTORE_PASS");
+            PlayerSettings.Android.keyaliasName = System.Environment.GetEnvironmentVariable("EMBERFORGE_KEYALIAS");
+            PlayerSettings.Android.keyaliasPass = System.Environment.GetEnvironmentVariable("EMBERFORGE_KEYALIAS_PASS");
+            Debug.Log("[Android] release keystore applied from EMBERFORGE_KEYSTORE");
+        }
+
+        static void BuildTo(string locationPath)
+        {
             EditorSceneManager.SaveOpenScenes();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
@@ -71,14 +130,19 @@ namespace IdleBlacksmith.EditorTools
             {
                 scenes = new[] { SceneBuilder.ScenePath },
                 target = BuildTarget.Android,
-                locationPathName = ApkPath,
+                locationPathName = locationPath,
             };
             BuildReport report = BuildPipeline.BuildPlayer(options);
             Debug.Log($"[IdleBlacksmith] Android build result: {report.summary.result}, " +
                       $"size {report.summary.totalSize / (1024f * 1024f):0.0} MB, " +
                       $"errors {report.summary.totalErrors}, time {report.summary.totalTime.TotalSeconds:0}s");
             if (report.summary.result != BuildResult.Succeeded)
-                throw new System.Exception("[IdleBlacksmith] Android APK build failed — see log above.");
+                throw new System.Exception("[IdleBlacksmith] Android build failed — see log above.");
         }
+
+        // The player build serializes scenes from disk. BuildAll has just rewritten the shop
+        // scene, and leaving it open and dirty while the build runs is what produces a
+        // half-written level0 that crashes on device with "level0 is corrupted". BuildTo
+        // flushes everything to disk and lets the build read a clean, closed scene instead.
     }
 }

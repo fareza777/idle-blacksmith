@@ -1,4 +1,5 @@
 using IdleBlacksmith.Core;
+using IdleBlacksmith.UI;
 using UnityEngine;
 
 namespace IdleBlacksmith.Gameplay
@@ -52,13 +53,24 @@ namespace IdleBlacksmith.Gameplay
         public float swayAmount = 0.04f;
         public float swaySpeed = 0.35f;
 
+        [Header("Impact shake")]
+        [Tooltip("World units of displacement at full trauma")]
+        public float shakeScale = 0.4f;
+        [Tooltip("Trauma drained per second — hits feel snappy, not seasick")]
+        public float shakeDecay = 1.6f;
+
+        /// <summary>Shared handle so world events can add trauma without a scene reference.</summary>
+        public static CameraDirector Instance;
+        float trauma;
+        Coroutine hitstop;
+
         [Header("Player pan and zoom")]
         [Tooltip("How far the player may drag the view away from the auto-framed centre, in world units")]
-        public float panLimit = 7f;
+        public float panLimit = 9f;
         [Tooltip("Closest the player may zoom in, as an orthographic size")]
         public float manualMinSize = 3.4f;
         [Tooltip("Furthest the player may zoom out, as an orthographic size")]
-        public float manualMaxSize = 19f;
+        public float manualMaxSize = 21f;
         [Tooltip("Drag distance in pixels before a press counts as a pan rather than a tap")]
         public float dragThreshold = 22f;
 
@@ -94,7 +106,47 @@ namespace IdleBlacksmith.Gameplay
         float checkTimer;
         bool initialized;
 
-        void Awake() => EnsureInit();
+        void Awake()
+        {
+            Instance = this;
+            EnsureInit();
+        }
+
+        /// <summary>
+        /// Adds impact trauma in 0..1 — a hammer tap barely nudges, thunder and a legendary
+        /// forge land hard. Shake magnitude runs off trauma squared, so big hits dominate.
+        /// No-op under Reduce FX.
+        /// </summary>
+        public void AddShake(float amount)
+        {
+            if (SettingsPanel.ReduceFX) return;
+            trauma = Mathf.Clamp01(trauma + amount);
+        }
+
+        /// <summary>
+        /// Brief time dip for the loudest beats — a legendary landing, a quest log cleared.
+        /// Runs on unscaled time so it releases even while the clock is dilated.
+        /// </summary>
+        public void HitStop(float seconds = 0.14f, float scale = 0.3f)
+        {
+            if (SettingsPanel.ReduceFX) return;
+            if (hitstop != null) StopCoroutine(hitstop);
+            hitstop = StartCoroutine(HitStopRoutine(seconds, scale));
+        }
+
+        System.Collections.IEnumerator HitStopRoutine(float seconds, float scale)
+        {
+            Time.timeScale = scale;
+            yield return new WaitForSecondsRealtime(seconds);
+            Time.timeScale = 1f;
+            hitstop = null;
+        }
+
+        void OnDisable()
+        {
+            // Coroutines die on disable — never leave the clock dilated.
+            if (hitstop != null) { Time.timeScale = 1f; hitstop = null; }
+        }
 
         /// <summary>
         /// Resolves the camera and the fixed viewing direction. Runs lazily because Awake never
@@ -192,8 +244,14 @@ namespace IdleBlacksmith.Gameplay
 
         static bool IsOverUI()
         {
+            // An open sheet owns the gesture — pointer-over checks can miss touches.
+            var ui = UIManager.Instance;
+            if (ui != null && (ui.AnyPanelOpen || ui.IntroPlaying)) return true;
+
             var es = UnityEngine.EventSystems.EventSystem.current;
-            return es != null && es.IsPointerOverGameObject();
+            if (es == null) return false;
+            if (Input.touchCount > 0) return es.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
+            return es.IsPointerOverGameObject();
         }
 
         void HandlePinch()
@@ -310,6 +368,22 @@ namespace IdleBlacksmith.Gameplay
             userZoom = Mathf.Clamp(userZoom, manualMinSize - autoSize, manualMaxSize - autoSize);
         }
 
+        /// <summary>
+        /// Slides the view so a world point sits near screen center — the quest "show me"
+        /// affordance. Persistent like a manual pan until the player drags or resets.
+        /// </summary>
+        public void FocusOn(Vector3 worldPoint)
+        {
+            EnsureInit();
+            // focus carries the last Frame's pan already; strip it to get the pure auto focus.
+            Vector3 autoFocus = focus - userPan;
+            userPan = worldPoint - autoFocus;
+            userPan.y = 0f;
+            if (userPan.magnitude > panLimit) userPan = userPan.normalized * panLimit;
+            Frame();
+            AudioManager.Play("pop", 0.03f);
+        }
+
         /// <summary>Snaps the view back to the auto-framed shot.</summary>
         public void ResetView()
         {
@@ -338,6 +412,17 @@ namespace IdleBlacksmith.Gameplay
                 Mathf.Sin(t) * swayAmount,
                 Mathf.Sin(t * 0.7f) * swayAmount * 0.5f,
                 Mathf.Cos(t * 0.85f) * swayAmount);
+
+            // Impact shake rides on top of the sway: three higher-frequency sines at
+            // incommensurate rates keep it organic rather than a mechanical buzz.
+            if (trauma > 0f)
+            {
+                float s = trauma * trauma * shakeScale;
+                offset.x += Mathf.Sin(Time.time * 31.7f) * s;
+                offset.y += Mathf.Sin(Time.time * 27.3f + 1.3f) * s * 0.6f;
+                offset.z += Mathf.Sin(Time.time * 35.1f + 2.1f) * s;
+                trauma = Mathf.Max(0f, trauma - shakeDecay * Time.deltaTime);
+            }
 
             transform.position = settledPos + offset;
             AimAtFocus();

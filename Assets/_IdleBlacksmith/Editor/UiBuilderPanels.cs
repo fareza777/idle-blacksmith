@@ -1,3 +1,4 @@
+using IdleBlacksmith.Core;
 using IdleBlacksmith.UI;
 using TMPro;
 using UnityEngine;
@@ -184,6 +185,8 @@ namespace IdleBlacksmith.EditorTools
             var progressLabel = Txt(progressGo, "0 / 5", 30, Brown, TextAlignmentOptions.Right, titleFont);
             var rewardGo = Box("Reward", card, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 30), new Vector2(820, 56));
             var rewardLabel = Txt(rewardGo, "Rewards", 28, Hex(0x5BA86B), TextAlignmentOptions.Center, titleFont);
+            var nextGo = Box("Next", card, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 96), new Vector2(820, 44));
+            var nextLabel = Txt(nextGo, "Up next: ...", 24, Secondary, TextAlignmentOptions.Center, bodyFont);
 
             var achGo = Box("AchievementsButton", s.sheet, new Vector2(0, 0), new Vector2(0, 0), new Vector2(40, 30), new Vector2(420, 96));
             var achBtn = achGo.gameObject.AddComponent<BouncyButton>();
@@ -197,6 +200,19 @@ namespace IdleBlacksmith.EditorTools
             var achTxtGo = Box("Label", achGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(26, 0), new Vector2(300, 56));
             Txt(achTxtGo, "ACHIEVEMENTS", 30, Color.white, TextAlignmentOptions.Center, titleFont);
 
+            // "Show me" — drops the sheet and pans the camera to the quest's building.
+            var showGo = Box("ShowButton", s.sheet, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-40, 30), new Vector2(300, 96));
+            var showBtn = showGo.gameObject.AddComponent<BouncyButton>();
+            var showImg = showGo.gameObject.AddComponent<Image>();
+            showImg.sprite = pill; showImg.type = Image.Type.Sliced; showImg.color = Orange;
+            showBtn.targetGraphic = showImg;
+            SetButtonColors(showBtn);
+            SoftShadow(showGo.gameObject, -4f, 0.3f);
+            var showIconGo = Box("Icon", showGo, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(22, 0), new Vector2(60, 60));
+            Img(showIconGo.gameObject, AssetFactory.LoadIcon("gem"), Color.white).raycastTarget = false;
+            var showTxtGo = Box("Label", showGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(20, 0), new Vector2(200, 56));
+            Txt(showTxtGo, "SHOW", 30, Color.white, TextAlignmentOptions.Center, titleFont);
+
             panel.sheet = s.sheet;
             panel.backdrop = s.backdrop;
             panel.backdropButton = s.backdropButton;
@@ -205,9 +221,11 @@ namespace IdleBlacksmith.EditorTools
             panel.bodyLabel = bodyLabel;
             panel.progressLabel = progressLabel;
             panel.rewardLabel = rewardLabel;
+            panel.nextLabel = nextLabel;
             panel.counterLabel = counterLabel;
             panel.fill = fillImg;
             panel.achievementsButton = achBtn;
+            panel.showButton = showBtn;
             panel.openY = 26f;
             panel.closedY = s.closedY;
             s.root.gameObject.SetActive(false);
@@ -223,8 +241,11 @@ namespace IdleBlacksmith.EditorTools
 
             var titleGo = Box("Title", s.sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, -24), new Vector2(620, 56));
             var titleLabel = Txt(titleGo, "Achievements", 52, Brown, TextAlignmentOptions.Left, titleFont);
-            var counterGo = Box("Counter", s.sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(42, -76), new Vector2(700, 34));
+            var counterGo = Box("Counter", s.sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(42, -76), new Vector2(430, 34));
             var counterLabel = Txt(counterGo, "0 / 0", 26, Secondary, TextAlignmentOptions.Left, bodyFont);
+            counterLabel.enableAutoSizing = true;
+            counterLabel.fontSizeMin = 18f;
+            counterLabel.fontSizeMax = 26f;
 
             var barBg = Box("AchBarBg", s.sheet, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-120, -78), new Vector2(400, 22));
             var barBgImg = barBg.gameObject.AddComponent<Image>();
@@ -253,6 +274,15 @@ namespace IdleBlacksmith.EditorTools
             var statsTabTxtGo = Box("Label", statsTabGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(240, 52));
             Txt(statsTabTxtGo, "STATS", 26, Color.white, TextAlignmentOptions.Center, titleFont);
 
+            var codexTabGo = Box("CodexTab", s.sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(624, -120), new Vector2(260, 76));
+            var codexTab = codexTabGo.gameObject.AddComponent<BouncyButton>();
+            var codexTabImg = codexTabGo.gameObject.AddComponent<Image>();
+            codexTabImg.sprite = pill; codexTabImg.type = Image.Type.Sliced; codexTabImg.color = new Color(0.86f, 0.80f, 0.72f);
+            codexTab.targetGraphic = codexTabImg;
+            SetButtonColors(codexTab);
+            var codexTabTxtGo = Box("Label", codexTabGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(240, 52));
+            Txt(codexTabTxtGo, "CODEX", 26, Color.white, TextAlignmentOptions.Center, titleFont);
+
             // achievements page
             var achPage = Box("AchievementsPage", s.sheet, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -212), new Vector2(940, 1300));
             var vlg = achPage.gameObject.AddComponent<VerticalLayoutGroup>();
@@ -273,6 +303,38 @@ namespace IdleBlacksmith.EditorTools
             var statsBody = Txt(statsBodyGo, "...", 30, Brown, TextAlignmentOptions.TopLeft, bodyFont, true);
             statsPage.gameObject.SetActive(false);
 
+            // codex page — one row per recipe, same layout language as achievements
+            var codexPage = Box("CodexPage", s.sheet, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -212), new Vector2(940, 1300));
+            var codexVlg = codexPage.gameObject.AddComponent<VerticalLayoutGroup>();
+            codexVlg.spacing = 12;
+            codexVlg.childAlignment = TextAnchor.UpperCenter;
+            codexVlg.childControlWidth = true;
+            codexVlg.childControlHeight = false;
+            codexVlg.childForceExpandWidth = true;
+            codexVlg.childForceExpandHeight = false;
+
+            // The rarity ladder sits on top so the tier names stop being a mystery:
+            // each coloured gem pairs its name with what it pays over a Common blade.
+            var legendGo = Box("RarityLegend", codexPage, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(920, 110));
+            var legendImg = legendGo.gameObject.AddComponent<Image>();
+            legendImg.sprite = roundedSmall; legendImg.type = Image.Type.Sliced; legendImg.color = new Color(1f, 1f, 1f, 0.85f);
+            legendGo.gameObject.AddComponent<LayoutElement>().preferredHeight = 110f;
+            var legendTxtGo = StretchBox("Label", legendGo);
+            legendTxtGo.offsetMin = new Vector2(16, 8);
+            legendTxtGo.offsetMax = new Vector2(-16, -8);
+            var legend = Txt(legendTxtGo, "", 26, Secondary, TextAlignmentOptions.Center, bodyFont, true);
+            var lb = new System.Text.StringBuilder("every blade rolls a quality — rarer sells for more\n");
+            for (int i = 0; i < RarityInfo.Count; i++)
+            {
+                // The tier name itself carries the colour — the Baloo font has no filled-dot glyph.
+                lb.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(RarityInfo.TextColor((Rarity)i))).Append(">");
+                lb.Append(RarityInfo.DisplayName[i]).Append(" ×").Append(RarityInfo.Multiplier[i].ToString("0.#"));
+                lb.Append("</color>");
+                if (i < RarityInfo.Count - 1) lb.Append("    ·    ");
+            }
+            legend.text = lb.ToString();
+            codexPage.gameObject.SetActive(false);
+
             panel.sheet = s.sheet;
             panel.backdrop = s.backdrop;
             panel.backdropButton = s.backdropButton;
@@ -281,8 +343,11 @@ namespace IdleBlacksmith.EditorTools
             panel.counterLabel = counterLabel;
             panel.achievementsTab = achTab;
             panel.statsTab = statsTab;
+            panel.codexTab = codexTab;
             panel.achievementsPage = achPage.gameObject;
             panel.statsPage = statsPage.gameObject;
+            panel.codexPage = codexPage.gameObject;
+            panel.codexParent = codexPage;
             panel.achRowPrefab = achRowPrefab.GetComponent<AchRow>();
             panel.achParent = achPage;
             panel.achFill = fillImg;
@@ -425,10 +490,10 @@ namespace IdleBlacksmith.EditorTools
 
         static SettingsPanel BuildSettingsPanel(Transform parent)
         {
-            SheetRefs s = Sheet(parent, "SettingsPanel", 1240, new Color(0.12f, 0.09f, 0.07f, 0.72f));
+            SheetRefs s = Sheet(parent, "SettingsPanel", 1560, new Color(0.12f, 0.09f, 0.07f, 0.72f));
             var panel = s.root.gameObject.AddComponent<SettingsPanel>();
 
-            SheetTitle(s.sheet, "Settings", "Sound, haptics and your save", out _);
+            SheetTitle(s.sheet, "Settings", "Sound, music, haptics and your save", out _);
 
             float y = -136f;
             BouncyButton muteBtn = SettingsRow(s.sheet, "Sound", y, out TMP_Text muteLabel);
@@ -460,7 +525,17 @@ namespace IdleBlacksmith.EditorTools
             var volumeLabel = Txt(volValueGo, "80%", 30, Brown, TextAlignmentOptions.Right, titleFont);
             y -= 104f;
 
+            BouncyButton musicBtn = SettingsRow(s.sheet, "Music", y, out TMP_Text musicLabel);
+            y -= 104f;
+
             BouncyButton hapticBtn = SettingsRow(s.sheet, "Haptics", y, out TMP_Text hapticLabel);
+            y -= 104f;
+
+            BouncyButton fxBtn = SettingsRow(s.sheet, "Effects", y, out TMP_Text fxLabel);
+            y -= 104f;
+
+            BouncyButton introBtn = SettingsRow(s.sheet, "Replay Intro", y, out TMP_Text introLabel);
+            if (introLabel != null) introLabel.text = ">";
             y -= 104f;
 
             var saveGo = Box("SavePath", s.sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, y), new Vector2(920, 76));
@@ -489,6 +564,10 @@ namespace IdleBlacksmith.EditorTools
             SetButtonColors(resetBtn);
             var resetTxtGo = Box("Label", resetGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(880, 70));
             var resetLabel = Txt(resetTxtGo, "RESET SAVE", 34, Color.white, TextAlignmentOptions.Center, titleFont);
+            y -= 112f;
+
+            var verGo = Box("Version", s.sheet, new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, y), new Vector2(920, 40));
+            Txt(verGo, $"v{Application.version}  ·  Emberforge: Idle Blacksmith", 22, Secondary, TextAlignmentOptions.Center, bodyFont);
 
             // credits overlay
             var credits = StretchBox("Credits", s.sheet);
@@ -514,10 +593,16 @@ namespace IdleBlacksmith.EditorTools
             panel.closeButton = s.closeButton;
             panel.muteButton = muteBtn;
             panel.muteLabel = muteLabel;
+            panel.musicButton = musicBtn;
+            panel.musicLabel = musicLabel;
             panel.volumeSlider = slider;
             panel.volumeLabel = volumeLabel;
             panel.hapticButton = hapticBtn;
             panel.hapticLabel = hapticLabel;
+            panel.fxButton = fxBtn;
+            panel.fxLabel = fxLabel;
+            panel.introButton = introBtn;
+            panel.introLabel = introLabel;
             panel.menuButton = menuBtn;
             panel.resetButton = resetBtn;
             panel.resetLabel = resetLabel;
@@ -619,7 +704,105 @@ namespace IdleBlacksmith.EditorTools
             return panel;
         }
 
+        // ------------------------------------------------------------ daily ember
+
+        static DailyClaimPanel BuildDailyClaim(Transform parent)
+        {
+            var root = StretchBox("DailyClaim", parent);
+            var cg = root.gameObject.AddComponent<CanvasGroup>();
+            cg.blocksRaycasts = true;
+            cg.interactable = true;
+
+            var dim = StretchBox("Dim", root);
+            var dimImg = dim.gameObject.AddComponent<Image>();
+            dimImg.color = new Color(0.10f, 0.07f, 0.04f, 0.78f);
+            dimImg.raycastTarget = true;
+
+            var card = Box("Card", root, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(760, 640));
+            var cardImg = card.gameObject.AddComponent<Image>();
+            cardImg.sprite = rounded; cardImg.type = Image.Type.Sliced; cardImg.color = Cream;
+            SoftShadow(card.gameObject, -8f, 0.45f);
+
+            var emblem = Box("Emblem", card, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -24), new Vector2(148, 148));
+            var emblemImg = emblem.gameObject.AddComponent<Image>();
+            emblemImg.sprite = circle; emblemImg.type = Image.Type.Sliced; emblemImg.color = Orange;
+            var emblemTxt = Box("Mark", emblem, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(120, 110));
+            Txt(emblemTxt, "*", 92, Color.white, TextAlignmentOptions.Center, titleFont);
+
+            var titleGo = Box("Title", card, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -190), new Vector2(700, 56));
+            var titleLabel = Txt(titleGo, "DAILY EMBER", 46, Brown, TextAlignmentOptions.Center, titleFont);
+            var streakGo = Box("Streak", card, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -248), new Vector2(700, 40));
+            var streakLabel = Txt(streakGo, "", 28, Secondary, TextAlignmentOptions.Center, bodyFont);
+
+            var goldGo = Box("Gold", card, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -310), new Vector2(700, 48));
+            var goldLabel = Txt(goldGo, "", 36, Hex(0xC99638), TextAlignmentOptions.Center, titleFont);
+            var relicGo = Box("Relic", card, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -366), new Vector2(700, 46));
+            var relicLabel = Txt(relicGo, "", 32, new Color(0.30f, 0.55f, 0.62f), TextAlignmentOptions.Center, titleFont);
+            var relicUnit = Box("RelicUnit", card, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -412), new Vector2(700, 34));
+            Txt(relicUnit, "relic ore", 24, Secondary, TextAlignmentOptions.Center, bodyFont);
+
+            var claimGo = Box("Claim", card, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(-116, 42), new Vector2(330, 96));
+            var claimBtn = claimGo.gameObject.AddComponent<BouncyButton>();
+            var claimImg = claimGo.gameObject.AddComponent<Image>();
+            claimImg.sprite = pill; claimImg.type = Image.Type.Sliced; claimImg.color = Orange;
+            claimBtn.targetGraphic = claimImg;
+            SetButtonColors(claimBtn);
+            SoftShadow(claimGo.gameObject, -5f, 0.35f);
+            var claimTxtGo = Box("Label", claimGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(310, 70));
+            Txt(claimTxtGo, "CLAIM", 36, Color.white, TextAlignmentOptions.Center, titleFont);
+
+            var laterGo = Box("Later", card, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(232, 42), new Vector2(190, 96));
+            var laterBtn = laterGo.gameObject.AddComponent<BouncyButton>();
+            var laterImg = laterGo.gameObject.AddComponent<Image>();
+            laterImg.sprite = pill; laterImg.type = Image.Type.Sliced; laterImg.color = new Color(1f, 1f, 1f, 0.55f);
+            laterBtn.targetGraphic = laterImg;
+            SetButtonColors(laterBtn);
+            var laterTxtGo = Box("Label", laterGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(170, 70));
+            Txt(laterTxtGo, "LATER", 30, Brown, TextAlignmentOptions.Center, titleFont);
+
+            var panel = root.gameObject.AddComponent<DailyClaimPanel>();
+            panel.group = cg;
+            panel.card = card;
+            panel.titleLabel = titleLabel;
+            panel.streakLabel = streakLabel;
+            panel.goldLabel = goldLabel;
+            panel.relicLabel = relicLabel;
+            panel.claimButton = claimBtn;
+            panel.laterButton = laterBtn;
+            // Stays active: the panel polls quietly and only shows itself when today's ember is unclaimed.
+            cg.alpha = 0f;
+            cg.blocksRaycasts = false;
+            return panel;
+        }
+
         // ------------------------------------------------------------ main menu
+
+        /// <summary>Small pill button on the menu: label centred, caller picks the tint.
+        /// iconName (Art/Icons/Raw) puts a monochrome glyph on the pill's left edge.</summary>
+        static BouncyButton MenuPill(RectTransform parent, string name, string label, Vector2 pos, Vector2 size,
+            Color fill, Color labelColor, int fontSize, out TMP_Text labelText, string iconName = null)
+        {
+            var go = Box(name, parent, new Vector2(0.5f, 0), new Vector2(0.5f, 0), pos, size);
+            var btn = go.gameObject.AddComponent<BouncyButton>();
+            var img = go.gameObject.AddComponent<Image>();
+            img.sprite = pill; img.type = Image.Type.Sliced; img.color = fill;
+            btn.targetGraphic = img;
+            SetButtonColors(btn);
+            SoftShadow(go.gameObject, -4f, 0.3f);
+            if (iconName != null)
+            {
+                float side = size.y * 0.52f;
+                var iconGo = Box("Icon", go, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(14, 0), new Vector2(side, side));
+                var iconImg = iconGo.gameObject.AddComponent<Image>();
+                iconImg.sprite = AssetFactory.LoadIcon(iconName);
+                iconImg.color = labelColor;
+                iconImg.preserveAspect = true;
+                iconImg.raycastTarget = false;
+            }
+            var txtGo = Box("Label", go, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, size - new Vector2(20, 30));
+            labelText = Txt(txtGo, label, fontSize, labelColor, TextAlignmentOptions.Center, titleFont);
+            return btn;
+        }
 
         static MainMenuPanel BuildMainMenu(Transform parent)
         {
@@ -645,53 +828,43 @@ namespace IdleBlacksmith.EditorTools
             var shadeTopImg = shadeTop.gameObject.AddComponent<Image>();
             shadeTopImg.color = new Color(0.08f, 0.06f, 0.04f, 0.45f);
             shadeTopImg.raycastTarget = false;
-            var shadeBottom = Box("ShadeBottom", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), Vector2.zero, new Vector2(1080, 900));
+            var shadeBottom = Box("ShadeBottom", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), Vector2.zero, new Vector2(1080, 980));
             var shadeBottomImg = shadeBottom.gameObject.AddComponent<Image>();
-            shadeBottomImg.color = new Color(0.08f, 0.06f, 0.04f, 0.62f);
+            shadeBottomImg.color = new Color(0.08f, 0.06f, 0.04f, 0.66f);
             shadeBottomImg.raycastTarget = false;
 
-            var block = Box("TitleBlock", root, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 210), new Vector2(960, 560));
-            var emblemGo = Box("Emblem", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -10), new Vector2(280, 280));
+            var block = Box("TitleBlock", root, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 240), new Vector2(960, 560));
+            var emblemGo = Box("Emblem", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -10), new Vector2(320, 320));
             var emblemImg = emblemGo.gameObject.AddComponent<Image>();
-            emblemImg.sprite = AssetFactory.LoadMenuArt("emblem");
+            emblemImg.sprite = AssetFactory.LoadMenuArt("menu_badge") ?? AssetFactory.LoadMenuArt("emblem");
             emblemImg.preserveAspect = true;
             emblemImg.raycastTarget = false;
-            var titleGo = Box("Title", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -330), new Vector2(960, 96));
-            var titleLabel = Txt(titleGo, "IDLE BLACKSMITH", 76, GoldText, TextAlignmentOptions.Center, titleFont);
-            var tagGo = Box("Tagline", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -404), new Vector2(960, 44));
-            var taglineLabel = Txt(tagGo, "a cozy forge adventure", 32, new Color(1f, 0.93f, 0.80f, 0.92f), TextAlignmentOptions.Center, bodyFont);
-            var progGo = Box("Progress", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -462), new Vector2(940, 44));
+            var titleGo = Box("Title", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -352), new Vector2(980, 110));
+            var titleLabel = Txt(titleGo, "EMBERFORGE", 84, GoldText, TextAlignmentOptions.Center, titleFont);
+            var tagGo = Box("Tagline", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -432), new Vector2(960, 44));
+            var taglineLabel = Txt(tagGo, "an idle blacksmith tale", 32, new Color(1f, 0.93f, 0.80f, 0.92f), TextAlignmentOptions.Center, bodyFont);
+            var progGo = Box("Progress", block, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -492), new Vector2(940, 44));
             var progressLabel = Txt(progGo, "", 28, new Color(0.92f, 0.88f, 0.78f), TextAlignmentOptions.Center, bodyFont);
 
-            var playGo = Box("PlayButton", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 400), new Vector2(560, 128));
-            var playBtn = playGo.gameObject.AddComponent<BouncyButton>();
-            var playImg = playGo.gameObject.AddComponent<Image>();
-            playImg.sprite = pill; playImg.type = Image.Type.Sliced; playImg.color = Orange;
-            playBtn.targetGraphic = playImg;
-            SetButtonColors(playBtn);
-            SoftShadow(playGo.gameObject, -6f, 0.4f);
-            var playTxtGo = Box("Label", playGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(540, 92));
-            Txt(playTxtGo, "PLAY", 54, Color.white, TextAlignmentOptions.Center, titleFont);
+            // primary actions
+            var contBtn = MenuPill(root, "ContinueButton", "CONTINUE", new Vector2(0, 470), new Vector2(560, 128),
+                Orange, Color.white, 52, out _);
+            var newBtn = MenuPill(root, "NewGameButton", "START THE FORGE", new Vector2(0, 336), new Vector2(560, 110),
+                new Color(0.86f, 0.55f, 0.30f), Color.white, 40, out TMP_Text newLabel);
 
-            var settingsGo = Box("SettingsButton", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(-150, 280), new Vector2(280, 92));
-            var settingsBtn = settingsGo.gameObject.AddComponent<BouncyButton>();
-            var settingsImg = settingsGo.gameObject.AddComponent<Image>();
-            settingsImg.sprite = pill; settingsImg.type = Image.Type.Sliced; settingsImg.color = new Color(0.78f, 0.72f, 0.64f);
-            settingsBtn.targetGraphic = settingsImg;
-            SetButtonColors(settingsBtn);
-            var settingsTxtGo = Box("Label", settingsGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(260, 66));
-            Txt(settingsTxtGo, "SETTINGS", 30, Brown, TextAlignmentOptions.Center, titleFont);
+            // secondary row
+            var settingsBtn = MenuPill(root, "SettingsButton", "SETTINGS", new Vector2(-160, 216), new Vector2(280, 92),
+                new Color(0.78f, 0.72f, 0.64f), Brown, 30, out _, "settings");
+            var aboutBtn = MenuPill(root, "AboutButton", "ABOUT", new Vector2(160, 216), new Vector2(280, 92),
+                new Color(0.78f, 0.72f, 0.64f), Brown, 30, out _, "scroll");
 
-            var creditsGo = Box("CreditsButton", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(150, 280), new Vector2(280, 92));
-            var creditsBtn = creditsGo.gameObject.AddComponent<BouncyButton>();
-            var creditsImg = creditsGo.gameObject.AddComponent<Image>();
-            creditsImg.sprite = pill; creditsImg.type = Image.Type.Sliced; creditsImg.color = new Color(0.78f, 0.72f, 0.64f);
-            creditsBtn.targetGraphic = creditsImg;
-            SetButtonColors(creditsBtn);
-            var creditsTxtGo = Box("Label", creditsGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(260, 66));
-            Txt(creditsTxtGo, "CREDITS", 30, Brown, TextAlignmentOptions.Center, titleFont);
+            // store row — quieter ghost pills
+            var shareBtn = MenuPill(root, "ShareButton", "SHARE", new Vector2(-160, 110), new Vector2(280, 84),
+                new Color(0.42f, 0.30f, 0.20f, 0.88f), Cream, 28, out _, "share");
+            var rateBtn = MenuPill(root, "RateButton", "RATE", new Vector2(160, 110), new Vector2(280, 84),
+                new Color(0.42f, 0.30f, 0.20f, 0.88f), Hex(0xFFD966), 28, out _, "star");
 
-            // credits overlay
+            // credits overlay (About)
             var creditsPanel = StretchBox("Credits", root);
             var cpDim = StretchBox("Dim", creditsPanel);
             var cpDimImg = cpDim.gameObject.AddComponent<Image>();
@@ -708,6 +881,26 @@ namespace IdleBlacksmith.EditorTools
             Txt(cpCloseTxtGo, "BACK", 32, Color.white, TextAlignmentOptions.Center, titleFont);
             creditsPanel.gameObject.SetActive(false);
 
+            // new-game wipe confirm
+            var confirm = StretchBox("Confirm", root);
+            var cfDim = StretchBox("Dim", confirm);
+            var cfDimImg = cfDim.gameObject.AddComponent<Image>();
+            cfDimImg.color = new Color(0.08f, 0.06f, 0.05f, 0.85f);
+            cfDimImg.raycastTarget = true;
+            var cfCard = Box("Card", confirm, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(840, 560));
+            var cfCardImg = cfCard.gameObject.AddComponent<Image>();
+            cfCardImg.sprite = rounded; cfCardImg.type = Image.Type.Sliced; cfCardImg.color = Cream;
+            SoftShadow(cfCard.gameObject, -8f, 0.45f);
+            var cfTitleGo = Box("Title", cfCard, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -44), new Vector2(760, 60));
+            Txt(cfTitleGo, "Start a new forge?", 48, Brown, TextAlignmentOptions.Center, titleFont);
+            var cfBodyGo = Box("Body", cfCard, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -120), new Vector2(720, 180));
+            Txt(cfBodyGo, "Your saved forge, swords and buildings will be wiped clean.", 30, Secondary, TextAlignmentOptions.Center, bodyFont, true);
+            var cfNoBtn = MenuPill(cfCard, "No", "KEEP FORGING", new Vector2(-170, 100), new Vector2(320, 92),
+                new Color(0.62f, 0.55f, 0.47f), Color.white, 28, out _);
+            var cfYesBtn = MenuPill(cfCard, "Yes", "WIPE & START", new Vector2(170, 100), new Vector2(340, 92),
+                new Color(0.86f, 0.40f, 0.30f), Color.white, 30, out _);
+            confirm.gameObject.SetActive(false);
+
             var panel = root.gameObject.AddComponent<MainMenuPanel>();
             panel.group = cg;
             panel.background = bgImg;
@@ -716,12 +909,19 @@ namespace IdleBlacksmith.EditorTools
             panel.titleLabel = titleLabel;
             panel.taglineLabel = taglineLabel;
             panel.progressLabel = progressLabel;
-            panel.playButton = playBtn;
+            panel.continueButton = contBtn;
+            panel.newGameButton = newBtn;
+            panel.newGameLabel = newLabel;
             panel.settingsButton = settingsBtn;
-            panel.creditsButton = creditsBtn;
+            panel.aboutButton = aboutBtn;
+            panel.shareButton = shareBtn;
+            panel.rateButton = rateBtn;
             panel.creditsRoot = creditsPanel.gameObject;
             panel.creditsBody = cpBody;
             panel.creditsClose = cpCloseBtn;
+            panel.confirmRoot = confirm.gameObject;
+            panel.confirmYes = cfYesBtn;
+            panel.confirmNo = cfNoBtn;
             root.gameObject.SetActive(false);
             return panel;
         }
@@ -767,6 +967,264 @@ namespace IdleBlacksmith.EditorTools
             ticker.questPanel = questPanel;
             ticker.group = cg;
             return ticker;
+        }
+
+        /// <summary>Contract banner parked just under the quest ticker; hidden until an order lands.</summary>
+        static OrderTicker BuildOrderTicker(RectTransform hud)
+        {
+            var go = Box("OrderTicker", hud, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -420), new Vector2(700, 64));
+            var cg = go.gameObject.AddComponent<CanvasGroup>();
+            cg.alpha = 0f; cg.interactable = false; cg.blocksRaycasts = false;
+            var bg = go.gameObject.AddComponent<Image>();
+            bg.sprite = pill; bg.type = Image.Type.Sliced; bg.color = new Color(0.30f, 0.20f, 0.10f, 0.9f);
+            SoftShadow(go.gameObject, -3f, 0.3f);
+
+            var btn = go.gameObject.AddComponent<BouncyButton>();
+            btn.targetGraphic = bg;
+            SetButtonColors(btn);
+
+            var iconGo = Box("Icon", go, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(12, 0), new Vector2(44, 44));
+            Img(iconGo.gameObject, AssetFactory.LoadIcon("coin"), Color.white).raycastTarget = false;
+
+            var textGo = Box("Line", go, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(66, 0), new Vector2(470, 38));
+            var line = Txt(textGo, "", 24, Cream, TextAlignmentOptions.Left, bodyFont);
+
+            var timerGo = Box("Timer", go, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-14, 0), new Vector2(110, 38));
+            var timer = Txt(timerGo, "", 26, new Color(1f, 0.82f, 0.42f), TextAlignmentOptions.Right, titleFont);
+
+            var barBg = Box("BarBg", go, new Vector2(0, 0), new Vector2(0, 0), new Vector2(66, 7), new Vector2(470, 8));
+            var barBgImg = barBg.gameObject.AddComponent<Image>();
+            barBgImg.sprite = bar; barBgImg.type = Image.Type.Sliced; barBgImg.color = new Color(0f, 0f, 0f, 0.35f);
+            var fillGo = StretchBox("Fill", barBg);
+            var fillImg = fillGo.gameObject.AddComponent<Image>();
+            fillImg.sprite = bar; fillImg.type = Image.Type.Filled; fillImg.fillMethod = Image.FillMethod.Horizontal;
+            fillImg.color = new Color(0.62f, 0.9f, 1f); fillImg.fillAmount = 0f; fillImg.raycastTarget = false;
+
+            var t = go.gameObject.AddComponent<OrderTicker>();
+            t.line = line;
+            t.timer = timer;
+            t.fill = fillImg;
+            t.openButton = btn;
+            t.group = cg;
+            return t;
+        }
+
+        /// <summary>Hot pulsing pill that slams in while rush hour runs.</summary>
+        static RushBanner BuildRushBanner(RectTransform hud)
+        {
+            var go = Box("RushBanner", hud, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -510), new Vector2(560, 56));
+            var cg = go.gameObject.AddComponent<CanvasGroup>();
+            cg.alpha = 0f; cg.interactable = false; cg.blocksRaycasts = false;
+            var bg = go.gameObject.AddComponent<Image>();
+            bg.sprite = pill; bg.type = Image.Type.Sliced; bg.color = new Color(1f, 0.45f, 0.16f);
+            bg.raycastTarget = false;
+            SoftShadow(go.gameObject, -4f, 0.4f);
+
+            var labelGo = Box("Label", go, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(18, 0), new Vector2(430, 40));
+            var label = Txt(labelGo, "RUSH HOUR", 26, Color.white, TextAlignmentOptions.Left, titleFont);
+            label.raycastTarget = false;
+
+            var timerGo = Box("Timer", go, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-16, 0), new Vector2(90, 40));
+            var timer = Txt(timerGo, "", 28, Color.white, TextAlignmentOptions.Right, titleFont);
+            timer.raycastTarget = false;
+
+            var rb = go.gameObject.AddComponent<RushBanner>();
+            rb.label = label;
+            rb.timer = timer;
+            rb.group = cg;
+            rb.bg = bg;
+            return rb;
+        }
+
+        // ------------------------------------------------------------ story dialogue
+
+        /// <summary>Full-width bar pinned to an edge, height driven by the cinematic script.</summary>
+        static RectTransform EdgeBar(string name, Transform parent, bool top)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            var rt = (RectTransform)go.transform;
+            rt.SetParent(parent, false);
+            rt.anchorMin = new Vector2(0, top ? 1 : 0);
+            rt.anchorMax = new Vector2(1, top ? 1 : 0);
+            rt.pivot = new Vector2(0.5f, top ? 1 : 0);
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta = Vector2.zero;
+            var img = go.AddComponent<Image>();
+            img.color = new Color(0.03f, 0.02f, 0.015f, 0.97f);
+            img.raycastTarget = true;
+            return rt;
+        }
+
+        static DialoguePanel BuildDialogue(Transform parent)
+        {
+            var root = StretchBox("Dialogue", parent);
+            var cg = root.gameObject.AddComponent<CanvasGroup>();
+            cg.blocksRaycasts = true;
+            cg.interactable = true;
+
+            // soft dim behind the card — keeps the world visible but mutes it.
+            // Visual only: must NOT eat raycasts or every other panel is dead
+            // while a dialogue is open (advance happens via the card button).
+            // A bottom band, not fullscreen: the card floats above the nav rail, so the
+            // world, HUD and nav stay lit and tappable — nothing looks disabled.
+            var dim = Box("Dim", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 190), new Vector2(1200, 410));
+            var dimImg = dim.gameObject.AddComponent<Image>();
+            dimImg.color = new Color(0.08f, 0.05f, 0.03f, 0.38f);
+            dimImg.raycastTarget = false;
+
+            var card = Box("Card", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 210), new Vector2(1000, 360));
+            var cardImg = card.gameObject.AddComponent<Image>();
+            cardImg.sprite = rounded; cardImg.type = Image.Type.Sliced;
+            cardImg.color = new Color(0.16f, 0.11f, 0.07f, 0.97f);
+            SoftShadow(card.gameObject, -8f, 0.5f);
+            var cardBtn = card.gameObject.AddComponent<Button>();
+            cardBtn.transition = Selectable.Transition.None;
+            cardBtn.targetGraphic = cardImg;
+
+            // portrait medallion: circle mask on the card's top-left corner, half-proud of the edge
+            var medGo = Box("Portrait", card, new Vector2(0, 1), new Vector2(0, 1), new Vector2(90, -18), new Vector2(180, 180));
+            var medImg = medGo.gameObject.AddComponent<Image>();
+            medImg.sprite = circle; medImg.type = Image.Type.Sliced; medImg.color = new Color(0.92f, 0.78f, 0.55f);
+            SoftShadow(medGo.gameObject, -5f, 0.45f);
+            var medMask = medGo.gameObject.AddComponent<Mask>();
+            medMask.showMaskGraphic = true;
+            var faceGo = StretchBox("Face", medGo);
+            var faceImg = faceGo.gameObject.AddComponent<Image>();
+            faceImg.preserveAspect = false;
+            faceImg.raycastTarget = false;
+
+            // speaker name plate overlapping the portrait
+            var nameGo = Box("NamePlate", card, new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -170), new Vector2(300, 56));
+            var nameImg = nameGo.gameObject.AddComponent<Image>();
+            nameImg.sprite = pill; nameImg.type = Image.Type.Sliced; nameImg.color = Orange;
+            var nameTxtGo = Box("Label", nameGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(280, 44));
+            var nameLabel = Txt(nameTxtGo, "Bram", 30, Color.white, TextAlignmentOptions.Center, titleFont);
+
+            var bodyGo = Box("Body", card, new Vector2(0, 1), new Vector2(0, 1), new Vector2(300, -42), new Vector2(660, 250));
+            var bodyLabel = Txt(bodyGo, "...", 34, Cream, TextAlignmentOptions.TopLeft, bodyFont, true);
+            bodyLabel.enableAutoSizing = false;
+            bodyLabel.richText = true;
+
+            var pageGo = Box("Page", card, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-30, -24), new Vector2(120, 40));
+            var pageLabel = Txt(pageGo, "1/3", 26, new Color(1f, 0.85f, 0.6f, 0.7f), TextAlignmentOptions.Right, bodyFont);
+
+            // blinking advance arrow
+            var hintGo = Box("NextHint", card, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-34, 30), new Vector2(56, 56));
+            var hintCg = hintGo.gameObject.AddComponent<CanvasGroup>();
+            hintCg.blocksRaycasts = false;
+            Txt(hintGo, "»", 40, Orange, TextAlignmentOptions.Center, titleFont);
+
+            var panel = root.gameObject.AddComponent<DialoguePanel>();
+            panel.group = cg;
+            panel.card = card;
+            panel.portraitImage = faceImg;
+            panel.nameLabel = nameLabel;
+            panel.bodyLabel = bodyLabel;
+            panel.cardButton = cardBtn;
+            panel.nextHint = hintCg;
+            panel.pageLabel = pageLabel;
+            panel.openY = 210f;
+            panel.closedY = -460f;
+            root.gameObject.SetActive(false);
+            return panel;
+        }
+
+        // ------------------------------------------------------------ intro cinematic
+
+        static IntroCinematic BuildIntro(Transform parent)
+        {
+            var root = StretchBox("IntroCinematic", parent);
+            var cg = root.gameObject.AddComponent<CanvasGroup>();
+            cg.blocksRaycasts = true;
+            cg.interactable = true;
+
+            var bgGo = StretchBox("Backdrop", root);
+            var bgImg = bgGo.gameObject.AddComponent<Image>();
+            bgImg.color = Color.black;
+            bgImg.raycastTarget = true;
+
+            // whole screen advances the cinematic, so it sits under every interactive element
+            var advGo = StretchBox("Advance", root);
+            var advBtn = advGo.gameObject.AddComponent<Button>();
+            advBtn.transition = Selectable.Transition.None;
+            var advImg = advGo.gameObject.AddComponent<Image>();
+            advImg.color = new Color(0f, 0f, 0f, 0.001f);
+
+            var artGo = StretchBox("Art", root);
+            var artImg = artGo.gameObject.AddComponent<Image>();
+            artImg.raycastTarget = false;
+            artImg.preserveAspect = true;
+            // portrait screen + landscape frames: cover-crop the art so it always fills
+            var artFitter = CoverFitter(artGo, artImg, 1.5f);
+
+            // letterbox bars
+            var barTop = EdgeBar("BarTop", root, true);
+            var barBottom = EdgeBar("BarBottom", root, false);
+
+            // caption block rides just above the bottom bar
+            var capGo = Box("Caption", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 220), new Vector2(920, 260));
+            var capCg = capGo.gameObject.AddComponent<CanvasGroup>();
+            capCg.blocksRaycasts = false;
+            var capLabel = Txt(capGo, "...", 40, new Color(0.98f, 0.94f, 0.86f), TextAlignmentOptions.Center, bodyFont, true);
+            capLabel.fontStyle = FontStyles.Italic;
+            var capShadow = capGo.gameObject.AddComponent<Shadow>();
+            capShadow.effectColor = new Color(0f, 0f, 0f, 0.8f);
+            capShadow.effectDistance = new Vector2(2, -2);
+
+            var pageGo = Box("Page", root, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -80), new Vector2(200, 44));
+            var pageLabel = Txt(pageGo, "1 / 4", 26, new Color(1f, 1f, 1f, 0.55f), TextAlignmentOptions.Center, titleFont);
+
+            var hintGo = Box("TapHint", root, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-60, 200), new Vector2(220, 50));
+            var hintCg = hintGo.gameObject.AddComponent<CanvasGroup>();
+            hintCg.blocksRaycasts = false;
+            Txt(hintGo, "TAP ▸", 30, new Color(1f, 0.85f, 0.5f, 0.9f), TextAlignmentOptions.Right, titleFont);
+
+            var skipGo = Box("Skip", root, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-40, -80), new Vector2(200, 80));
+            var skipBtn = skipGo.gameObject.AddComponent<BouncyButton>();
+            var skipImg = skipGo.gameObject.AddComponent<Image>();
+            skipImg.sprite = pill; skipImg.type = Image.Type.Sliced;
+            skipImg.color = new Color(1f, 1f, 1f, 0.16f);
+            skipBtn.targetGraphic = skipImg;
+            SetButtonColors(skipBtn);
+            var skipTxtGo = Box("Label", skipGo, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(180, 56));
+            Txt(skipTxtGo, "SKIP ▸▸", 30, Color.white, TextAlignmentOptions.Center, titleFont);
+
+            var cine = root.gameObject.AddComponent<IntroCinematic>();
+            cine.group = cg;
+            cine.artImage = artImg;
+            cine.barTop = barTop;
+            cine.barBottom = barBottom;
+            cine.captionLabel = capLabel;
+            cine.captionGroup = capCg;
+            cine.skipButton = skipBtn;
+            cine.advanceButton = advBtn;
+            cine.pageLabel = pageLabel;
+            cine.tapHint = hintCg;
+            cine.frames = new[]
+            {
+                new IntroCinematic.Frame
+                {
+                    art = AssetFactory.LoadMenuArt("intro_village"),
+                    caption = "The village of Emberhold had gone quiet. The forge that once lit the valley burned out generations ago.",
+                },
+                new IntroCinematic.Frame
+                {
+                    art = AssetFactory.LoadMenuArt("intro_ember"),
+                    caption = "But on the longest night, a single ember fell from the old hearth — and landed in waiting hands.",
+                },
+                new IntroCinematic.Frame
+                {
+                    art = AssetFactory.LoadMenuArt("intro_oath"),
+                    caption = "\"I swear it,\" the smith whispered. \"Iron will sing again. The racks will fill. The gate will open.\"",
+                },
+                new IntroCinematic.Frame
+                {
+                    art = AssetFactory.LoadMenuArt("intro_rise"),
+                    caption = "And so the forge woke. This is where your legend begins.",
+                },
+            };
+            root.gameObject.SetActive(false);
+            return cine;
         }
     }
 }

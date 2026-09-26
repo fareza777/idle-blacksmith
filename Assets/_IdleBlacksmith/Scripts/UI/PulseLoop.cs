@@ -7,11 +7,21 @@ namespace IdleBlacksmith.UI
     {
         public float amplitude = 0.045f;
         public float speed = 2.6f;
+        public bool startStopped;
 
         Vector3 baseScale = Vector3.one;
+        bool captured;
         bool stopped;
 
-        void OnEnable() => baseScale = transform.localScale;
+        void OnEnable()
+        {
+            if (!captured)
+            {
+                baseScale = transform.localScale;
+                captured = true;
+            }
+            stopped = startStopped;
+        }
 
         void Update()
         {
@@ -25,5 +35,8 @@ namespace IdleBlacksmith.UI
         }
 
         public void Stop() => stopped = true;
+
+        /// <summary>Drive the pulse on/off — when turned off the scale eases back to rest.</summary>
+        public void SetActive(bool on) => stopped = !on;
     }
 }

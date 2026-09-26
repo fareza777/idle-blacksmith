@@ -1,10 +1,15 @@
-# Idle Blacksmith RPG — Unity URP Mobile Idle Game
+# Emberforge — Idle Blacksmith · Unity URP Mobile Idle Game
 
 A polished casual **portrait** mobile idle-RPG. You run a blacksmith **complex**: miners dig ore,
 smiths hammer it into swords whose quality is rolled per blade, customers buy the best sword on
 your rack, and adventurers raid dungeons while the app is closed. Spend the takings on five
 upgradable buildings, permanent runes, and — when the forge is running at full tilt — burn the
 whole run for ember shards and start again, permanently stronger.
+
+The game opens with a four-card cinematic (the Ember choosing its new smith), a six-page
+onboarding, and a title menu with Continue / New Game / Settings / About / Share / Rate.
+Story dialogue between Bram, Petra, Sable, Sir Aldric and Nyx unfolds as the complex grows —
+each beat plays exactly once and is saved, so the cast remembers where you are.
 
 **Target:** Unity **6000.3.20f1**, URP 17, portrait mobile (Android APK included, works standalone too).
 
@@ -250,6 +255,38 @@ min Android 8.0, **portrait**). Install by copying the APK to the phone (allow
 "install unknown apps") or with `adb install _Builds/IdleBlacksmith.apk`.
 For a Play-ready build, switch to a release keystore and enable AAB in
 `Assets/_IdleBlacksmith/Editor/BuildAndroid.cs`.
+
+---
+
+## Player-build pitfalls (learned the hard way)
+
+The IL2CPP/Android packaging pipeline has failure modes that only show up in
+device builds — never in the editor:
+
+- **Every `MonoBehaviour` must be the primary class of its file** (filename ==
+  class name). A component declared as a *secondary* class gets an *embedded*
+  MonoScript reference whose name-resolution fails non-deterministically at build
+  time; when it fails the component serializes as an empty 32-byte stub and the
+  player crashes with `level0 corrupted`. (Root cause of the recurring crash —
+  fixed by moving `ProductionManager` into `ProductionManager.cs`.)
+- **Only `Shader.Find` shaders that ship via serialized materials.** Shaders
+  referenced *only* from runtime code get stripped: `new Material(null)` throws in
+  `Start()` and every dependent system silently dies (all ambient effects were
+  invisible on device for several builds). Use `URP/Particles/Unlit` — it stays
+  bundled — never `URP/Unlit`.
+- **Collider classes are stripped** (no code references them).
+  `GameObject.CreatePrimitive` still builds the visual but logs
+  `class X doesn't exist` — use `Primitives.Create` (collider-free) instead.
+- **Nested types inside a `MonoBehaviour` corrupt scene serialization** — keep
+  helper types at file top level.
+- **Never edit files while a Unity build is running** — it poisons Library/Bee
+  caches and every subsequent package carries corrupted bytes.
+- **Kill the emulator before building** (`adb emu kill`) — IL2CPP plus a running
+  emulator OOMs and the build worker dies mid-package → corrupt APK/AAB.
+- **Keep scene-component serialized field sets stable** — risky in this pipeline;
+  ephemeral state goes `static` (see `UIManager`'s floater-burst fields).
+- **Emulator note:** swiftshader renders ~1 fps and injected taps may not reach
+  Unity's input pipeline — verify interactability statically or on a real device.
 
 ---
 

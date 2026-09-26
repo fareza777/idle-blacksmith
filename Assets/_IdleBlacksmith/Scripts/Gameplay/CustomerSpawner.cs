@@ -15,9 +15,19 @@ namespace IdleBlacksmith.Gameplay
         [Tooltip("Path back out after the purchase")]
         public Transform[] exitWaypoints;
         public Transform spawnPoint;
+        [Tooltip("Chance a shopper is a VIP paying five times the price")]
+        [Range(0f, 0.4f)] public float vipChance = 0.08f;
+        [Tooltip("Price multiplier a VIP pays")]
+        public float vipPriceMult = 5f;
+        [Tooltip("Folks stay home in a storm — customer gap multiplier while it rains")]
+        public float rainSlowMult = 1.45f;
 
         CustomerController current;
+        RainWeather rain;
         float timer = 2.5f;
+
+        /// <summary>The shopper currently in the shop, if any — read by the chatter system.</summary>
+        public CustomerController Current => current;
 
         void Update()
         {
@@ -33,6 +43,13 @@ namespace IdleBlacksmith.Gameplay
             float pace = Production.CustomerIntervalMult;
             if (GameManager.Instance.upgrades != null)
                 pace *= GameManager.Instance.upgrades.CustomerIntervalMult;
+            if (GameManager.Instance.rush != null)
+                pace *= GameManager.Instance.rush.PaceMult;
+            if (GameManager.Instance.marketFair != null)
+                pace *= GameManager.Instance.marketFair.PaceMult;
+            if (rain == null) rain = FindFirstObjectByType<RainWeather>();
+            if (rain != null && rain.IsRaining)
+                pace *= rainSlowMult;
             timer = Random.Range(config.minCustomerInterval, config.maxCustomerInterval) * Mathf.Max(0.15f, pace);
 
             if (rack.Stock <= 0) return;
@@ -41,12 +58,40 @@ namespace IdleBlacksmith.Gameplay
 
         void Spawn(SwordRack rack, GameConfig config)
         {
-            GameObject prefab = Random.value < 0.5f ? config.customerPrefabA : config.customerPrefabB;
+            // Rare golden visitor: a distinct noble when the model exists, else a gilded regular.
+            bool vip = Random.value < vipChance;
+            GameObject prefab;
+            if (vip && config.customerPrefabC != null)
+            {
+                prefab = config.customerPrefabC;
+            }
+            else
+            {
+                // Three regular villagers: the bonneted peddler joins the farmer and the seamstress.
+                float roll = Random.value;
+                prefab = roll < 0.36f ? config.customerPrefabA
+                     : roll < 0.72f ? config.customerPrefabB
+                     : (config.customerPrefabD != null ? config.customerPrefabD : config.customerPrefabA);
+            }
             if (prefab == null || spawnPoint == null) return;
 
             GameObject go = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation, transform);
             current = go.GetComponent<CustomerController>();
             if (current == null) return;
+
+            // Shop bell on the door — the market chime doubles as a VIP flourish.
+            AudioManager.Play("market_chime", 0.05f, vip ? 0.55f : 0.3f, vip ? 0.85f : 1f);
+
+            if (vip && config.customerPrefabC == null)
+            {
+                var block = new MaterialPropertyBlock();
+                foreach (Renderer r in go.GetComponentsInChildren<Renderer>())
+                {
+                    block.SetColor("_BaseColor", new Color(1f, 0.80f, 0.32f));
+                    block.SetColor("_Color", new Color(1f, 0.80f, 0.32f));
+                    r.SetPropertyBlock(block);
+                }
+            }
 
             var enter = new List<Vector3>();
             if (enterWaypoints != null)
@@ -64,7 +109,8 @@ namespace IdleBlacksmith.Gameplay
                     if (t != null) leave.Add(t.position);
             leave.Add(spawnPoint.position);
 
-            current.Init(rack, enter.ToArray(), leave.ToArray(), _ => current = null);
+            current.Init(rack, enter.ToArray(), leave.ToArray(), _ => current = null,
+                vip ? vipPriceMult : 1f, vip);
         }
     }
 }

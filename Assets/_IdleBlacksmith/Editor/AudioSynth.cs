@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -32,6 +33,15 @@ namespace IdleBlacksmith.EditorTools
             Try("unlock", Unlock());
             Try("levelup", LevelUp());
             Try("whoosh", Whoosh());
+            Try("blip", Blip());
+            Try("ember_whoosh", EmberWhoosh());
+            Try("thunder", Thunder());
+            Try("amb_fire", AmbFire());
+            Try("amb_night", AmbNight());
+            Try("amb_rain", AmbRain());
+            Try("music_deep", MusicDeep());
+            Try("music_fair", MusicFair());
+            Try("music_night", MusicNight());
         }
 
         static void Try(string name, float[] samples)
@@ -264,6 +274,292 @@ namespace IdleBlacksmith.EditorTools
             // a little low-end so it reads as movement rather than hiss
             return body * 2f * env * 0.55f + Sin(Mathf.Lerp(320f, 90f, p), t) * env * 0.16f;
         });
+
+        static float[] Blip() => Render(0.07f, t =>
+        {
+            // a short rounded tick — the typewriter's voice
+            float f = Mathf.Lerp(760f, 540f, Mathf.Clamp01(t / 0.07f));
+            float env = Mathf.Exp(-t * 55f);
+            return Sin(f, t) * env * 0.5f + Sin(f * 2f, t) * env * 0.14f;
+        });
+
+        static float[] EmberWhoosh() => Render(1.4f, t =>
+        {
+            // opening-cinematic sweep: rising warm rush with a soft crackle tail
+            float p = Mathf.Clamp01(t / 1.4f);
+            float env = Mathf.Sin(Mathf.PI * p);
+            float rush = (Mathf.PerlinNoise(t * (300f + 2400f * p), 5.1f) - 0.5f) * 2f;
+            float low = Sin(Mathf.Lerp(140f, 520f, p * p), t) * 0.3f;
+            float spark = (Mathf.PerlinNoise(t * 7000f, 8.3f) - 0.5f) * 2f * Mathf.Exp(-t * 8f);
+            return (rush * 0.5f + low) * env * 0.8f + spark * 0.4f;
+        });
+
+        /// <summary>Low rolling thunderclap — sub-bass swell over a fading noise crack.</summary>
+        static float[] Thunder() => Render(2.6f, t =>
+        {
+            float p = t / 2.6f;
+            float env = Mathf.Sin(Mathf.PI * Mathf.Clamp01(p * 1.25f)) * Mathf.Exp(-t * 1.6f);
+            float rumble = Sin(38f + 14f * Mathf.Exp(-t * 2f), t) * 0.5f
+                         + Sin(55f + 20f * Mathf.Exp(-t * 3f), t) * 0.3f;
+            float crack = (Mathf.PerlinNoise(t * 2200f, 4.7f) - 0.5f) * 2f
+                        * Mathf.Exp(-t * 6f) * 0.5f;
+            return (rumble + crack) * env;
+        });
+
+        /// <summary>Seamless forge-bed loop: warm rumble under sparse wrap-around pops.</summary>
+        static float[] AmbFire()
+        {
+            const float seconds = 3.2f;
+            var rng = new System.Random(777);
+            var pops = new List<(float at, float amp, float decay)>();
+            float pt = 0.05f;
+            while (pt < seconds)
+            {
+                pops.Add((pt, 0.10f + (float)rng.NextDouble() * 0.32f, 60f + (float)rng.NextDouble() * 90f));
+                pt += 0.05f + (float)rng.NextDouble() * 0.18f;
+            }
+
+            int n = (int)(SR * seconds);
+            var s = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float x = i / (float)SR;
+                float v = (Mathf.PerlinNoise(x * 11f, 5.1f) - 0.5f) * 0.22f
+                        + (Mathf.PerlinNoise(x * 3.1f, 2.3f) - 0.5f) * 0.18f;
+                foreach (var p in pops)
+                {
+                    float d = x - p.at;
+                    if (d < 0f) d += seconds;   // tail pops ring into the head
+                    if (d < 0.25f)
+                        v += p.amp * Mathf.Exp(-d * p.decay)
+                           * (Mathf.PerlinNoise(d * 1000f, p.at * 7.3f) - 0.5f) * 2.4f;
+                }
+                s[i] = Mathf.Clamp(v, -1f, 1f) * 0.8f;
+            }
+
+            // Fold the last quarter second into the first so AudioSource.loop wraps clean.
+            int xn = (int)(SR * 0.25f);
+            for (int i = 0; i < xn; i++)
+                s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
+            return s;
+        }
+
+        /// <summary>
+        /// Night bed: steady cricket chirps, a low wind wash, and a soft two-note owl hoot
+        /// twice per loop. 12s, folded at the wrap like AmbFire.
+        /// </summary>
+        static float[] AmbNight()
+        {
+            const float seconds = 12f;
+            var rng = new System.Random(913);
+
+            // Cricket chirp trains: short 4kHz pulses, a few per second, phase even across
+            // the wrap so the loop seam never hears a chopped chirp.
+            var chirps = new List<(float at, float freq, float amp)>();
+            float ct = 0.12f;
+            while (ct < seconds)
+            {
+                float freq = 3900f + (float)rng.NextDouble() * 700f;
+                int pulses = 2 + rng.Next(3);
+                for (int p = 0; p < pulses; p++)
+                    chirps.Add((ct + p * 0.042f, freq, 0.05f + (float)rng.NextDouble() * 0.05f));
+                ct += 0.55f + (float)rng.NextDouble() * 0.9f;
+            }
+
+            // The owl speaks twice — a paired hoot at 2.4s and a lone one at 8.7s.
+            var hoots = new List<(float at, float len)> { (2.4f, 0.42f), (2.95f, 0.55f), (8.7f, 0.5f) };
+
+            int n = (int)(SR * seconds);
+            var s = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float x = i / (float)SR;
+                // Wind wash — slow, quiet, brown-ish noise.
+                float v = (Mathf.PerlinNoise(x * 1.7f, 9.4f) - 0.5f) * 0.13f
+                        + (Mathf.PerlinNoise(x * 5.3f, 3.7f) - 0.5f) * 0.06f;
+                foreach (var c in chirps)
+                {
+                    float d = x - c.at;
+                    if (d < 0f) d += seconds;
+                    if (d < 0.035f)
+                        v += c.amp * Sin(c.freq, d) * Mathf.Sin(d / 0.035f * Mathf.PI);
+                }
+                foreach (var h in hoots)
+                {
+                    float d = x - h.at;
+                    if (d >= 0f && d < h.len)
+                    {
+                        float env = Mathf.Sin(d / h.len * Mathf.PI);
+                        float hoot = Sin(352f + 6f * Mathf.Sin(d * 19f), d) * 0.28f
+                                   + Sin(704f, d) * 0.05f;
+                        v += hoot * env * env;
+                    }
+                }
+                s[i] = Mathf.Clamp(v, -1f, 1f) * 0.8f;
+            }
+
+            int xn = (int)(SR * 0.25f);
+            for (int i = 0; i < xn; i++)
+                s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
+            return s;
+        }
+
+        /// <summary>
+        /// Rain-shower bed: a two-octave hiss wash for the steady downpour plus scattered
+        /// droplet pings and a few heavier splashes. 10s, folded at the wrap.
+        /// </summary>
+        static float[] AmbRain()
+        {
+            const float seconds = 10f;
+            var rng = new System.Random(1041);
+
+            // Fine patter — short bright taps with a fast decay, dense across the loop.
+            var pings = new List<(float at, float freq, float amp, float decay)>();
+            float pt = 0.02f;
+            while (pt < seconds)
+            {
+                pings.Add((pt, 1500f + (float)rng.NextDouble() * 2400f,
+                           0.05f + (float)rng.NextDouble() * 0.11f,
+                           130f + (float)rng.NextDouble() * 220f));
+                pt += 0.07f + (float)rng.NextDouble() * 0.22f;
+            }
+            // Occasional heavier splash — lower tone, slower decay.
+            for (int i = 0; i < 12; i++)
+                pings.Add(((float)rng.NextDouble() * seconds,
+                           420f + (float)rng.NextDouble() * 300f,
+                           0.14f + (float)rng.NextDouble() * 0.1f, 70f));
+
+            int n = (int)(SR * seconds);
+            var s = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float x = i / (float)SR;
+                // The wash: fast octave reads as hiss, slow octave swells the shower.
+                float v = (Mathf.PerlinNoise(x * 85f, 4.2f) - 0.5f) * 0.26f
+                        + (Mathf.PerlinNoise(x * 19f, 7.7f) - 0.5f) * 0.15f;
+                foreach (var p in pings)
+                {
+                    float d = x - p.at;
+                    if (d < 0f) d += seconds; // tail pings wrap into the head
+                    if (d < 0.09f)
+                        v += p.amp * Sin(p.freq, d) * Mathf.Exp(-d * p.decay);
+                }
+                s[i] = Mathf.Clamp(v, -1f, 1f) * 0.8f;
+            }
+
+            int xn = (int)(SR * 0.3f);
+            for (int i = 0; i < xn; i++)
+                s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
+            return s;
+        }
+
+        /// <summary>
+        /// Deep-forge theme for high smithy tiers: a slow drone under a sparse bell phrase
+        /// over a heartbeat pulse. Written as a seamless 16s loop.
+        /// </summary>
+        static float[] MusicDeep()
+        {
+            const float seconds = 16f;
+            float[] bells = { 220f, 261.63f, 329.63f, 293.66f, 261.63f, 220f, 196f, 164.81f }; // A C E D C A G E
+            int n = (int)(SR * seconds);
+            var s = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float x = i / (float)SR;
+                // Drone: root + fifth, breathing on a 16s swell so the loop turns imperceptibly.
+                float swell = 0.6f + 0.4f * Mathf.Sin(2f * Mathf.PI * x / seconds);
+                float v = Sin(110f, x) * 0.14f + Sin(164.81f, x) * 0.10f + Sin(220f, x) * 0.05f;
+                v *= swell;
+                // Sparse bells, one every two seconds.
+                int note = (int)(x / 2f) % bells.Length;
+                float lt = x % 2f;
+                v += (Sin(bells[note], lt) + Sin(bells[note] * 2f, lt) * 0.35f)
+                     * 0.12f * Mathf.Exp(-lt * 2.2f);
+                // Heartbeat thump on each second.
+                float ht = x % 1f;
+                v += Sin(55f + 18f * Mathf.Exp(-ht * 30f), ht) * 0.22f * Mathf.Exp(-ht * 14f);
+                s[i] = Mathf.Clamp(v * 0.85f, -1f, 1f);
+            }
+
+            // Fold the tail into the head so the loop wraps without a click.
+            int xn = (int)(SR * 0.4f);
+            for (int i = 0; i < xn; i++)
+                s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
+            return s;
+        }
+
+        // A jaunty market-day tune: bright bells on a bouncing root-fifth bass with
+        // tambourine ticks. Twelve seconds, folded tail so it loops without a click.
+        static float[] MusicFair()
+        {
+            const float seconds = 12f;
+            const float step = 0.4f;
+            float[] melody =
+            {
+                440f, 554.37f, 659.25f, 880f, 659.25f,
+                554.37f, 587.33f, 739.99f, 880f, 739.99f,
+                659.25f, 587.33f, 554.37f, 659.25f, 440f,
+                554.37f, 493.88f, 440f, 415.30f, 440f,
+                493.88f, 554.37f, 587.33f, 554.37f, 493.88f,
+                440f, 329.63f, 440f, 493.88f, 440f,
+            };
+            float[] roots = { 110f, 110f, 110f, 110f, 110f, 82.41f, 82.41f, 82.41f, 82.41f, 82.41f,
+                              146.83f, 146.83f, 146.83f, 146.83f, 146.83f, 110f, 110f, 110f, 110f, 110f,
+                              82.41f, 82.41f, 82.41f, 82.41f, 82.41f, 110f, 110f, 110f, 110f, 110f };
+            int n = (int)(SR * seconds);
+            var s = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float x = i / (float)SR;
+                int stepIdx = (int)(x / step) % melody.Length;
+                float lt = x % step;
+                float v = 0f;
+                v += (Sin(melody[stepIdx], lt) + Sin(melody[stepIdx] * 2f, lt) * 0.3f)
+                     * 0.20f * Mathf.Exp(-lt * 5.5f);
+                float root = roots[stepIdx];
+                v += Sin(stepIdx % 2 == 0 ? root : root * 1.5f, lt) * 0.13f * Mathf.Exp(-lt * 4f);
+                float tt = (x + step * 0.5f) % step;
+                v += (Mathf.PerlinNoise(x * 9000f, 0.7f) - 0.5f) * 0.10f * Mathf.Exp(-tt * 40f);
+                s[i] = Mathf.Clamp(v * 0.85f, -1f, 1f);
+            }
+            int xn = (int)(SR * 0.4f);
+            for (int i = 0; i < xn; i++)
+                s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
+            return s;
+        }
+
+        // A music-box lullaby for after dark: sparse high bells with a long release over a
+        // warm root-fifth pad that breathes on the loop length. Sixteen seconds, folded tail.
+        static float[] MusicNight()
+        {
+            const float seconds = 16f;
+            const float step = 1.6f;
+            float[] melody =
+            {
+                659.25f, 523.25f, 440f, 523.25f, 659.25f,
+                880f, 783.99f, 659.25f, 523.25f, 440f,
+            };
+            int n = (int)(SR * seconds);
+            var s = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                float x = i / (float)SR;
+                // Pad: A2 + E3, swelling gently across the loop so the seam disappears.
+                float swell = 0.55f + 0.45f * Mathf.Sin(2f * Mathf.PI * x / seconds);
+                float v = (Sin(110f, x) * 0.09f + Sin(164.81f, x) * 0.07f
+                           + Sin(220f, x) * 0.04f) * swell;
+                // Music box: one bell per step, slow release, faint octave shimmer.
+                int stepIdx = (int)(x / step) % melody.Length;
+                float lt = x % step;
+                v += (Sin(melody[stepIdx], lt) + Sin(melody[stepIdx] * 2f, lt) * 0.25f)
+                     * 0.09f * Mathf.Exp(-lt * 1.4f);
+                s[i] = Mathf.Clamp(v * 0.8f, -1f, 1f);
+            }
+            int xn = (int)(SR * 0.4f);
+            for (int i = 0; i < xn; i++)
+                s[i] = Mathf.Lerp(s[n - xn + i], s[i], i / (float)xn);
+            return s;
+        }
 
         // ------------------------------------------------------------ WAV IO
 

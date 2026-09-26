@@ -23,10 +23,16 @@ namespace IdleBlacksmith.UI
         [Header("Rows")]
         public BouncyButton muteButton;
         public TMP_Text muteLabel;
+        public BouncyButton musicButton;
+        public TMP_Text musicLabel;
         public Slider volumeSlider;
         public TMP_Text volumeLabel;
         public BouncyButton hapticButton;
         public TMP_Text hapticLabel;
+        public BouncyButton fxButton;
+        public TMP_Text fxLabel;
+        public BouncyButton introButton;
+        public TMP_Text introLabel;
         public BouncyButton menuButton;
         public BouncyButton resetButton;
         public TMP_Text resetLabel;
@@ -47,6 +53,7 @@ namespace IdleBlacksmith.UI
 
         const string HapticKey = "IB_Haptics";
         const string VolumeKey = "IB_Volume";
+        const string ReduceFxKey = "IB_ReduceFX";
 
         public static bool HapticsEnabled
         {
@@ -58,6 +65,31 @@ namespace IdleBlacksmith.UI
         {
             get => PlayerPrefs.GetFloat(VolumeKey, 0.8f);
             set => PlayerPrefs.SetFloat(VolumeKey, Mathf.Clamp01(value));
+        }
+
+        /// <summary>Lite mode for lower-end devices: decorative particles and sparkles off.</summary>
+        public static bool ReduceFX
+        {
+            get => PlayerPrefs.GetInt(ReduceFxKey, 0) == 1;
+            set
+            {
+                PlayerPrefs.SetInt(ReduceFxKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+                ApplyFxSetting(value);
+            }
+        }
+
+        /// <summary>Stops/starts the decorative emitters that exist right now.</summary>
+        public static void ApplyFxSetting(bool reduced)
+        {
+            foreach (ParticleSystem ps in Object.FindObjectsByType<ParticleSystem>(FindObjectsSortMode.None))
+            {
+                if (ps == null) continue;
+                string n = ps.gameObject.name;
+                if (n != "ChimneySmoke" && n != "EmberMotes") continue;
+                if (reduced) ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                else ps.Play();
+            }
         }
 
         /// <summary>Short buzz on supported devices; a no-op everywhere else.</summary>
@@ -77,7 +109,10 @@ namespace IdleBlacksmith.UI
             if (closeButton != null) closeButton.onClick.AddListener(Close);
             if (backdropButton != null) backdropButton.onClick.AddListener(Close);
             if (muteButton != null) muteButton.onClick.AddListener(ToggleMute);
+            if (musicButton != null) musicButton.onClick.AddListener(ToggleMusic);
             if (hapticButton != null) hapticButton.onClick.AddListener(ToggleHaptics);
+            if (fxButton != null) fxButton.onClick.AddListener(ToggleFx);
+            if (introButton != null) introButton.onClick.AddListener(ReplayIntro);
             if (menuButton != null) menuButton.onClick.AddListener(() => MenuRequested?.Invoke());
             if (resetButton != null) resetButton.onClick.AddListener(OnReset);
             if (creditsButton != null) creditsButton.onClick.AddListener(() => { if (creditsRoot != null) creditsRoot.SetActive(!creditsRoot.activeSelf); });
@@ -115,11 +150,31 @@ namespace IdleBlacksmith.UI
             Refresh();
         }
 
+        void ToggleMusic()
+        {
+            AudioManager.MusicMuted = !AudioManager.MusicMuted;
+            if (!AudioManager.MusicMuted) AudioManager.Play("pop", 0.03f);
+            Refresh();
+        }
+
         void ToggleHaptics()
         {
             HapticsEnabled = !HapticsEnabled;
             Buzz();
             Refresh();
+        }
+
+        void ToggleFx()
+        {
+            ReduceFX = !ReduceFX;
+            AudioManager.Play("pop", 0.03f);
+            Refresh();
+        }
+
+        void ReplayIntro()
+        {
+            Close();
+            UIManager.Instance?.ReplayIntro();
         }
 
         void OnReset()
@@ -142,8 +197,10 @@ namespace IdleBlacksmith.UI
         public void Refresh()
         {
             if (muteLabel != null) muteLabel.text = AudioManager.Muted ? "OFF" : "ON";
+            if (musicLabel != null) musicLabel.text = AudioManager.MusicMuted ? "OFF" : "ON";
             if (volumeLabel != null) volumeLabel.text = Mathf.RoundToInt(Volume * 100f) + "%";
             if (hapticLabel != null) hapticLabel.text = HapticsEnabled ? "ON" : "OFF";
+            if (fxLabel != null) fxLabel.text = ReduceFX ? "LITE" : "FULL";
             if (resetLabel != null)
                 resetLabel.text = resetArmed ? "TAP AGAIN TO ERASE" : "RESET SAVE";
             if (resetButton != null)
@@ -151,7 +208,8 @@ namespace IdleBlacksmith.UI
                 var img = resetButton.targetGraphic as Image;
                 if (img != null) img.color = resetArmed ? new Color(0.89f, 0.36f, 0.31f) : new Color(0.80f, 0.62f, 0.55f);
             }
-            if (savePathLabel != null) savePathLabel.text = "Save file: " + SaveSystem.PathForLog;
+            if (savePathLabel != null)
+                savePathLabel.text = "Progress saves automatically · " + System.IO.Path.GetFileName(SaveSystem.PathForLog);
         }
 
         public void Open()
@@ -178,6 +236,7 @@ namespace IdleBlacksmith.UI
         {
             if (!IsOpen || sheet == null) return;
             IsOpen = false;
+            AudioManager.Play("whoosh", 0.04f, 0.45f);
             resetArmed = false;
             if (creditsRoot != null) creditsRoot.SetActive(false);
             if (backdrop != null)

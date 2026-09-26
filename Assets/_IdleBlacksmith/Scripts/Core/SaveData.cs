@@ -42,19 +42,75 @@ namespace IdleBlacksmith.Core
 
     /// <summary>Lifetime counters, kept across prestige. Drives achievements and the stats panel.</summary>
     [Serializable]
+    public class RecipeRarityCount
+    {
+        public string recipeId;
+        public int rarity;
+        public int count;
+    }
+
+    [Serializable]
     public class StatBlock
     {
         public int swordsForged;
         public int swordsSold;
         public long goldEarned;
         public int customersServed;
+        /// <summary>Customers who found the rack empty and left without buying.</summary>
+        public int customersTurnedAway;
         public int expeditionsClaimed;
         public int prestiges;
         public int buildingsUpgraded;
         public int recipesUnlocked = 1;
         public int relicsEarned;
         public int bestRarity;
+        public int ordersServed;
+        public int rushOrdersDone;
+        public int dailyClaims;
+        public int toolUses;
+        public int catPets;
+        public int embersCaught;
+        public int dayCycles;
+        public int fairSales;
         public float playSeconds;
+        public System.Collections.Generic.List<RecipeRarityCount> forgedLog = new System.Collections.Generic.List<RecipeRarityCount>();
+
+        /// <summary>Counts one forged sword under its recipe and final rarity.</summary>
+        public void NoteForged(string recipeId, Rarity rarity)
+        {
+            if (string.IsNullOrEmpty(recipeId)) return;
+            RecipeRarityCount e = forgedLog.Find(x => x.recipeId == recipeId && x.rarity == (int)rarity);
+            if (e == null) forgedLog.Add(new RecipeRarityCount { recipeId = recipeId, rarity = (int)rarity, count = 1 });
+            else e.count++;
+        }
+
+        /// <summary>Total swords forged of one recipe, any rarity.</summary>
+        public int ForgedCount(string recipeId)
+        {
+            int n = 0;
+            foreach (RecipeRarityCount e in forgedLog)
+                if (e.recipeId == recipeId) n += e.count;
+            return n;
+        }
+
+        /// <summary>Highest rarity forged of one recipe, or -1 when none yet.</summary>
+        public int BestRarityOf(string recipeId)
+        {
+            int best = -1;
+            foreach (RecipeRarityCount e in forgedLog)
+                if (e.recipeId == recipeId && e.count > 0 && e.rarity > best) best = e.rarity;
+            return best;
+        }
+
+        /// <summary>Bitmask of which rarity tiers a recipe has been forged in (bit i = rarity i).</summary>
+        public int RarityMask(string recipeId)
+        {
+            int mask = 0;
+            foreach (RecipeRarityCount e in forgedLog)
+                if (e.recipeId == recipeId && e.count > 0 && e.rarity >= 0 && e.rarity < 30)
+                    mask |= 1 << e.rarity;
+            return mask;
+        }
     }
 
     [Serializable]
@@ -98,10 +154,21 @@ namespace IdleBlacksmith.Core
         public int prestigeCount;
         /// <summary>Gold earned since the last prestige — the prestige payout is based on this.</summary>
         public long runEarned;
+        /// <summary>Lifetime-gold snapshot at the last dawn — the dawn recap diffs against it.</summary>
+        public long goldAtDawn;
 
         public string activeQuestId = "";
         public List<string> questsClaimed = new List<string>();
         public List<string> achievementsUnlocked = new List<string>();
+
+        /// <summary>The cinematic intro has played — it only shows for a fresh forge.</summary>
+        public bool introSeen;
+        /// <summary>UTC day index of the last Daily Ember claim.</summary>
+        public int lastDailyClaimDay;
+        /// <summary>Consecutive days claimed — grows the reward, resets after a missed day.</summary>
+        public int dailyStreak;
+        /// <summary>Story dialogue ids already watched, so each beat fires exactly once.</summary>
+        public List<string> seenDialogues = new List<string>();
 
         public StatBlock stats = new StatBlock();
 
@@ -117,6 +184,7 @@ namespace IdleBlacksmith.Core
             if (expeditions == null) expeditions = new List<ExpeditionState>();
             if (questsClaimed == null) questsClaimed = new List<string>();
             if (achievementsUnlocked == null) achievementsUnlocked = new List<string>();
+            if (seenDialogues == null) seenDialogues = new List<string>();
             if (stats == null) stats = new StatBlock();
             if (string.IsNullOrEmpty(activeRecipeId)) activeRecipeId = RecipeId.Copper;
             if (unlockedRecipes.Count == 0) unlockedRecipes.Add(RecipeId.Copper);

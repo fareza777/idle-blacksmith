@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using IdleBlacksmith.Gameplay;
+using IdleBlacksmith.UI;
 using UnityEngine;
 
 namespace IdleBlacksmith.Core
@@ -22,6 +24,8 @@ namespace IdleBlacksmith.Core
 
         GameConfig config;
         readonly List<Slot> slots = new List<Slot>();
+        int lastReady = -1;
+        float nextPoll;
 
         public IReadOnlyList<Slot> Slots => slots;
 
@@ -56,6 +60,38 @@ namespace IdleBlacksmith.Core
             int n = 0;
             foreach (Slot s in slots) if (s.id == id) n++;
             return n;
+        }
+
+        /// <summary>
+        /// Announces the moment an expedition crosses into ready-to-claim mid-session —
+        /// without it the dungeon badge just blinks on with no fanfare. Runs ending while
+        /// the app was closed are covered by the welcome-back report instead.
+        /// </summary>
+        void Update()
+        {
+            if (Time.time < nextPoll) return;
+            nextPoll = Time.time + 0.5f;
+
+            int ready = ReadyCount;
+            if (lastReady < 0) { lastReady = ready; return; }
+            if (ready > lastReady)
+            {
+                UIManager ui = UIManager.Instance;
+                if (ui != null && !ui.AnyPanelOpen && !ui.IntroPlaying)
+                    ui.SpawnFloatingText(GatePos() + Vector3.up * 2.3f,
+                        "The expedition returns!", new Color(0.82f, 0.66f, 1f));
+                AudioManager.Play("quest_done", 0.05f, 0.55f);
+                SettingsPanel.Buzz();
+            }
+            lastReady = ready;
+        }
+
+        static Vector3 GatePos()
+        {
+            foreach (BuildingVisuals b in UnityEngine.Object.FindObjectsByType<BuildingVisuals>(FindObjectsSortMode.None))
+                if (b != null && b.buildingId == BuildingId.Gate)
+                    return b.transform.position;
+            return new Vector3(0f, 0f, 3.5f);
         }
 
         public bool IsRunning(string id) => SlotOf(id) != null;

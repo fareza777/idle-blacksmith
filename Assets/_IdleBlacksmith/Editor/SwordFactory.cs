@@ -26,9 +26,13 @@ namespace IdleBlacksmith.EditorTools
             { RecipeId.Copper,      new[] { Palette.Terracotta,  Palette.MetalDark,  Palette.Grip } },
             { RecipeId.Iron,        new[] { Palette.MetalDark,   Palette.MetalDark,  Palette.Grip } },
             { RecipeId.Steel,       new[] { Palette.MetalLight,  Palette.SwordGuard, Palette.Grip } },
+            { RecipeId.EmberAxe,    new[] { Palette.Ember,       Palette.SwordGuard, Palette.Grip } },
             { RecipeId.Silver,      new[] { Palette.SwordBlade,  Palette.Straw,      Palette.Grip } },
             { RecipeId.Mithril,     new[] { Palette.OreCrystal,  Palette.Teal,       Palette.Grip } },
             { RecipeId.Dragonsteel, new[] { Palette.RugRed,      Palette.Ember,      Palette.Grip } },
+            { RecipeId.Frostbrand,  new[] { Palette.OreCrystal,  Palette.SwordBlade, Palette.Grip } },
+            { RecipeId.Voidreaver,  new[] { Palette.PlumDark,    Palette.MetalDark,  Palette.Grip } },
+            { RecipeId.Starforged,  new[] { Palette.OreCrystal,  Palette.Gold,       Palette.Grip } },
         };
 
         public static GameObject SwordPrefabFor(string recipeId)
@@ -97,15 +101,100 @@ namespace IdleBlacksmith.EditorTools
         /// <summary>Must match Gameplay.SwordVisuals.GemChild.</summary>
         const string GemChildName = "Gem";
 
+        /// <summary>
+        /// Each recipe gets its own silhouette so the rack reads as six different weapons, not
+        /// one recoloured sword. The blade runs +Z from the crossguard; the grip runs -Z.
+        /// </summary>
         static Mesh BuildSwordBladeMesh(string recipeId, int[] colors)
         {
             var b = new MeshBuilder();
             int blade = colors[0], guard = colors[1], grip = colors[2];
-            b.Box(new Vector3(0, 0, 0.21f), new Vector3(0.055f, 0.014f, 0.36f), blade);
-            b.Box(new Vector3(0, 0, 0.40f), new Vector3(0.026f, 0.014f, 0.05f), blade);
-            b.Box(Vector3.zero, new Vector3(0.16f, 0.03f, 0.035f), guard);
-            b.Box(new Vector3(0, 0, -0.07f), new Vector3(0.04f, 0.04f, 0.11f), grip);
-            b.Box(new Vector3(0, 0, -0.145f), new Vector3(0.06f, 0.06f, 0.04f), guard);
+            switch (recipeId)
+            {
+                case RecipeId.Copper: // squat dagger
+                    b.Box(new Vector3(0, 0, 0.115f), new Vector3(0.055f, 0.014f, 0.19f), blade);
+                    b.Box(new Vector3(0, 0, 0.215f), new Vector3(0.020f, 0.014f, 0.045f), blade);
+                    b.Box(Vector3.zero, new Vector3(0.10f, 0.028f, 0.030f), guard);
+                    b.Box(new Vector3(0, 0, -0.055f), new Vector3(0.038f, 0.038f, 0.09f), grip);
+                    b.Box(new Vector3(0, 0, -0.115f), new Vector3(0.055f, 0.055f, 0.035f), guard);
+                    break;
+                case RecipeId.Steel: // curved sabre, three swept segments
+                    b.Box(new Vector3(0, 0, 0.15f), new Vector3(0.050f, 0.014f, 0.26f), blade);
+                    b.Box(new Vector3(0, 0.012f, 0.36f), new Vector3(0.042f, 0.014f, 0.20f), Quaternion.Euler(9f, 0f, 0f), blade);
+                    b.Box(new Vector3(0, 0.045f, 0.50f), new Vector3(0.024f, 0.014f, 0.10f), Quaternion.Euler(18f, 0f, 0f), blade);
+                    b.Box(Vector3.zero, new Vector3(0.14f, 0.028f, 0.034f), guard);
+                    b.Box(new Vector3(0, 0.005f, -0.05f), new Vector3(0.11f, 0.020f, 0.05f), Quaternion.Euler(-20f, 0f, 0f), guard); // knuckle bow stub
+                    b.Box(new Vector3(0, 0, -0.075f), new Vector3(0.040f, 0.040f, 0.12f), grip);
+                    b.Box(new Vector3(0, 0, -0.15f), new Vector3(0.058f, 0.058f, 0.038f), guard);
+                    break;
+                case RecipeId.EmberAxe: // war axe: long haft, crescent head, back spike
+                    b.Box(new Vector3(0, 0, 0.06f), new Vector3(0.042f, 0.042f, 0.52f), grip);   // haft
+                    b.Box(new Vector3(0.085f, 0, 0.30f), new Vector3(0.16f, 0.016f, 0.11f), blade); // crescent, wide
+                    b.Box(new Vector3(0.165f, 0, 0.335f), new Vector3(0.085f, 0.016f, 0.065f), Quaternion.Euler(0f, -18f, 0f), blade); // swept edge
+                    b.Box(new Vector3(-0.075f, 0, 0.30f), new Vector3(0.10f, 0.014f, 0.035f), blade); // back spike
+                    b.Box(new Vector3(0, 0, 0.30f), new Vector3(0.06f, 0.05f, 0.05f), guard);       // collar
+                    b.Box(new Vector3(0, 0, -0.215f), new Vector3(0.05f, 0.05f, 0.045f), guard);    // butt cap
+                    break;
+                case RecipeId.Silver: // slim rapier with ring guard
+                    b.Box(new Vector3(0, 0, 0.28f), new Vector3(0.028f, 0.012f, 0.50f), blade);
+                    b.Box(new Vector3(0, 0, 0.545f), new Vector3(0.012f, 0.012f, 0.05f), blade);
+                    b.Box(new Vector3(0, 0, 0.02f), new Vector3(0.19f, 0.014f, 0.030f), guard);   // ring: horizontal
+                    b.Box(new Vector3(0, 0, 0.02f), new Vector3(0.014f, 0.19f, 0.030f), guard);   // ring: vertical
+                    b.Box(new Vector3(0, 0, -0.06f), new Vector3(0.034f, 0.034f, 0.10f), grip);
+                    b.Box(new Vector3(0, 0, -0.13f), new Vector3(0.052f, 0.052f, 0.034f), guard);
+                    break;
+                case RecipeId.Mithril: // katana: long slim single edge, small disc guard
+                    b.Box(new Vector3(0, 0, 0.30f), new Vector3(0.038f, 0.013f, 0.54f), blade);
+                    b.Box(new Vector3(0, 0.010f, 0.585f), new Vector3(0.030f, 0.013f, 0.055f), Quaternion.Euler(14f, 0f, 0f), blade);
+                    b.Box(new Vector3(0, 0, 0.015f), new Vector3(0.11f, 0.050f, 0.022f), guard);   // tsuba
+                    b.Box(new Vector3(0, 0, -0.09f), new Vector3(0.034f, 0.034f, 0.16f), grip);   // long wrap
+                    b.Box(new Vector3(0, 0, -0.18f), new Vector3(0.046f, 0.046f, 0.030f), guard);
+                    break;
+                case RecipeId.Frostbrand: // glacier longsword: straight blade with rime barbs on one edge
+                    b.Box(new Vector3(0, 0, 0.29f), new Vector3(0.048f, 0.013f, 0.50f), blade);
+                    b.Box(new Vector3(0, 0, 0.565f), new Vector3(0.016f, 0.013f, 0.065f), blade);
+                    b.Box(new Vector3(0.045f, 0, 0.36f), new Vector3(0.05f, 0.012f, 0.045f), Quaternion.Euler(0f, -22f, 0f), blade); // barb 1
+                    b.Box(new Vector3(0.045f, 0, 0.46f), new Vector3(0.05f, 0.012f, 0.045f), Quaternion.Euler(0f, -22f, 0f), blade); // barb 2
+                    b.Box(new Vector3(0.045f, 0, 0.52f), new Vector3(0.04f, 0.012f, 0.035f), Quaternion.Euler(0f, -22f, 0f), blade);  // barb 3
+                    b.Box(Vector3.zero, new Vector3(0.15f, 0.028f, 0.034f), guard);
+                    b.Box(new Vector3(0, 0, -0.065f), new Vector3(0.036f, 0.036f, 0.11f), grip);
+                    b.Box(new Vector3(0, 0, -0.135f), new Vector3(0.06f, 0.06f, 0.045f), blade);   // rime crystal pommel
+                    break;
+                case RecipeId.Voidreaver: // void greatblade: split twin prong tip, dark steel
+                    b.Box(new Vector3(0, 0, 0.30f), new Vector3(0.085f, 0.016f, 0.48f), blade);
+                    b.Box(new Vector3(-0.028f, 0, 0.575f), new Vector3(0.038f, 0.016f, 0.09f), blade); // left prong
+                    b.Box(new Vector3(0.028f, 0, 0.575f), new Vector3(0.038f, 0.016f, 0.09f), blade);  // right prong
+                    b.Box(new Vector3(0, 0, 0.545f), new Vector3(0.018f, 0.016f, 0.05f), guard);        // void gap notch
+                    b.Box(Vector3.zero, new Vector3(0.20f, 0.036f, 0.040f), guard);
+                    b.Box(new Vector3(0, 0, -0.115f), new Vector3(0.046f, 0.046f, 0.19f), grip);
+                    b.Box(new Vector3(0, 0, -0.235f), new Vector3(0.08f, 0.08f, 0.05f), guard);        // heavy dark pommel
+                    break;
+                case RecipeId.Starforged: // celestial longsword — shares the void greatblade silhouette (custom mesh pending)
+                    b.Box(new Vector3(0, 0, 0.30f), new Vector3(0.085f, 0.016f, 0.48f), blade);
+                    b.Box(new Vector3(-0.028f, 0, 0.575f), new Vector3(0.038f, 0.016f, 0.09f), blade); // left prong
+                    b.Box(new Vector3(0.028f, 0, 0.575f), new Vector3(0.038f, 0.016f, 0.09f), blade);  // right prong
+                    b.Box(new Vector3(0, 0, 0.545f), new Vector3(0.018f, 0.016f, 0.05f), guard);        // void gap notch
+                    b.Box(Vector3.zero, new Vector3(0.20f, 0.036f, 0.040f), guard);
+                    b.Box(new Vector3(0, 0, -0.115f), new Vector3(0.046f, 0.046f, 0.19f), grip);
+                    b.Box(new Vector3(0, 0, -0.235f), new Vector3(0.08f, 0.08f, 0.05f), guard);        // heavy dark pommel
+                    break;
+                case RecipeId.Dragonsteel: // greatsword: wide blade, parry hooks, two-hand grip
+                    b.Box(new Vector3(0, 0, 0.30f), new Vector3(0.075f, 0.016f, 0.52f), blade);
+                    b.Box(new Vector3(0, 0, 0.575f), new Vector3(0.030f, 0.016f, 0.07f), blade);
+                    b.Box(new Vector3(-0.055f, 0, 0.09f), new Vector3(0.030f, 0.016f, 0.10f), guard); // left hook
+                    b.Box(new Vector3(0.055f, 0, 0.09f), new Vector3(0.030f, 0.016f, 0.10f), guard);  // right hook
+                    b.Box(Vector3.zero, new Vector3(0.19f, 0.034f, 0.038f), guard);
+                    b.Box(new Vector3(0, 0, -0.115f), new Vector3(0.045f, 0.045f, 0.19f), grip);
+                    b.Box(new Vector3(0, 0, -0.225f), new Vector3(0.075f, 0.075f, 0.045f), guard);   // heavy pommel
+                    break;
+                default: // Iron arming sword — the baseline shape
+                    b.Box(new Vector3(0, 0, 0.21f), new Vector3(0.055f, 0.014f, 0.36f), blade);
+                    b.Box(new Vector3(0, 0, 0.40f), new Vector3(0.026f, 0.014f, 0.05f), blade);
+                    b.Box(Vector3.zero, new Vector3(0.16f, 0.03f, 0.035f), guard);
+                    b.Box(new Vector3(0, 0, -0.07f), new Vector3(0.04f, 0.04f, 0.11f), grip);
+                    b.Box(new Vector3(0, 0, -0.145f), new Vector3(0.06f, 0.06f, 0.04f), guard);
+                    break;
+            }
             return SaveMesh(b, "Sword_" + recipeId + "_Blade");
         }
 

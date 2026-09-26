@@ -149,7 +149,8 @@ namespace IdleBlacksmith.Core
             {
                 BuildingDef def = Def(BuildingId.Mine);
                 if (def == null) return 0;
-                return def.oreCapacity * GetLevel(BuildingId.Mine);
+                // Perk text starts storage at level 2 ("Timbered Shaft — +25 ore storage").
+                return def.oreCapacity * Mathf.Max(0, GetLevel(BuildingId.Mine) - 1);
             }
         }
 
@@ -163,10 +164,22 @@ namespace IdleBlacksmith.Core
                 foreach (BuildingDef def in config.buildings)
                 {
                     if (def == null || def.customerIntervalCut == 0f) continue;
-                    int tiers = Mathf.Max(0, GetLevel(def.id) - Mathf.Max(1, def.startLevel));
-                    mult *= Mathf.Max(0.15f, 1f - def.customerIntervalCut * tiers);
+                    // The stall's pace perk already applies at level 1 — count levels owned.
+                    mult *= Mathf.Max(0.15f, 1f - def.customerIntervalCut * GetLevel(def.id));
                 }
                 return mult;
+            }
+        }
+
+        /// <summary>Multiplier on craft duration contributed by the Blast Furnace.</summary>
+        public float CraftSpeedMult
+        {
+            get
+            {
+                BuildingDef def = Def(BuildingId.Furnace);
+                if (def == null || def.craftSpeedCut == 0f) return 1f;
+                // "Brick Stack — forging 8% faster" is level 1's own perk.
+                return Mathf.Max(0.4f, 1f - def.craftSpeedCut * GetLevel(BuildingId.Furnace));
             }
         }
 
@@ -187,8 +200,8 @@ namespace IdleBlacksmith.Core
             {
                 BuildingDef def = Def(BuildingId.Gate);
                 if (def == null) return 1f;
-                int tiers = Mathf.Max(0, GetLevel(BuildingId.Gate) - Mathf.Max(1, def.startLevel));
-                return 1f + def.dungeonRewardBonus * tiers;
+                // Reward bonuses start at level 3 ("Deep Passage — +15% rewards").
+                return 1f + def.dungeonRewardBonus * Mathf.Max(0, GetLevel(BuildingId.Gate) - 2);
             }
         }
 
@@ -197,8 +210,9 @@ namespace IdleBlacksmith.Core
             get
             {
                 BuildingDef def = Def(BuildingId.Sanctum);
-                if (def == null) return 4;
-                return 4 + def.runeLevelsPerTier * GetLevel(BuildingId.Sanctum);
+                if (def == null) return 0;
+                // "Rune Circle — runes up to level 4" is level 1's perk; unbuilt means no runes.
+                return def.runeLevelsPerTier * GetLevel(BuildingId.Sanctum);
             }
         }
 
@@ -223,6 +237,7 @@ namespace IdleBlacksmith.Core
             Production.DungeonRewardMult *= DungeonRewardMult;
             Production.RuneMaxLevel = Mathf.Max(Production.RuneMaxLevel, RuneMaxLevel);
             Production.RuneCostMult *= RuneCostMult;
+            Production.CraftSpeedMult *= CraftSpeedMult;
         }
 
         public void WriteTo(SaveData d)

@@ -24,6 +24,8 @@ namespace IdleBlacksmith.Gameplay
         Vector3[] enterPath;
         Vector3[] leavePath;
         System.Action<CustomerController> onLeft;
+        float priceMult = 1f;
+        bool isVip;
 
         void Awake()
         {
@@ -34,12 +36,14 @@ namespace IdleBlacksmith.Gameplay
         }
 
         public void Init(SwordRack rackRef, Vector3[] enterWaypoints, Vector3[] leaveWaypoints,
-            System.Action<CustomerController> onGone)
+            System.Action<CustomerController> onGone, float payMult = 1f, bool vip = false)
         {
             rack = rackRef;
             enterPath = enterWaypoints;
             leavePath = leaveWaypoints;
             onLeft = onGone;
+            priceMult = payMult;
+            isVip = vip;
         }
 
         void Start() => StartCoroutine(Routine());
@@ -52,6 +56,10 @@ namespace IdleBlacksmith.Gameplay
                 foreach (Vector3 wp in enterPath)
                     yield return walker.MoveTo(wp, config.customerMoveSpeed);
 
+            if (isVip)
+                UIManager.Instance?.SpawnFloatingText(
+                    transform.position + Vector3.up * 2.2f, "VIP!", new Color(1f, 0.84f, 0.3f));
+
             if (rack != null) walker.FaceTowards(rack.transform.position);
             yield return new WaitForSeconds(0.35f);
 
@@ -60,14 +68,32 @@ namespace IdleBlacksmith.Gameplay
                 if (carriedSwordProp != null) carriedSwordProp.SetActive(true);
                 HappyHop();
 
-                int price = GameManager.Instance.PriceOf(item);
+                int price = Mathf.RoundToInt(GameManager.Instance.PriceOf(item) * priceMult);
                 GameManager.Instance.economy.AddGold(price);
                 GameManager.Instance.RegisterSale(item);
                 UIManager.Instance?.SpawnFloatingText(
-                    swordPos + Vector3.up * 0.4f, "+" + price, RarityInfo.TextColor(item.rarity));
+                    swordPos + Vector3.up * 0.4f,
+                    isVip ? "VIP +" + price : "+" + price,
+                    isVip ? new Color(1f, 0.86f, 0.3f) : RarityInfo.TextColor(item.rarity));
+                UIManager.Instance?.FlyCoin(swordPos);
                 AudioManager.Play("coin");
                 GameManager.Instance.Save();
                 yield return new WaitForSeconds(0.75f);
+            }
+            else
+            {
+                // Empty rack: they came for nothing — a deflated slump and a note in the
+                // stats so a bare shelf is felt, not just silently walked past.
+                GameManager gm = GameManager.Instance;
+                if (gm != null && gm.Data != null && gm.Data.stats != null)
+                    gm.Data.stats.customersTurnedAway++;
+                UIManager.Instance?.SpawnFloatingText(
+                    transform.position + Vector3.up * 2.0f, "Sold out!",
+                    new Color(0.95f, 0.62f, 0.52f));
+                AudioManager.Play("denied", 0.05f, 0.35f);
+                if (model != null)
+                    Tween.PunchScale(model, new Vector3(-0.05f, -0.09f, -0.05f), 0.4f);
+                yield return new WaitForSeconds(0.5f);
             }
 
             if (leavePath != null)
