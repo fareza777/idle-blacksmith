@@ -92,6 +92,7 @@ namespace IdleBlacksmith.UI
             if (gm.TryClaimExpedition(out ExpeditionDef claimed))
             {
                 AudioManager.Play("fanfare");
+                AudioManager.DuckMusic(0.55f);
                 Tween.PunchScale(transform, Vector3.one * 0.1f, 0.5f);
                 if (UIManager.Instance != null)
                     UIManager.Instance.SpawnFloatingText(

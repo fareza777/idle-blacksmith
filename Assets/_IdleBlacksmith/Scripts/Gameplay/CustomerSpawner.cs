@@ -79,6 +79,9 @@ namespace IdleBlacksmith.Gameplay
             current = go.GetComponent<CustomerController>();
             if (current == null) return;
 
+            // Shop bell on the door — the market chime doubles as a VIP flourish.
+            AudioManager.Play("market_chime", 0.05f, vip ? 0.55f : 0.3f, vip ? 0.85f : 1f);
+
             if (vip && config.customerPrefabC == null)
             {
                 var block = new MaterialPropertyBlock();

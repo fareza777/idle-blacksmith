@@ -80,7 +80,9 @@ namespace IdleBlacksmith.UI
                 if (relic > 0)
                     ui?.SpawnFloatingText(at + Vector3.up * 0.5f, "+" + relic + " relic ore", new Color(0.7f, 0.9f, 1f));
                 AudioManager.Play("fanfare", 0.04f, 0.85f);
+                AudioManager.DuckMusic(0.6f);
                 SettingsPanel.Buzz();
+                Gameplay.CameraDirector.Instance?.AddShake(0.35f);
                 ui?.FlashScreen(new Color(1f, 0.85f, 0.45f), 0.35f, 0.8f);
             }
             Close();
