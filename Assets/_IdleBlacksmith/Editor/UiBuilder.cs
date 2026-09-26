@@ -746,6 +746,14 @@ namespace IdleBlacksmith.EditorTools
                 },
                 new OnboardingPanel.Page
                 {
+                    art = LoadPageArt("page_market", "onboard_shop"),
+                    title = "Royal Contracts",
+                    body = "Noble patrons walk in with timed contracts — fill the order before the patron's "
+                         + "patience runs out and the pay is far above counter prices. Watch the banner "
+                         + "under the quest ticker: when it burns orange, the contract is nearly lost.",
+                },
+                new OnboardingPanel.Page
+                {
                     art = LoadPageArt("page_forge", "onboard_forge"),
                     title = "Look Around",
                     body = "Drag the yard to pan, pinch to zoom, and double-tap to snap back to the forge. "
